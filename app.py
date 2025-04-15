@@ -88,7 +88,7 @@ emotion_choice = st.multiselect(
     ["Angry", "Hopeful", "Skeptical", "Inspired", "Confused", "Indifferent"]
 )
 
-trust_rating = st.slider("How much do you trust this headline?", 1, 5, 3)
+trust_rating = st.slider("How much do you personally trust this headline?", 1, 5, 3)
 
 user_thoughts = st.text_area("Write your reflection (optional)", height=150)
 
