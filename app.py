@@ -1,3 +1,12 @@
+import praw
+
+# Replace with your actual Reddit app keys
+reddit = praw.Reddit(
+    client_id="MerkiHK2ZT5uN8Q2YllzmA",
+    client_secret="8loi3D1as5ghnrLtblG55o7taKCZMQ",
+    user_agent="agora-app by /u/Agreeable_Throat512"
+)
+
 import streamlit as st
 
 # Predefined emotions
