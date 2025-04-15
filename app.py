@@ -39,6 +39,9 @@ for post in posts:
         submission = reddit.submission(id=post.id)
         break
 
+if not comment.body or comment.body in ["[deleted]", "[removed]"]:
+    continue       
+
 if submission:
     submission.comments.replace_more(limit=0)
     comments = submission.comments[:30]
