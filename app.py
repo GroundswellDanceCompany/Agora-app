@@ -14,6 +14,19 @@ emotions = ["Angry", "Hopeful", "Skeptical", "Confused", "Inspired", "Indifferen
 
 st.title("Agora — Public Sentiment on Headlines")
 
+st.subheader("Top Headlines from Reddit")
+
+subreddit = st.selectbox("Choose subreddit:", ["news", "worldnews", "politics"])
+posts = reddit.subreddit(subreddit).hot(limit=10)
+
+headline_options = []
+for post in posts:
+    if not post.stickied:
+        headline_options.append(post.title)
+
+selected_headline = st.selectbox("Select a headline to reflect on:", headline_options)
+st.markdown(f"**Selected Headline:** {selected_headline}")
+
 # Example headline (replace with real data later)
 headline = "Climate Crisis Accelerates: UN Warns of Irreversible Damage"
 st.subheader(headline)
