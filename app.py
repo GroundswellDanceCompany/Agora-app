@@ -36,7 +36,7 @@ post_url = None
 for post in posts:
     if post.title == selected_headline:
         post_url = post.url
-        submission = reddit.submission(url=post.url)
+        submission = reddit.submission(id=post.id)
         break
 
 submission.comments.replace_more(limit=0)
