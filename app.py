@@ -79,6 +79,27 @@ for label in ["Positive", "Neutral", "Negative"]:
 
     for comment in emotion_groups[label][:3]:  # show only 3 per group
         st.markdown(f"- {comment}")
+
+st.markdown("---")
+st.subheader("Your Reflection")
+
+emotion_choice = st.multiselect(
+    "What emotions do you feel reading this headline and the comments?",
+    ["Angry", "Hopeful", "Skeptical", "Inspired", "Confused", "Indifferent"]
+)
+
+trust_rating = st.slider("How much do you trust this headline?", 1, 5, 3)
+
+user_thoughts = st.text_area("Write your reflection (optional)", height=150)
+
+if st.button("Submit Your Response"):
+    st.success("Thanks for adding your voice.")
+    st.write("### Your Response")
+    st.write(f"**Emotions:** {', '.join(emotion_choice)}")
+    st.write(f"**Trust Level:** {trust_rating}/5")
+    st.write(f"**Reflection:** {user_thoughts if user_thoughts else '—'}")
+
+    # You can later save this to a database or CSV
      
 # Optional: simple pie chart
 st.subheader("Visual Breakdown")
