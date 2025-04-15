@@ -43,26 +43,36 @@ if submission:
     submission.comments.replace_more(limit=0)
     comments = submission.comments[:30]
 
-    # Sentiment analysis
+    from collections import defaultdict
+
+    emotion_groups = defaultdict(list)
     emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
 
     for comment in comments:
-        analysis = TextBlob(comment.body)
+        text = comment.body
+        analysis = TextBlob(text)
         polarity = analysis.sentiment.polarity
 
         if polarity > 0.1:
-            emotion_counts["Positive"] += 1
+            label = "Positive"
         elif polarity < -0.1:
-            emotion_counts["Negative"] += 1
+            label = "Negative"
         else:
-            emotion_counts["Neutral"] += 1
+            label = "Neutral"
+
+        emotion_counts[label] += 1
+        emotion_groups[label].append(text)
 
     st.subheader("Public Sentiment Breakdown")
-    st.write(emotion_counts)
     st.bar_chart(emotion_counts)
+
+    st.subheader("Sample Comments by Emotion")
+    for label in ["Positive", "Neutral", "Negative"]:
+        st.markdown(f"**{label} ({emotion_counts[label]})**")
+        for comment_text in emotion_groups[label][:3]:
+            st.markdown(f"- {comment_text}")
 else:
     st.warning("Could not load comments for this post.")
-    st.subheader("Sample Comments by Emotion")
 
 for label in ["Positive", "Neutral", "Negative"]:
     st.markdown(f"**{label} ({emotion_counts[label]})**")
