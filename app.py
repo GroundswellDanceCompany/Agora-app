@@ -40,10 +40,10 @@ for post in posts:
         break
 
 if not comment.body or comment.body in ["[deleted]", "[removed]"]:
-    continue       
+   continue       
 
 if len(comment.body.split()) < 5:
-    continue
+   continue
 
 if submission:
     submission.comments.replace_more(limit=0)
