@@ -62,7 +62,14 @@ if submission:
     st.bar_chart(emotion_counts)
 else:
     st.warning("Could not load comments for this post.")
+    st.subheader("Sample Comments by Emotion")
 
+for label in ["Positive", "Neutral", "Negative"]:
+    st.markdown(f"**{label} ({emotion_counts[label]})**")
+
+    for comment in emotion_groups[label][:3]:  # show only 3 per group
+        st.markdown(f"- {comment}")
+     
 # Optional: simple pie chart
 st.subheader("Visual Breakdown")
 st.bar_chart(emotion_counts)
