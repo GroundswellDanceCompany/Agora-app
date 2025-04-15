@@ -40,7 +40,7 @@ if selected_headline:
 
     # --- Display headline clearly ---
     st.markdown("---")
-    st.markdown("## 📰 " + selected_headline)
+    st.markdown("## 🗞️ " + selected_headline)
 
     # --- Comment Filtering and Sentiment Analysis ---
     emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
