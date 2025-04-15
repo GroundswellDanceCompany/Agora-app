@@ -42,6 +42,9 @@ for post in posts:
 if not comment.body or comment.body in ["[deleted]", "[removed]"]:
     continue       
 
+if len(comment.body.split()) < 5:
+    continue
+
 if submission:
     submission.comments.replace_more(limit=0)
     comments = submission.comments[:30]
