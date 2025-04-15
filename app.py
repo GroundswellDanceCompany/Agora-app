@@ -32,32 +32,36 @@ st.subheader("Analyzing Reddit Comments...")
 
 # Search Reddit again to get the selected post's full object
 posts = reddit.subreddit(subreddit).hot(limit=10)
-post_url = None
+submission = None
+
 for post in posts:
     if post.title == selected_headline:
-        post_url = post.url
         submission = reddit.submission(id=post.id)
         break
 
-submission.comments.replace_more(limit=0)
-comments = submission.comments[:30]  # Take top 30 comments
+if submission:
+    submission.comments.replace_more(limit=0)
+    comments = submission.comments[:30]
 
-# Analyze sentiment
-emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
+    # Sentiment analysis
+    emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
 
-for comment in comments:
-    analysis = TextBlob(comment.body)
-    polarity = analysis.sentiment.polarity
+    for comment in comments:
+        analysis = TextBlob(comment.body)
+        polarity = analysis.sentiment.polarity
 
-    if polarity > 0.1:
-        emotion_counts["Positive"] += 1
-    elif polarity < -0.1:
-        emotion_counts["Negative"] += 1
-    else:
-        emotion_counts["Neutral"] += 1
+        if polarity > 0.1:
+            emotion_counts["Positive"] += 1
+        elif polarity < -0.1:
+            emotion_counts["Negative"] += 1
+        else:
+            emotion_counts["Neutral"] += 1
 
-st.markdown("### Public Sentiment Breakdown:")
-st.write(emotion_counts)
+    st.subheader("Public Sentiment Breakdown")
+    st.write(emotion_counts)
+    st.bar_chart(emotion_counts)
+else:
+    st.warning("Could not load comments for this post.")
 
 # Optional: simple pie chart
 st.subheader("Visual Breakdown")
