@@ -92,19 +92,6 @@ if selected_headline:
         if sum(emotion_counts.values()) == 0:
             st.warning("No comments passed the quality filter. Try another post or relax the filtering.")
 
-        blob = TextBlob(text)
-        polarity = blob.sentiment.polarity
-
-        if polarity > 0.1:
-            label = "Positive"
-        elif polarity < -0.1:
-            label = "Negative"
-        else:
-            label = "Neutral"
-
-        emotion_counts[label] += 1
-        emotion_groups[label].append(text)
-
     st.subheader("Reddit Sentiment Overview")
     st.bar_chart(emotion_counts)
 
