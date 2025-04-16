@@ -106,12 +106,19 @@ if selected_headline:
 
     for label in ["Positive", "Neutral", "Negative"]:
         emoji, color = emotion_style(label)
-        st.markdown(f"<h4 style='color:{color}'>{emoji} {label} ({emotion_counts[label]})</h4>", unsafe_allow_html=True)
+        for c in extras:
+            st.markdown(f"""
+        > {c['text']}
+        <span style='color:gray; font-size:0.85em'><i>{c['author']} • {c['created']}</i></span>
+        """, unsafe_allow_html=True)
 
         comments = emotion_groups[label]
         if comments:
             highlight = max(comments, key=lambda c: abs(c["score"]))
-            st.markdown(f"**⭐ Highlight:** {highlight['text']}  \n<small><i>{highlight['author']} • {highlight['created']}</i></small>", unsafe_allow_html=True)
+            st.markdown(f"""
+            **⭐ Highlight:** {highlight['text']}
+            <br><span style='color:gray; font-size:0.85em'><i>{highlight['author']} • {highlight['created']}</i></span>
+            """, unsafe_allow_html=True)
 
             extras = [c for c in comments if c != highlight][:2]
             for c in extras:
