@@ -90,11 +90,11 @@ if selected_headline:
         emotion_counts[label] += 1
         emotion_groups[label].append(text)
 
-        if sum(emotion_counts.values()) == 0:
-            st.warning("No comments passed the quality filter. Try another post or relax the filtering.")
-
     st.subheader("Reddit Sentiment Overview")
     st.bar_chart(emotion_counts)
+
+    if sum(emotion_counts.values()) == 0:
+            st.warning("No comments passed the quality filter. Try another post or relax the filtering.")
 
     st.caption(f"Filtered out {filtered_out} low-signal comments. Showing top 6 total.")
 
