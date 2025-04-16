@@ -66,19 +66,19 @@ if selected_headline:
     filtered_out = 0  # Track how many were filtered
 
     for comment in comments:
-    text = comment.body.strip()
-    blob = TextBlob(text)
-    polarity = blob.sentiment.polarity
+        text = comment.body.strip()
+        blob = TextBlob(text)
+        polarity = blob.sentiment.polarity
 
-    if polarity > 0.1:
-        label = "Positive"
-    elif polarity < -0.1:
-        label = "Negative"
-    else:
-        label = "Neutral"
+        if polarity > 0.1:
+            label = "Positive"
+        elif polarity < -0.1:
+            label = "Negative"
+        else:
+            label = "Neutral"
 
-    emotion_counts[label] += 1
-    emotion_groups[label].append(text)
+        emotion_counts[label] += 1
+        emotion_groups[label].append(text)
 
         st.write(f"Total comments pulled from Reddit: {len(comments)}")
 
