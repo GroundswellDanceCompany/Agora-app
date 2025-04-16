@@ -71,11 +71,11 @@ if selected_headline:
     st.write(f"Total comments pulled from Reddit: {len(comments)}")
 
     def emotion_emoji(label):
-    return {
-        "Positive": "😊",
-        "Neutral": "😐",
-        "Negative": "😠"
-    }.get(label, "❓")
+        return {
+            "Positive": "😊",
+            "Neutral": "😐",
+            "Negative": "😠"
+        }.get(label, "❓")
     
     for comment in comments:
         text = comment.body.strip()
