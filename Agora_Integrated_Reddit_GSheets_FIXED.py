@@ -102,29 +102,37 @@ if selected_headline:
             "created": datetime.utcfromtimestamp(comment.created_utc).strftime("%Y-%m-%d %H:%M")
         })
 
-    st.subheader("Sample Reddit Comments by Emotion")
+    st.subheader("Sentiment Threads")
 
     for label in ["Positive", "Neutral", "Negative"]:
         emoji, color = emotion_style(label)
-        for c in extras:
-            st.markdown(f"""
-        > {c['text']}
-        <span style='color:gray; font-size:0.85em'><i>{c['author']} • {c['created']}</i></span>
-        """, unsafe_allow_html=True)
+        colour_block {
+            "positive": "
+        
+        }.get(label, "🗂")
+
+        st.markdown(f"<h3 style='color:{color}'>{color_block} {label.upper()} ({emotion_counts[label]})</h3>", unsafe_allow_html=True)
 
         comments = emotion_groups[label]
         if comments:
             highlight = max(comments, key=lambda c: abs(c["score"]))
             st.markdown(f"""
-            **⭐ Highlight:** {highlight['text']}
-            <br><span style='color:gray; font-size:0.85em'><i>{highlight['author']} • {highlight['created']}</i></span>
-            """, unsafe_allow_html=True)
+    <div style="border-left: 4px solid {color}; padding: 0.5em 1em; background-color: #f9f9f9; margin-bottom: 10px;">
+        <strong>⭐ Highlight:</strong> {highlight['text']}
+        <br><span style='color:gray; font-size:0.8em'><i>{highlight['author']} • {highlight['created']} • Sentiment: {highlight['score']}</i></span>
+    </div>
+    """, unsafe_allow_html=True)
 
             extras = [c for c in comments if c != highlight][:2]
             for c in extras:
-                st.markdown(f"> {c['text']}  \n<i>{c['author']} • {c['created']}</i>")
+                st.markdown(f"""
+    <div style="margin-bottom: 8px;">
+        <blockquote style="margin: 0; padding-left: 10px; border-left: 2px solid #ccc;">{c['text']}</blockquote>
+        <span style='color:gray; font-size:0.75em'><i>{c['author']} • {c['created']} • Sentiment: {c['score']}</i></span>
+    </div>
+    """, unsafe_allow_html=True)
         else:
-            st.markdown("_No comments found for this emotion._")
+            st.markdown("<i>No comments found for this emotion.</i>", unsafe_allow_html=True)
 
     if sum(emotion_counts.values()) == 0:
             st.warning("No comments passed the quality filter. Try another post or relax the filtering.")
