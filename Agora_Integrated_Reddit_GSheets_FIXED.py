@@ -74,7 +74,7 @@ if selected_headline:
         text = comment.body.strip()
 
         if not text or len(text) < 10:
-        continue
+            continue
         
         blob = TextBlob(text)
         polarity = blob.sentiment.polarity
