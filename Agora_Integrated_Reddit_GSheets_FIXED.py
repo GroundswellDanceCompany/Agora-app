@@ -92,6 +92,16 @@ if selected_headline:
 
     st.subheader("Reddit Sentiment Overview")
     st.bar_chart(emotion_counts)
+    st.subheader("Sample Reddit Comments by Emotion")
+
+    for label in ["Positive", "Neutral", "Negative"]:
+        st.markdown(f"**{label} ({emotion_counts[label]})**")
+
+        if emotion_groups[label]:
+            for comment in emotion_groups[label][:2]:
+                st.markdown(f"- {comment}")
+        else:
+            st.markdown("_No comments found for this emotion._")
 
     if sum(emotion_counts.values()) == 0:
             st.warning("No comments passed the quality filter. Try another post or relax the filtering.")
