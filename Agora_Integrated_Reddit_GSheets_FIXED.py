@@ -110,7 +110,7 @@ if selected_headline:
 
         comments = emotion_groups[label]
         if comments:
-            highlight = max(comments, key=lambda c: abs(TextBlob(c).sentiment.polarity))
+            highlight = max(comments, key=lambda c: abs(c["score"]))
             st.markdown(f"<b>⭐ Highlight:</b> {highlight}", unsafe_allow_html=True)
 
             extras = [c for c in comments if c != highlight][:2]
