@@ -129,9 +129,12 @@ if selected_headline:
             st.markdown(f"**Reflection:** {row['reflection']}")
             st.caption(f"{row['timestamp']}")
 
-            replies = all_replies[all_replies["reflection_id"] == row["reflection_id"]]
-            for _, reply in replies.iterrows():
-                st.markdown(f"↳ _{reply['reply']}_ — {reply['timestamp']}")
+            if "reflection_id" in all_replies.columns:
+                replies = all_replies[all_replies["reflection_id"] == row["reflection_id"]]
+                for _, reply in replies.iterrows():
+                    st.markdown(f"↳ _{reply.get('reply', '')}_ — {reply.get('timestamp', '')}")
+            else:
+                st.warning("No replies found or missing 'reflection_id' column.")
 
             with st.form(key=f"reply_form_{row['reflection_id']}"):
                 reply_text = st.text_input("Reply to this reflection:", key=f"r_{row['reflection_id']}")
