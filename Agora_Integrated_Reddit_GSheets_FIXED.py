@@ -111,11 +111,11 @@ if selected_headline:
         comments = emotion_groups[label]
         if comments:
             highlight = max(comments, key=lambda c: abs(c["score"]))
-            st.markdown(f"<b>⭐ Highlight:</b> {highlight}", unsafe_allow_html=True)
+            st.markdown(f"**⭐ Highlight:** {highlight['text']}  \n<small><i>{highlight['author']} • {highlight['created']}</i></small>", unsafe_allow_html=True)
 
             extras = [c for c in comments if c != highlight][:2]
-            for comment in extras:
-                st.markdown(f"<blockquote>{comment}</blockquote>", unsafe_allow_html=True)
+            for c in extras:
+                st.markdown(f"> {c['text']}  \n<i>{c['author']} • {c['created']}</i>")
         else:
             st.markdown("_No comments found for this emotion._")
 
