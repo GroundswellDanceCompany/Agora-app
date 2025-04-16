@@ -56,6 +56,9 @@ if selected_headline:
     submission = reddit.submission(id=post.id)
     submission.comments.replace_more(limit=0)
     comments = submission.comments[:30]
+    st.write("Sample comment preview:")
+    for c in comments[:5]:
+        st.write(c.body[:120])
 
     st.markdown("## 📰 " + selected_headline)
 
@@ -69,6 +72,10 @@ if selected_headline:
     
     for comment in comments:
         text = comment.body.strip()
+
+        if not text or len(text) < 10:
+        continue
+        
         blob = TextBlob(text)
         polarity = blob.sentiment.polarity
 
