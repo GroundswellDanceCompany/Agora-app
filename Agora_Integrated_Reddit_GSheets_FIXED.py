@@ -63,13 +63,18 @@ if selected_headline:
     emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
     emotion_groups = defaultdict(list)
 
+    filtered_out = 0  # Track how many were filtered
+
     for comment in comments:
-        if not comment.body or comment.body in ["[deleted]", "[removed]"]:
+        text = comment.body.strip()
+        if not text or text in ["[deleted]", "[removed]"]:
+            filtered_out += 1
             continue
-        if len(comment.body.split()) < 5 or "http" in comment.body:
+        if len(text.split()) < 5 or "http" in text or "bot" in text.lower():
+            filtered_out += 1
             continue
 
-        blob = TextBlob(comment.body)
+        blob = TextBlob(text)
         polarity = blob.sentiment.polarity
 
         if polarity > 0.1:
@@ -80,16 +85,12 @@ if selected_headline:
             label = "Neutral"
 
         emotion_counts[label] += 1
-        emotion_groups[label].append(comment.body)
+        emotion_groups[label].append(text)
 
     st.subheader("Reddit Sentiment Overview")
     st.bar_chart(emotion_counts)
 
-    st.subheader("Sample Reddit Comments by Emotion")
-    for label in ["Positive", "Neutral", "Negative"]:
-        st.markdown(f"**{label} ({emotion_counts[label]})**")
-        for comment in emotion_groups[label][:2]:
-            st.markdown(f"- {comment}")
+    st.caption(f"Filtered out {filtered_out} low-signal comments. Showing top 6 total.")
 
     # --- User Reflection Input ---
     st.markdown("---")
