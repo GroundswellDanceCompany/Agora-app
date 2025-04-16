@@ -70,7 +70,7 @@ if selected_headline:
         if not text or text in ["[deleted]", "[removed]"]:
             filtered_out += 1
             continue
-        if len(text.split()) < 5 or "http" in text or "bot" in text.lower():
+        if len(text.split()) < 3 or "http" in text or "bot" in text.lower():
             filtered_out += 1
             continue
 
