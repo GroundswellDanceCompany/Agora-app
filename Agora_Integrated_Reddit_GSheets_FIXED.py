@@ -74,6 +74,7 @@ if selected_headline:
         text = comment.body.strip()
 
         if not text or len(text) < 10:
+            filtered_out += 1
             continue
         
         blob = TextBlob(text)
