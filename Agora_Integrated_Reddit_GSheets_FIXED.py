@@ -66,13 +66,21 @@ if selected_headline:
     filtered_out = 0  # Track how many were filtered
 
     for comment in comments:
-        text = comment.body.strip()
-        if not text or text in ["[deleted]", "[removed]"]:
-            filtered_out += 1
-            continue
-        if len(text.split()) < 3 or "http" in text or "bot" in text.lower():
-            filtered_out += 1
-            continue
+    text = comment.body.strip()
+    blob = TextBlob(text)
+    polarity = blob.sentiment.polarity
+
+    if polarity > 0.1:
+        label = "Positive"
+    elif polarity < -0.1:
+        label = "Negative"
+    else:
+        label = "Neutral"
+
+    emotion_counts[label] += 1
+    emotion_groups[label].append(text)
+
+        st.write(f"Total comments pulled from Reddit: {len(comments)}")
 
         if sum(emotion_counts.values()) == 0:
             st.warning("No comments passed the quality filter. Try another post or relax the filtering.")
