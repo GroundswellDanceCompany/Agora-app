@@ -69,6 +69,13 @@ if selected_headline:
     filtered_out = 0  # Track how many were filtered
 
     st.write(f"Total comments pulled from Reddit: {len(comments)}")
+
+    def emotion_emoji(label):
+    return {
+        "Positive": "😊",
+        "Neutral": "😐",
+        "Negative": "😠"
+    }.get(label, "❓")
     
     for comment in comments:
         text = comment.body.strip()
@@ -90,16 +97,22 @@ if selected_headline:
         emotion_counts[label] += 1
         emotion_groups[label].append(text)
 
-    st.subheader("Reddit Sentiment Overview")
-    st.bar_chart(emotion_counts)
     st.subheader("Sample Reddit Comments by Emotion")
 
     for label in ["Positive", "Neutral", "Negative"]:
-        st.markdown(f"**{label} ({emotion_counts[label]})**")
+        emoji = emotion_emoji(label)
+        st.markdown(f"### {emoji} {label} ({emotion_counts[label]})")
 
-        if emotion_groups[label]:
-            for comment in emotion_groups[label][:2]:
-                st.markdown(f"- {comment}")
+        comments = emotion_groups[label]
+        if comments:
+            # Highlight the strongest comment
+            highlight = max(comments, key=lambda c: abs(TextBlob(c).sentiment.polarity))
+            st.markdown(f"**⭐ {highlight}**")
+
+            # Show up to 2 more, slightly dimmed
+            extras = [c for c in comments if c != highlight][:2]
+            for comment in extras:
+                st.markdown(f"> {comment}")
         else:
             st.markdown("_No comments found for this emotion._")
 
