@@ -70,12 +70,12 @@ if selected_headline:
 
     st.write(f"Total comments pulled from Reddit: {len(comments)}")
 
-    def emotion_emoji(label):
+    def emotion_style(label):
         return {
-            "Positive": "😊",
-            "Neutral": "😐",
-            "Negative": "😠"
-        }.get(label, "❓")
+            "Positive": ("😊", "green"),
+            "Neutral": ("😐", "gray"),
+            "Negative": ("😠", "red")
+        }.get(label, ("❓", "blue"))
     
     for comment in comments:
         text = comment.body.strip()
@@ -95,24 +95,27 @@ if selected_headline:
             label = "Neutral"
 
         emotion_counts[label] += 1
-        emotion_groups[label].append(text)
+        emotion_groups[label].append({
+            "text": text,
+            "score": round(polarity, 3),
+            "author": str(comment.author),
+            "created": datetime.utcfromtimestamp(comment.created_utc).strftime("%Y-%m-%d %H:%M")
+        })
 
     st.subheader("Sample Reddit Comments by Emotion")
 
     for label in ["Positive", "Neutral", "Negative"]:
-        emoji = emotion_emoji(label)
-        st.markdown(f"### {emoji} {label} ({emotion_counts[label]})")
+        emoji, color = emotion_style(label)
+        st.markdown(f"<h4 style='color:{color}'>{emoji} {label} ({emotion_counts[label]})</h4>", unsafe_allow_html=True)
 
         comments = emotion_groups[label]
         if comments:
-            # Highlight the strongest comment
             highlight = max(comments, key=lambda c: abs(TextBlob(c).sentiment.polarity))
-            st.markdown(f"**⭐ {highlight}**")
+            st.markdown(f"<b>⭐ Highlight:</b> {highlight}", unsafe_allow_html=True)
 
-            # Show up to 2 more, slightly dimmed
             extras = [c for c in comments if c != highlight][:2]
             for comment in extras:
-                st.markdown(f"> {comment}")
+                st.markdown(f"<blockquote>{comment}</blockquote>", unsafe_allow_html=True)
         else:
             st.markdown("_No comments found for this emotion._")
 
