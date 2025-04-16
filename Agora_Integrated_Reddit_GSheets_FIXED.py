@@ -74,6 +74,9 @@ if selected_headline:
             filtered_out += 1
             continue
 
+        if sum(emotion_counts.values()) == 0:
+            st.warning("No comments passed the quality filter. Try another post or relax the filtering.")
+
         blob = TextBlob(text)
         polarity = blob.sentiment.polarity
 
