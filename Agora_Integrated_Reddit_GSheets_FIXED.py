@@ -106,9 +106,10 @@ if selected_headline:
 
     for label in ["Positive", "Neutral", "Negative"]:
         emoji, color = emotion_style(label)
-        colour_block {
-            "positive": "
-        
+        colour_block = {
+            "Positive": "😊"
+            "Neutral": "😐"
+            "Negative": "😠"
         }.get(label, "🗂")
 
         st.markdown(f"<h3 style='color:{color}'>{color_block} {label.upper()} ({emotion_counts[label]})</h3>", unsafe_allow_html=True)
