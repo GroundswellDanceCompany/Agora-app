@@ -107,8 +107,8 @@ if selected_headline:
     for label in ["Positive", "Neutral", "Negative"]:
         emoji, color = emotion_style(label)
         colour_block = {
-            "Positive": "😊"
-            "Neutral": "😐"
+            "Positive": "😊",
+            "Neutral": "😐",
             "Negative": "😠"
         }.get(label, "🗂")
 
