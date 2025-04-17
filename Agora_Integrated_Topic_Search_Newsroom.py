@@ -176,6 +176,25 @@ if selected_headline:
 </div>
 """, unsafe_allow_html=True)
 
+                highlight_id = str(hash(highlight["text"]))[:8]
+
+                reaction = st.radio(
+                    "React to this highlighted comment:",
+                    ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"],
+                    key=f"highlight_reaction_{highlight_id}",
+                    horizontal=True
+                )
+
+                if reaction:
+                    emoji = reaction_emojis.get(reaction, "")
+                    st.success(f"You reacted: {emoji} {reaction}")
+                    reaction_ws.append_row([
+                        selected_headline,
+                        highlight["text"][:100],
+                        reaction,
+                        datetime.utcnow().isoformat()
+                    ])
+
                 extras = [c for c in comments if c != highlight][:2]
                 for c in extras:
                     comment_id = str(hash(c['text']))[:8]  # Creates a short unique ID
