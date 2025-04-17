@@ -113,6 +113,13 @@ if selected_headline:
             "Negative": ("😠", "red")
         }.get(label, ("❓", "blue"))
 
+    reaction_emojis = {
+    "Angry": "😡",
+    "Sad": "😢",
+    "Hopeful": "🌈",
+    "Confused": "😕",
+    "Neutral": "😐"
+
     emotion_icons = {
         "Positive": "🟢 😊",
         "Neutral": "⚪️ 😐",
@@ -169,12 +176,25 @@ if selected_headline:
 
                 extras = [c for c in comments if c != highlight][:2]
                 for c in extras:
+                    comment_id = str(hash(c['text']))[:8]  # Creates a short unique ID
+
                     st.markdown(f"""
-<div style="margin-bottom: 8px;">
-    <blockquote style="margin: 0; padding-left: 10px; border-left: 2px solid #444;">{c['text']}</blockquote>
-    <span style='color:gray; font-size:0.75em'><i>{c['author']} • {c['created']} • Sentiment: {c['score']}</i></span>
-</div>
-""", unsafe_allow_html=True)
+                    <blockquote>{c['text']}</blockquote>
+                    <span style='color:gray; font-size:0.75em'><i>{c['author']} • {c['created']} • Sentiment: {c['score']}</i></span>
+                    """, unsafe_allow_html=True)
+
+                    reaction = st.radio(
+                        "React emotionally:",
+                        ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"],
+                        key=f"reaction_{comment_id}",
+                        horizontal=True
+                    )
+
+                    if reaction:
+                        emoji = reaction_emojis.get(reaction, "")
+                        st.success(f"You reacted: {emoji} {reaction}")
+                        # Here you could store to Google Sheets if desired
+            
             else:
                 st.markdown("<i>No comments found for this emotion.</i>", unsafe_allow_html=True)
 
