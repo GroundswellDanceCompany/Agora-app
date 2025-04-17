@@ -49,6 +49,7 @@ sheet = client.open("AgoraData")
 reflections_ws = sheet.worksheet("Reflections")
 replies_ws = sheet.worksheet("Replies")
 reaction_ws = sheet.worksheet("CommentReactions")
+summary_ws = sheet.worksheet("Summaries")
 
 def load_reflections():
     return pd.DataFrame(reflections_ws.get_all_records())
