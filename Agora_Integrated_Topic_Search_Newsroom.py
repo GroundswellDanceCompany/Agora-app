@@ -65,6 +65,21 @@ if topic:
                     search_results.append(post)
         except Exception:
             continue
+
+page_size = 5
+total_pages = len(headline_options) // page_size + int(len(headline_options) % page_size > 0)
+
+if total_pages > 1:
+    page = st.number_input("Page", min_value=1, max_value=total_pages, step=1)
+else:
+    page = 1
+
+start = (page - 1) * page_size
+end = start + page_size
+paged_headlines = headline_options[start:end]
+
+st.caption(f"Showing {start+1} to {min(end, len(headline_options))} of {len(headline_options)} results")
+
 else:
     subreddit = st.selectbox("Choose subreddit:", ["news", "worldnews", "politics"])
     posts = reddit.subreddit(subreddit).hot(limit=15)
@@ -73,7 +88,7 @@ else:
             headline_options.append(post.title)
             post_dict[post.title] = post
 
-selected_headline = st.selectbox("Select a headline to reflect on:", headline_options)
+selected_headline = st.radio("Select a headline to reflect on:", paged_headlines)
 
 if selected_headline:
     post = post_dict[selected_headline]
