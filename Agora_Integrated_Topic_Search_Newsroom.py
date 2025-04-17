@@ -114,11 +114,13 @@ if selected_headline:
         }.get(label, ("❓", "blue"))
 
     reaction_emojis = {
-    "Angry": "😡",
-    "Sad": "😢",
-    "Hopeful": "🌈",
-    "Confused": "😕",
-    "Neutral": "😐"
+         "Angry": "😡",
+         "Sad": "😢",
+         "Hopeful": "🌈",
+         "Confused": "😕",
+         "Neutral": "😐"
+    }
+        
 
     emotion_icons = {
         "Positive": "🟢 😊",
