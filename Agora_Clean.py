@@ -7,6 +7,10 @@ import gspread
 from google.oauth2.service_account import Credentials
 from datetime import datetime
 import uuid
+import openai
+from agora_ai_summary_module import generate_ai_summary
+
+openai.api_key = st.secrets["openai"]["api_key"]
 
 # --- Google Sheets Auth ---
 SCOPE = ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/spreadsheets"]
@@ -155,6 +159,11 @@ if selected_headline:
     else:
         st.subheader("Reddit Sentiment Overview")
         st.bar_chart(emotion_counts)
+        # --- AI Summary ---
+    with st.spinner("Generating AI insight..."):
+        summary = generate_ai_summary(selected_headline, emotion_groups)
+        st.markdown("### Agora AI Summary")
+        st.info(summary)
         st.caption(f"Filtered out {filtered_out} low-signal comments.")
         st.subheader("Sentiment Threads")
 
