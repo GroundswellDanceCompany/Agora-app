@@ -4,3 +4,4 @@ pandas
 google-auth
 praw
 textblob
+openai
