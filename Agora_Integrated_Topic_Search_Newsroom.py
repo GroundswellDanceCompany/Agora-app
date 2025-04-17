@@ -19,6 +19,7 @@ client = gspread.authorize(creds)
 sheet = client.open("AgoraData")
 reflections_ws = sheet.worksheet("Reflections")
 replies_ws = sheet.worksheet("Replies")
+reaction_ws = sheet.worksheet("CommentReactions")
 
 def load_reflections():
     return pd.DataFrame(reflections_ws.get_all_records())
@@ -215,6 +216,13 @@ if selected_headline:
                         emoji = reaction_emojis.get(reaction, "")
                         st.success(f"You reacted: {emoji} {reaction}")
                         # Here you could store to Google Sheets if desired
+            
+                    reaction_ws.append_row([
+                        selected_headline,
+                        c["text"][:100],   # first 100 characters of comment
+                        reaction,
+                        datetime.utcnow().isoformat()
+                    ])
             
             else:
                 st.markdown("<i>No comments found for this emotion.</i>", unsafe_allow_html=True)
