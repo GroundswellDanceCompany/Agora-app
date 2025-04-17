@@ -54,6 +54,7 @@ selected_headline = st.selectbox("Select a headline to reflect on:", headline_op
 
 if selected_headline:
     post = post_dict[selected_headline]
+    st.markdown(f"## 📰 {selected_headline}")
     submission = reddit.submission(id=post.id)
     submission.comments.replace_more(limit=0)
     comments = submission.comments[:30]
@@ -119,7 +120,7 @@ if selected_headline:
             if comments:
                 highlight = max(comments, key=lambda c: abs(c["score"]))
                 st.markdown(f'''
-<div style="border-left: 4px solid {color}; padding: 0.5em 1em; background-color: #f9f9f9; margin-bottom: 10px;">
+<div style="border-left: 4px solid {color}; padding: 0.5em 1em; background-color: #222; color: white; margin-bottom: 10px;">
     <strong>⭐ Highlight:</strong> {highlight['text']}
     <br><span style='color:gray; font-size:0.8em'><i>{highlight['author']} • {highlight['created']} • Sentiment: {highlight['score']}</i></span>
 </div>
@@ -129,7 +130,7 @@ if selected_headline:
                 for c in extras:
                     st.markdown(f'''
 <div style="margin-bottom: 8px;">
-    <blockquote style="margin: 0; padding-left: 10px; border-left: 2px solid #ccc;">{c['text']}</blockquote>
+    <blockquote style="margin: 0; padding-left: 10px; border-left: 2px solid #444;">{c['text']}</blockquote>
     <span style='color:gray; font-size:0.75em'><i>{c['author']} • {c['created']} • Sentiment: {c['score']}</i></span>
 </div>
 ''', unsafe_allow_html=True)
