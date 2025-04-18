@@ -148,13 +148,28 @@ if view_mode == "Live View":
             })
 
         if sum(emotion_counts.values()) == 0:
-            st.warning("No comments passed the quality filter. Try another post or relax the filtering.")
+            st.warning("No comments passed the quality filter.")
         else:
-            if not just_comments:
+            if just_comments:
+                # Show only basic grouped comments by sentiment
+                st.subheader("Reddit Comments by Sentiment")
+                for label in ["Positive", "Neutral", "Negative"]:
+                    emoji, color = emoji_map[label]
+                    st.markdown(f"<h3 style='color:{color}'>{emoji} {label}</h3>", unsafe_allow_html=True)
+                    group = emotion_groups[label]
+                    if group:
+                        for c in group[:5]:
+                            st.markdown(f"- {c['text']}")
+                    else:
+                        st.markdown(f"_No {label.lower()} comments._")
+            else:
+                # Full experience: AI + bar chart + highlight + reactions
                 with st.spinner("Generating AI insight..."):
                     summary = generate_ai_summary(selected_headline, emotion_groups)
                     st.markdown("### Agora AI Summary")
                     st.info(summary)
+
+        # Continue with sentiment chart, highlight, reaction inputs, etc.
 
             # Display sentiment overview and top comments per group
             st.subheader("Reddit Sentiment Overview")
