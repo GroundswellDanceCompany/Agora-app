@@ -74,7 +74,11 @@ curated_subreddits = [
 
 # --- UI Layout ---
 st.title("Agora — Live Public Sentiment")
-with st.expander("What is Agora?"):
+if "show_about" not in st.session_state:
+    st.session_state.show_about = True
+
+with st.expander("What is Agora?", expanded=st.session_state.show_about):
+    st.session_state.show_about = False  # Collapse on future interactions
     st.markdown("""
 **Agora** is a space for exploring public sentiment on the news — powered by Reddit comments, AI summaries, and community reflections.
 
