@@ -22,10 +22,10 @@ def generate_ai_summary(headline, grouped_comments):
     prompt += "\nSummarize public sentiment in 2-3 sentences. Capture emotional tone, major concerns, and common hopes. Be neutral and insightful."
 
     try:
-        client = openai.OpenAI(api_key=st.secrets["openai"]["api_key"])
+        openai.api_key = st.secrets["openai"]["api_key"]
 
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",  # or "gpt-3.5-turbo"
+        response = openai.ChatCompletion.create(
+            model="gpt-4",  # or "gpt-3.5-turbo"
             messages=[
                 {"role": "system", "content": "You are a news analyst summarizing public emotional sentiment."},
                 {"role": "user", "content": prompt}
@@ -33,7 +33,7 @@ def generate_ai_summary(headline, grouped_comments):
             max_tokens=250,
             temperature=0.7,
         )
-        return response.choices[0].message.content.strip()
+        return response["choices"][0]["message"]["content"].strip()
 
     except Exception as e:
         return f"Could not generate summary: {str(e)}"
