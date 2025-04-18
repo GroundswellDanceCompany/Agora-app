@@ -24,14 +24,6 @@ with placeholder.container():
 # Clear the placeholder after delay
 placeholder.empty()
 
-
-# Display banner loading screen
-with st.empty():
-    banner = Image.open("Agora-image.png")
-    st.image(banner, use_column_width=True)
-    st.markdown("<h4 style='text-align: center;'>Loading Agora...</h4>", unsafe_allow_html=True)
-    time.sleep(2)  # 2-second delay
-
 # --- AI Summary using OpenAI >=1.0.0 format ---
 def generate_ai_summary(headline, grouped_comments):
     prompt = f"Headline: {headline}\n"
