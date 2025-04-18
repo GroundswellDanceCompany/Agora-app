@@ -143,13 +143,39 @@ if view_mode == "Live View":
             })
 
         if sum(emotion_counts.values()) == 0:
-            st.warning("No comments passed the quality filter.")
+            st.warning("No comments passed the quality filter. Try another post or relax the filtering.")
         else:
-            if not just_comments:
+            if just_comments:
+                st.subheader("Reddit Comments by Sentiment")
+
+                def emotion_style(label):
+                    return {
+                        "Positive": ("😊", "green"),
+                        "Neutral": ("😐", "gray"),
+                        "Negative": ("😠", "red")
+                    }.get(label, ("❓", "blue"))
+
+                for label in ["Positive", "Neutral", "Negative"]:
+                    emoji, color = emotion_style(label)
+                    st.markdown(f"<h3 style='color:{color}'>{emoji} {label}</h3>", unsafe_allow_html=True)
+
+                    group = emotion_groups[label]
+                    if group:
+                        for c in group[:5]:  # Show top 5 per category
+                            st.markdown(f"""
+                            <blockquote>{c['text']}</blockquote>
+                            <span style='color:gray; font-size:0.75em'><i>{c['author']} • {c['created']} • Sentiment: {c['score']}</i></span>
+                            """, unsafe_allow_html=True)
+                    else:
+                        st.markdown("<i>No comments found for this category.</i>", unsafe_allow_html=True)
+
+            else:
                 with st.spinner("Generating AI insight..."):
                     summary = generate_ai_summary(selected_headline, emotion_groups)
                     st.markdown("### Agora AI Summary")
                     st.info(summary)
+
+                render_sentiment_section(selected_headline, comments, emotion_counts, emotion_groups, filtered_out)
 
             # Sentiment Display
             st.subheader("Reddit Sentiment Overview")
