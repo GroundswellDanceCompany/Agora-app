@@ -5,7 +5,9 @@ from collections import defaultdict
 import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
-from datetime import datetime, timedelta
+from datetime import datetime, timezone
+
+datetime.fromtimestamp(comment.created_utc, tz=timezone.utc).strftime("%Y-%m-%d %H:%M")
 import uuid
 from openai import OpenAI
 import time
