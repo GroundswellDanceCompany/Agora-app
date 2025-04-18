@@ -11,6 +11,20 @@ from openai import OpenAI
 import time
 from PIL import Image
 
+# Create a placeholder
+placeholder = st.empty()
+
+# Display loading banner inside placeholder
+with placeholder.container():
+    banner = Image.open("agora_banner.png")  # make sure name matches your file
+    st.image(banner, use_column_width=True)
+    st.markdown("<h4 style='text-align: center;'>Loading Agora...</h4>", unsafe_allow_html=True)
+    time.sleep(2)  # wait 2 seconds
+
+# Clear the placeholder after delay
+placeholder.empty()
+
+
 # Display banner loading screen
 with st.empty():
     banner = Image.open("Agora-image.png")
