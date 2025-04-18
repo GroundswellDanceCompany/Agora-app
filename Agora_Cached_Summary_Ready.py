@@ -25,7 +25,7 @@ def generate_ai_summary(headline, grouped_comments):
         client = openai.OpenAI(api_key=st.secrets["openai"]["api_key"])
 
         response = client.chat.completions.create(
-            model="gpt-4",  # or "gpt-3.5-turbo"
+            model="gpt-3.5-turbo",  # or "gpt-3.5-turbo"
             messages=[
                 {"role": "system", "content": "You are a news analyst summarizing public emotional sentiment."},
                 {"role": "user", "content": prompt}
