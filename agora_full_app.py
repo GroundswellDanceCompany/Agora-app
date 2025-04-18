@@ -158,7 +158,6 @@ if view_mode == "Live View":
                     "Neutral": ("⚪️ 😐", "gray"),
                     "Negative": ("🔴 😠", "red")
                 }
-}
                 for label in ["Positive", "Neutral", "Negative"]:
                     emoji, color = emoji_map[label]
                     st.markdown(f"<h3 style='color:{color}'>{emoji} {label}</h3>", unsafe_allow_html=True)
