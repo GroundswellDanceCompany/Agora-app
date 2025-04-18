@@ -22,8 +22,7 @@ with placeholder.container():
 
 # --- OpenAI Summary ---
 def generate_ai_summary(headline, grouped_comments):
-    prompt = f"Headline: {headline}
-"
+    prompt = f"Headline: {headline}"
     for label, comments in grouped_comments.items():
         prompt += f"\n{label} Comments:\n"
         for c in comments[:2]:
