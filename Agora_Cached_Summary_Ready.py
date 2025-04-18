@@ -77,7 +77,7 @@ st.title("Agora — Live Public Sentiment")
 if "show_about" not in st.session_state:
     st.session_state.show_about = True
 
-with st.expander("What is Agora?", expanded=st.session_state.show_about):
+with st.expander("🌎 What is Agora?", expanded=st.session_state.show_about):
     st.session_state.show_about = False  # Collapse on future interactions
     st.markdown("""
 **Agora** is a space for exploring public sentiment on the news — powered by Reddit comments, AI summaries, and community reflections.
@@ -88,7 +88,10 @@ with st.expander("What is Agora?", expanded=st.session_state.show_about):
 - Reflect and respond — or just observe the emotional pulse of the internet.
 
 **Why Agora?**  
-Named after the ancient Greek gathering space, Agora is a modern town square for emotional insight and civic awareness.
+Named after the ancient Greek gathering space, Agora is a modern town square for civic awareness and global emotional insight
+
+Welcome to the future of collective awareness.
+    
 """)
 view_mode = st.sidebar.radio("View Mode", ["Live View", "Morning Digest"])
 
