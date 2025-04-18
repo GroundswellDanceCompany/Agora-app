@@ -16,7 +16,8 @@ placeholder = st.empty()
 
 # Display loading banner inside placeholder
 with placeholder.container():
-    banner = Image.open("Agora-image.png")  # make sure name matches your file
+    banner = Image.open("Agora-image.png")  # use correct filename
+st.image(banner, use_container_width=True)
     st.image(banner, use_column_width=True)
     st.markdown("<h4 style='text-align: center;'>Loading Agora...</h4>", unsafe_allow_html=True)
     time.sleep(2)  # wait 2 seconds
