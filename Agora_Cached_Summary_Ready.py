@@ -74,6 +74,18 @@ curated_subreddits = [
 
 # --- UI Layout ---
 st.title("Agora — Live Public Sentiment")
+with st.expander("What is Agora?"):
+    st.markdown("""
+**Agora** is a space for exploring public sentiment on the news — powered by Reddit comments, AI summaries, and community reflections.
+
+- Search any topic to see what people are feeling across curated subreddits.
+- Analyze emotional sentiment (positive, neutral, negative).
+- Read and react to real Reddit comments.
+- Reflect and respond — or just observe the emotional pulse of the internet.
+
+**Why Agora?**  
+Named after the ancient Greek gathering space, Agora is a modern town square for emotional insight and civic awareness.
+""")
 view_mode = st.sidebar.radio("View Mode", ["Live View", "Morning Digest"])
 
 if view_mode == "Live View":
