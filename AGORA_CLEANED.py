@@ -96,7 +96,7 @@ if topic:
                 if not post.stickied:
                     headline_options.append(post.title)
                     post_dict[post.title] = post
-                    except:
+                except:
                         continue
                         page_size = 5
                         total_pages = len(headline_options) // page_size + int(len(headline_options) % page_size > 0)
