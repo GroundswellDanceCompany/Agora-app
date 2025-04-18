@@ -12,8 +12,7 @@ import openai
 
 # --- AI Summary using OpenAI >=1.0.0 format ---
 def generate_ai_summary(headline, grouped_comments):
-    prompt = f"Headline: {headline}
-"
+    prompt = f"Headline: {headline}"
     for label, comments in grouped_comments.items():
         prompt += f"\n{label} Comments:\n"
         for c in comments[:2]:
