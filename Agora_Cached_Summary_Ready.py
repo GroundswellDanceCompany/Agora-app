@@ -200,8 +200,6 @@ if view_mode == "Live View":
                     st.markdown("### Agora AI Summary")
                     st.info(summary)
 
-            render_sentiment_section(selected_headline, comments, emotion_counts, emotion_groups, filtered_out)
-
     def render_sentiment_section(selected_headline, comments, emotion_counts, emotion_groups, filtered_out):
         def emotion_style(label):
             return {
