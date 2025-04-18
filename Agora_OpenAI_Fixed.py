@@ -218,6 +218,7 @@ if selected_headline:
                 if reaction and reaction.strip() != "":
                     emoji = reaction_emojis.get(reaction, "")
                     st.success(f"You reacted: {emoji} {reaction}")
+                    st.write("Logging reaction:", reaction)
                     reaction_ws.append_row([
                         selected_headline,
                         highlight["text"][:100],
@@ -242,6 +243,7 @@ if selected_headline:
                     if reaction and reaction.strip() != "":
                         emoji = reaction_emojis.get(reaction, "")
                         st.success(f"You reacted: {emoji} {reaction}")
+                        st.write("Logging reaction:", reaction)
                         reaction_ws.append_row([
                             selected_headline,
                             c["text"][:100],
