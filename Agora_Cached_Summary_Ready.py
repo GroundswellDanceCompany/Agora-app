@@ -8,10 +8,8 @@ import gspread
 from google.oauth2.service_account import Credentials
 from datetime import datetime
 import uuid
-import openai
-from datetime import datetime
+from openai import OpenAI
 
-# --- AI Summary using OpenAI >=1.0.0 format ---
 def generate_ai_summary(headline, grouped_comments):
     prompt = f"Headline: {headline}\n"
     for label, comments in grouped_comments.items():
@@ -22,10 +20,10 @@ def generate_ai_summary(headline, grouped_comments):
     prompt += "\nSummarize public sentiment in 2-3 sentences. Capture emotional tone, major concerns, and common hopes. Be neutral and insightful."
 
     try:
-        openai.api_key = st.secrets["openai"]["api_key"]
+        client = OpenAI(api_key=st.secrets["openai"]["api_key"])
 
-        response = openai.ChatCompletion.create(
-            model="gpt-4",  # or "gpt-3.5-turbo"
+        response = client.chat.completions.create(
+            model="gpt-4",
             messages=[
                 {"role": "system", "content": "You are a news analyst summarizing public emotional sentiment."},
                 {"role": "user", "content": prompt}
@@ -33,7 +31,8 @@ def generate_ai_summary(headline, grouped_comments):
             max_tokens=250,
             temperature=0.7,
         )
-        return response["choices"][0]["message"]["content"].strip()
+
+        return response.choices[0].message.content.strip()
 
     except Exception as e:
         return f"Could not generate summary: {str(e)}"
