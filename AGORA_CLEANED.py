@@ -41,7 +41,7 @@ def generate_ai_summary(headline, grouped_comments):
                 temperature=0.7,
                 )
                 return response.choices[0].message.content.strip()
-                except Exception as e:
+            except Exception as e:
                     return f"Could not generate summary: {str(e)}"
                     
 # --- Google Sheets ---
