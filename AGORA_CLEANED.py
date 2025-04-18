@@ -173,12 +173,13 @@ emotion_groups,
 filtered_out
 )
 group = emotion_groups[label]
+
 if group:
     for c in group[:5]:  # Show top 5 per category
-    st.markdown(f"""
-    <blockquote>{c['text']}</blockquote>
-    <span style='color:gray; font-size:0.75em'><i>{c['author']} • {c['created']} • Sentiment: {c['score']}</i></span>
-    """, unsafe_allow_html=True)
+        st.markdown(f"""
+       <blockquote>{c['text']}</blockquote>
+       <span style='color:gray; font-size:0.75em'><i>{c['author']} • {c['created']} • Sentiment: {c['score']}</i></span>
+       """, unsafe_allow_html=True)
 else:
     st.markdown("<i>No comments found for this category.</i>", unsafe_allow_html=True)
     
