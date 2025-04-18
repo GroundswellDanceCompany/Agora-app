@@ -155,89 +155,89 @@ if view_mode == "Live View":
         selected_headline = st.radio("Select a headline to reflect on:", headline_options)
 
      def render_sentiment_section(selected_headline, comments, emotion_counts, emotion_groups, filtered_out):
-        def emotion_style(label):
-            return {
-                "Positive": ("😊", "green"),
-                "Neutral": ("😐", "gray"),
-                "Negative": ("😠", "red")
-            }.get(label, ("❓", "blue"))
+         def emotion_style(label):
+             return {
+                 "Positive": ("😊", "green"),
+                 "Neutral": ("😐", "gray"),
+                 "Negative": ("😠", "red")
+             }.get(label, ("❓", "blue"))
 
-        reaction_emojis = {
-            "Angry": "😡",
-            "Sad": "😢",
-            "Hopeful": "🌈",
-            "Confused": "😕",
-            "Neutral": "😐"
-        }
+         reaction_emojis = {
+             "Angry": "😡",
+             "Sad": "😢",
+             "Hopeful": "🌈",
+             "Confused": "😕",
+             "Neutral": "😐"
+         }
 
-        emotion_icons = {
-            "Positive": "🟢 😊",
-            "Neutral": "⚪️ 😐",
-            "Negative": "🔴 😠"
-        }
+         emotion_icons = {
+             "Positive": "🟢 😊",
+             "Neutral": "⚪️ 😐",
+             "Negative": "🔴 😠"
+         }
 
-        st.subheader("Reddit Sentiment Overview")
-        st.bar_chart(emotion_counts)
-        st.caption(f"Filtered out {filtered_out} low-signal comments.")
-        st.subheader("Sentiment Threads")
+         st.subheader("Reddit Sentiment Overview")
+         st.bar_chart(emotion_counts)
+         st.caption(f"Filtered out {filtered_out} low-signal comments.")
+         st.subheader("Sentiment Threads")
 
-        for label in ["Positive", "Neutral", "Negative"]:
-            emoji, color = emotion_style(label)
-            icon = emotion_icons.get(label, "")
-            st.markdown(f"<h3 style='color:{color}'>{icon} {label.upper()} ({emotion_counts[label]})</h3>", unsafe_allow_html=True)
+         for label in ["Positive", "Neutral", "Negative"]:
+             emoji, color = emotion_style(label)
+             icon = emotion_icons.get(label, "")
+             st.markdown(f"<h3 style='color:{color}'>{icon} {label.upper()} ({emotion_counts[label]})</h3>", unsafe_allow_html=True)
 
-            group = emotion_groups[label]
-            if group:
-                highlight = max(group, key=lambda c: abs(c["score"]))
-                st.markdown(f"""
-    <div style="border-left: 4px solid {color}; padding: 0.5em 1em; background-color: #222; color: white; margin-bottom: 10px;">
-        <strong>⭐ Highlight:</strong> {highlight['text']}
-        <br><span style='color:#ccc; font-size:0.8em'><i>{highlight['author']} • {highlight['created']} • Sentiment: {highlight['score']}</i></span>
-    </div>
-    """, unsafe_allow_html=True)
+             group = emotion_groups[label]
+             if group:
+                 highlight = max(group, key=lambda c: abs(c["score"]))
+                 st.markdown(f"""
+     <div style="border-left: 4px solid {color}; padding: 0.5em 1em; background-color: #222; color: white; margin-bottom: 10px;">
+         <strong>⭐ Highlight:</strong> {highlight['text']}
+         <br><span style='color:#ccc; font-size:0.8em'><i>{highlight['author']} • {highlight['created']} • Sentiment: {highlight['score']}</i></span>
+     </div>
+     """, unsafe_allow_html=True)
 
-                highlight_id = str(hash(highlight["text"]))[:8]
-                reaction = st.radio(
-                    "React to this highlighted comment:",
-                    ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"],
-                    key=f"highlight_reaction_{highlight_id}",
-                    horizontal=True
-                )
-                if reaction and reaction.strip() != "":
-                    emoji = reaction_emojis.get(reaction, "")
-                    st.success(f"You reacted: {emoji} {reaction}")
-                    reaction_ws.append_row([
-                        selected_headline,
-                        highlight["text"][:100],
-                        reaction,
-                        datetime.utcnow().isoformat()
-                    ])
+                 highlight_id = str(hash(highlight["text"]))[:8]
+                 reaction = st.radio(
+                     "React to this highlighted comment:",
+                     ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"],
+                     key=f"highlight_reaction_{highlight_id}",
+                     horizontal=True
+                 )
+                 if reaction and reaction.strip() != "":
+                     emoji = reaction_emojis.get(reaction, "")
+                     st.success(f"You reacted: {emoji} {reaction}")
+                     reaction_ws.append_row([
+                         selected_headline,
+                         highlight["text"][:100],
+                         reaction,
+                         datetime.utcnow().isoformat()
+                     ])
 
-                extras = [c for c in group if c != highlight][:2]
-                for c in extras:
-                    comment_id = str(hash(c['text']))[:8]
-                    st.markdown(f"""
-    <blockquote>{c['text']}</blockquote>
-    <span style='color:gray; font-size:0.75em'><i>{c['author']} • {c['created']} • Sentiment: {c['score']}</i></span>
-    """, unsafe_allow_html=True)
+                 extras = [c for c in group if c != highlight][:2]
+                 for c in extras:
+                     comment_id = str(hash(c['text']))[:8]
+                     st.markdown(f"""
+     <blockquote>{c['text']}</blockquote>
+     <span style='color:gray; font-size:0.75em'><i>{c['author']} • {c['created']} • Sentiment: {c['score']}</i></span>
+     """, unsafe_allow_html=True)
 
-                    reaction = st.radio(
-                        "React emotionally:",
-                        ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"],
-                        key=f"reaction_{comment_id}",
-                        horizontal=True
-                    )
-                    if reaction and reaction.strip() != "":
-                        emoji = reaction_emojis.get(reaction, "")
-                        st.success(f"You reacted: {emoji} {reaction}")
-                        reaction_ws.append_row([
-                            selected_headline,
-                            c["text"][:100],
-                            reaction,
-                            datetime.utcnow().isoformat()
-                        ])
-            else:
-                st.markdown("<i>No comments found for this emotion.</i>", unsafe_allow_html=True)
+                     reaction = st.radio(
+                         "React emotionally:",
+                         ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"],
+                         key=f"reaction_{comment_id}",
+                         horizontal=True
+                     )
+                     if reaction and reaction.strip() != "":
+                         emoji = reaction_emojis.get(reaction, "")
+                         st.success(f"You reacted: {emoji} {reaction}")
+                         reaction_ws.append_row([
+                             selected_headline,
+                             c["text"][:100],
+                             reaction,
+                             datetime.utcnow().isoformat()
+                         ])
+             else:
+                 st.markdown("<i>No comments found for this emotion.</i>", unsafe_allow_html=True)
 
     if selected_headline:
         post = post_dict[selected_headline]
