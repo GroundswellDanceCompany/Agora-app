@@ -157,6 +157,7 @@ if view_mode == "Live View":
                     "Positive": ("🟢 😊", "green"),
                     "Neutral": ("⚪️ 😐", "gray"),
                     "Negative": ("🔴 😠", "red")
+                }
 }
                 for label in ["Positive", "Neutral", "Negative"]:
                     emoji, color = emoji_map[label]
@@ -179,11 +180,6 @@ if view_mode == "Live View":
             # Display sentiment overview and top comments per group
             st.subheader("Reddit Sentiment Overview")
             st.bar_chart(emotion_counts)
-            emoji_map = {
-                "Positive": ("🟢 😊", "green"),
-                "Neutral": ("⚪️ 😐", "gray"),
-                "Negative": ("🔴 😠", "red")
-            }
 
             reaction_emojis = {
                 "Angry": "😡",
