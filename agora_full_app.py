@@ -153,6 +153,11 @@ if view_mode == "Live View":
             if just_comments:
                 # Show only basic grouped comments by sentiment
                 st.subheader("Reddit Comments by Sentiment")
+                emoji_map = {
+                    "Positive": ("🟢 😊", "green"),
+                    "Neutral": ("⚪️ 😐", "gray"),
+                    "Negative": ("🔴 😠", "red")
+}
                 for label in ["Positive", "Neutral", "Negative"]:
                     emoji, color = emoji_map[label]
                     st.markdown(f"<h3 style='color:{color}'>{emoji} {label}</h3>", unsafe_allow_html=True)
