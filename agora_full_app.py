@@ -119,6 +119,7 @@ if view_mode == "Live View":
     if selected_headline:
         post = post_dict[selected_headline]
         st.markdown(f"## 📰 {selected_headline}")
+        
         submission = reddit.submission(id=post.id)
         submission.comments.replace_more(limit=0)
         comments = submission.comments[:30]
@@ -145,29 +146,52 @@ if view_mode == "Live View":
             })
 
         if sum(emotion_counts.values()) == 0:
-            st.warning("No comments passed the quality filter. Try another post or relax the filtering.")
-        else:
-            if not just_comments:
-                with st.spinner("Generating AI insight..."):
-                    summary = generate_ai_summary(selected_headline, emotion_groups)
-                    st.markdown("### Agora AI Summary")
-                    st.info(summary)
+    st.warning("No comments passed the quality filter. Try another post or relax the filtering.")
+else:
+    if not just_comments:
+        with st.spinner("Generating AI insight..."):
+            summary = generate_ai_summary(selected_headline, emotion_groups)
+            st.markdown("### Agora AI Summary")
+            st.info(summary)
 
-                # Reinsert full comment display section here
-                st.subheader("Reddit Sentiment Overview")
-                st.bar_chart(emotion_counts)
-                emoji_map = {"Positive": ("🟢 😊", "green"), "Neutral": ("⚪️ 😐", "gray"), "Negative": ("🔴 😠", "red")}
-                for label in ["Positive", "Neutral", "Negative"]:
-                    icon, color = emoji_map[label]
-                    st.markdown(f"<h3 style='color:{color}'>{icon} {label.upper()} ({emotion_counts[label]})</h3>", unsafe_allow_html=True)
-                    group = emotion_groups[label]
-                    if group:
-                        highlight = max(group, key=lambda c: abs(c["score"]))
-                        st.markdown(f"<div style='border-left: 4px solid {color}; background-color:#222; color:white; padding:10px;'><strong>⭐ Highlight:</strong> {highlight['text']}<br><small>{highlight['author']} • {highlight['created']} • Sentiment: {highlight['score']}</small></div>", unsafe_allow_html=True)
-                        highlight_id = str(hash(highlight["text"]))[:8]
-                        reaction = st.radio("React to this highlighted comment:", ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"], key=f"highlight_{highlight_id}", horizontal=True)
-                        if reaction.strip():
-                            reaction_ws.append_row([selected_headline, highlight["text"][:100], reaction, datetime.utcnow().isoformat()])
+        # Reinsert full comment display section here
+        st.subheader("Reddit Sentiment Overview")
+        st.bar_chart(emotion_counts)
+        emoji_map = {
+            "Positive": ("🟢 😊", "green"),
+            "Neutral": ("⚪️ 😐", "gray"),
+            "Negative": ("🔴 😠", "red")
+        }
+
+        for label in ["Positive", "Neutral", "Negative"]:
+            icon, color = emoji_map[label]
+            st.markdown(
+                f"<h3 style='color:{color}'>{icon} {label.upper()} ({emotion_counts[label]})</h3>",
+                unsafe_allow_html=True
+            )
+            group = emotion_groups[label]
+            if group:
+                highlight = max(group, key=lambda c: abs(c["score"]))
+                st.markdown(f"""
+                    <div style='border-left: 4px solid {color}; background-color:#222; color:white; padding:10px;'>
+                        <strong>⭐ Highlight:</strong> {highlight['text']}
+                        <br><small>{highlight['author']} • {highlight['created']} • Sentiment: {highlight['score']}</small>
+                    </div>
+                """, unsafe_allow_html=True)
+                highlight_id = str(hash(highlight["text"]))[:8]
+                reaction = st.radio(
+                    "React to this highlighted comment:",
+                    ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"],
+                    key=f"highlight_{highlight_id}",
+                    horizontal=True
+                )
+                if reaction.strip():
+                    reaction_ws.append_row([
+                        selected_headline,
+                        highlight["text"][:100],
+                        reaction,
+                        datetime.utcnow().isoformat()
+                    ])
 
 # --- Reflection Input ---
 st.markdown("---")
@@ -176,10 +200,18 @@ emotions = ["Angry", "Hopeful", "Skeptical", "Confused", "Inspired", "Indifferen
 emotion_choice = st.multiselect("What emotions do you feel?", emotions)
 trust_rating = st.slider("How much do you trust this headline?", 1, 5, 3)
 user_thoughts = st.text_area("Write your reflection")
+
 if st.button("Submit Reflection"):
     reflection_id = str(uuid.uuid4())
     timestamp = datetime.utcnow().isoformat()
-    reflections_ws.append_row([reflection_id, selected_headline, ", ".join(emotion_choice), trust_rating, user_thoughts, timestamp])
+    reflections_ws.append_row([
+        reflection_id,
+        selected_headline,
+        ", ".join(emotion_choice),
+        trust_rating,
+        user_thoughts,
+        timestamp
+    ])
     st.success("Reflection submitted!")
 
 # --- Display Reflections ---
@@ -207,24 +239,24 @@ else:
                 st.success("Reply added.")
         st.markdown("---")
 
-# --- Morning Digest View ---
-elif view_mode == "Morning Digest":
-    st.title("Agora Daily — Morning Digest")
-     today = datetime.utcnow().date()
-     yesterday = today - timedelta(days=1)
-     reflections_df = load_reflections()
-     reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
-     reflections_df["date"] = reflections_df["timestamp"].dt.date
-     yesterday_data = reflections_df[reflections_df["date"] == yesterday]
-     if yesterday_data.empty:
-         st.info("No reflections found for yesterday.")
-     else:
-         top_headlines = yesterday_data["headline"].value_counts().head(3).index.tolist()
-         for headline in top_headlines:
-             st.markdown(f"### 📰 {headline}")
-             subset = yesterday_data[yesterday_data["headline"] == headline]
-             grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
-             with st.spinner("Summarizing reflections..."):
-                 summary = generate_ai_summary(headline, grouped)
-                 st.success(summary)
-             st.markdown("---")
+ # --- Morning Digest View ---
+ elif view_mode == "Morning Digest":
+     st.title("Agora Daily — Morning Digest")
+      today = datetime.utcnow().date()
+      yesterday = today - timedelta(days=1)
+      reflections_df = load_reflections()
+      reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
+      reflections_df["date"] = reflections_df["timestamp"].dt.date
+      yesterday_data = reflections_df[reflections_df["date"] == yesterday]
+      if yesterday_data.empty:
+          st.info("No reflections found for yesterday.")
+      else:
+          top_headlines = yesterday_data["headline"].value_counts().head(3).index.tolist()
+          for headline in top_headlines:
+              st.markdown(f"### 📰 {headline}")
+              subset = yesterday_data[yesterday_data["headline"] == headline]
+              grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
+              with st.spinner("Summarizing reflections..."):
+                  summary = generate_ai_summary(headline, grouped)
+                  st.success(summary)
+              st.markdown("---")
