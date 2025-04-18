@@ -159,6 +159,19 @@ if view_mode == "Live View":
                     emoji, color = emotion_style(label)
                     st.markdown(f"<h3 style='color:{color}'>{emoji} {label}</h3>", unsafe_allow_html=True)
 
+            else:
+                with st.spinner("Generating AI insight..."):
+                    summary = generate_ai_summary(selected_headline, emotion_groups)
+                    st.markdown("### Agora AI Summary")
+                    st.info(summary)
+
+                render_sentiment_section(
+                    selected_headline,
+                    comments,
+                    emotion_counts,
+                    emotion_groups,
+                    filtered_out
+                )
                     group = emotion_groups[label]
                     if group:
                         for c in group[:5]:  # Show top 5 per category
