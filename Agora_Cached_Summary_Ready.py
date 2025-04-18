@@ -9,10 +9,11 @@ from google.oauth2.service_account import Credentials
 from datetime import datetime
 import uuid
 import openai
+from datetime import datetime
 
 # --- AI Summary using OpenAI >=1.0.0 format ---
 def generate_ai_summary(headline, grouped_comments):
-    prompt = f"Headline: {headline}"
+    prompt = f"Headline: {headline}\n"
     for label, comments in grouped_comments.items():
         prompt += f"\n{label} Comments:\n"
         for c in comments[:2]:
@@ -24,7 +25,7 @@ def generate_ai_summary(headline, grouped_comments):
         client = openai.OpenAI(api_key=st.secrets["openai"]["api_key"])
 
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",  # or "gpt-3.5-turbo"
             messages=[
                 {"role": "system", "content": "You are a news analyst summarizing public emotional sentiment."},
                 {"role": "user", "content": prompt}
