@@ -1,3 +1,4 @@
+
 # --- Imports ---
 import streamlit as st
 import praw
@@ -23,7 +24,7 @@ with placeholder.container():
 placeholder.empty()
 
 # --- Setup Connections ---
-# OpenAI
+# OpenAI for AI Summaries
 def generate_ai_summary(headline, grouped_comments):
     prompt = f"Headline: {headline}\n"
     for label, comments in grouped_comments.items():
@@ -53,7 +54,6 @@ client = gspread.authorize(creds)
 sheet = client.open("AgoraData")
 reflections_ws = sheet.worksheet("Reflections")
 replies_ws = sheet.worksheet("Replies")
-reaction_ws = sheet.worksheet("CommentReactions")
 
 def load_reflections():
     return pd.DataFrame(reflections_ws.get_all_records())
@@ -61,7 +61,7 @@ def load_reflections():
 def load_replies():
     return pd.DataFrame(replies_ws.get_all_records())
 
-# Reddit
+# Reddit API
 reddit = praw.Reddit(
     client_id=st.secrets["reddit"]["client_id"],
     client_secret=st.secrets["reddit"]["client_secret"],
@@ -74,6 +74,17 @@ curated_subreddits = [
 ]
 
 # --- Core Functions ---
+def show_public_comments(comments):
+    st.subheader("Public Comments")
+    for comment in comments:
+        text = comment.body.strip()
+        if text and len(text) > 10:
+            blob = TextBlob(text)
+            polarity = blob.sentiment.polarity
+            sentiment = "Positive" if polarity > 0.1 else "Neutral" if polarity > -0.1 else "Negative"
+            color = "green" if sentiment == "Positive" else "gray" if sentiment == "Neutral" else "red"
+            st.markdown(f"<div style='border-left: 4px solid {color}; padding: 10px; margin-bottom: 10px;'>{text}</div>", unsafe_allow_html=True)
+
 def show_reflection_interface(selected_headline):
     st.subheader("Your Reflection")
     st.markdown("> Let the field hear your insight.")
@@ -154,28 +165,6 @@ def show_sentiment_field():
     else:
         st.info("No reflections yet. The field is waiting.")
 
-def show_morning_digest():
-    st.title("Agora Daily — Morning Digest")
-    today = datetime.utcnow().date()
-    yesterday = today - timedelta(days=1)
-    reflections_df = load_reflections()
-    reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
-    reflections_df["date"] = reflections_df["timestamp"].dt.date
-    yesterday_data = reflections_df[reflections_df["date"] == yesterday]
-
-    if yesterday_data.empty:
-        st.info("No reflections found for yesterday.")
-    else:
-        top_headlines = yesterday_data["headline"].value_counts().head(3).index.tolist()
-        for headline in top_headlines:
-            st.markdown(f"### 📰 {headline}")
-            subset = yesterday_data[yesterday_data["headline"] == headline]
-            grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
-            with st.spinner("Gathering yesterday’s emotional pulse..."):
-                summary = generate_ai_summary(headline, grouped)
-                st.success(summary)
-            st.markdown("---")
-
 # --- Main Layout ---
 st.title("Agora — The Collective Pulse")
 just_comments = st.toggle("I'm just here for the comments")
@@ -208,7 +197,7 @@ if view_mode == "Live Agora":
                 continue
 
         if headline_options:
-            selected_headline = st.radio("Select a headline to reflect on:", headline_options)
+            selected_headline = st.radio("Select a headline to explore:", headline_options)
 
             if selected_headline:
                 post = post_dict[selected_headline]
@@ -218,41 +207,35 @@ if view_mode == "Live Agora":
                 submission.comments.replace_more(limit=0)
                 comments = submission.comments[:30]
 
-                emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
-                emotion_groups = defaultdict(list)
-
-                for comment in comments:
-                    text = comment.body.strip()
-                    if text and len(text) > 10:
-                        blob = TextBlob(text)
-                        polarity = blob.sentiment.polarity
-                        label = "Positive" if polarity > 0.1 else "Negative" if polarity < -0.1 else "Neutral"
-                        emotion_counts[label] += 1
-                        emotion_groups[label].append({
-                            "text": text,
-                            "score": round(polarity, 3)
-                        })
-
                 if not just_comments:
+                    # --- Full Agora Mode ---
+                    # AI Summary
+                    emotion_groups = defaultdict(list)
+                    for comment in comments:
+                        text = comment.body.strip()
+                        if text and len(text) > 10:
+                            blob = TextBlob(text)
+                            polarity = blob.sentiment.polarity
+                            label = "Positive" if polarity > 0.1 else "Negative" if polarity < -0.1 else "Neutral"
+                            emotion_groups[label].append({"text": text, "score": round(polarity, 3)})
+
                     with st.spinner("Listening to the field..."):
                         summary = generate_ai_summary(selected_headline, emotion_groups)
                         st.success(summary)
 
-                # --- Public Comments with Sentiment Colors ---
-                st.markdown("### Public Comments")
-                for comment in comments:
-                    text = comment.body.strip()
-                    if text and len(text) > 10:
-                        blob = TextBlob(text)
-                        polarity = blob.sentiment.polarity
-                        sentiment = "Positive" if polarity > 0.1 else "Neutral" if polarity > -0.1 else "Negative"
-                        color = "green" if sentiment == "Positive" else "gray" if sentiment == "Neutral" else "red"
-                        st.markdown(f"<div style='border-left: 4px solid {color}; padding: 10px; margin-bottom: 10px;'>{text}</div>", unsafe_allow_html=True)
+                    # Public Comments
+                    show_public_comments(comments)
+                    
+                    # Reflection Interface
+                    show_reflection_interface(selected_headline)
 
-                # --- User Reflection + Sentiment Field ---
-                show_reflection_interface(selected_headline)
-                show_sentiment_field()
-        else:
-            st.info("No posts found for this topic.")
+                    # Sentiment Field
+                    show_sentiment_field()
+
+                else:
+                    # --- Just Comments Mode ---
+                    st.caption("You're browsing pure, unfiltered public comments.")
+                    show_public_comments(comments)
+
 else:
     show_morning_digest()
