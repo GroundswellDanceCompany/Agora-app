@@ -1,132 +1,246 @@
+# --- Imports ---
+import streamlit as st
 import praw
 from textblob import TextBlob
+import pandas as pd
+import gspread
+from google.oauth2.service_account import Credentials
+from datetime import datetime, timedelta
+import uuid
+from openai import OpenAI
+from collections import defaultdict
+import time
+from PIL import Image
+import plotly.express as px
 
-# Replace with your actual Reddit app keys
+# --- Banner Loader ---
+placeholder = st.empty()
+with placeholder.container():
+    banner = Image.open("Agora-image.png")
+    st.image(banner, use_container_width=True)
+    st.markdown("<h4 style='text-align: center;'>Tuning into the collective field...</h4>", unsafe_allow_html=True)
+    time.sleep(2)
+placeholder.empty()
+
+# --- Setup Connections ---
+# OpenAI
+def generate_ai_summary(headline, grouped_comments):
+    prompt = f"Headline: {headline}\n"
+    for label, comments in grouped_comments.items():
+        prompt += f"\n{label} Comments:\n"
+        for c in comments[:2]:
+            prompt += f"- {c['text']}\n"
+    prompt += "\nSummarize public sentiment in 2-3 sentences. Be neutral and insightful."
+    try:
+        client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a civic poet summarizing emotional public mood."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=250,
+            temperature=0.7,
+        )
+        return response.choices[0].message.content.strip()
+    except Exception:
+        return "**Summary unavailable — but the field is listening.**"
+
+# Google Sheets
+SCOPE = ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/spreadsheets"]
+creds = Credentials.from_service_account_info(st.secrets["google_service_account"], scopes=SCOPE)
+client = gspread.authorize(creds)
+sheet = client.open("AgoraData")
+reflections_ws = sheet.worksheet("Reflections")
+replies_ws = sheet.worksheet("Replies")
+reaction_ws = sheet.worksheet("CommentReactions")
+
+def load_reflections():
+    return pd.DataFrame(reflections_ws.get_all_records())
+
+def load_replies():
+    return pd.DataFrame(replies_ws.get_all_records())
+
+# Reddit
 reddit = praw.Reddit(
-    client_id="MerkiHK2ZT5uN8Q2YllzmA",
-    client_secret="8loi3D1as5ghnrLtblG55o7taKCZMQ",
-    user_agent="agora-app by /u/Agreeable_Throat512"
+    client_id=st.secrets["reddit"]["client_id"],
+    client_secret=st.secrets["reddit"]["client_secret"],
+    user_agent=st.secrets["reddit"]["user_agent"]
 )
 
-import streamlit as st
+curated_subreddits = [
+    "news", "worldnews", "politics", "uspolitics", "ukpolitics", "europe",
+    "MiddleEastNews", "technology", "Futurology", "science", "space", "environment", "geopolitics"
+]
 
-# Predefined emotions
-emotions = ["Angry", "Hopeful", "Skeptical", "Confused", "Inspired", "Indifferent"]
+# --- Core Functions ---
+def show_reflection_interface(selected_headline):
+    st.subheader("Your Reflection")
+    st.markdown("> Let the field hear your truth.")
 
-st.title("Agora — Public Sentiment on Headlines")
+    emotions = ["Angry", "Hopeful", "Skeptical", "Confused", "Inspired", "Indifferent"]
+    emotion_choice = st.multiselect("Emotional waves you felt:", emotions, key="emotion_multiselect")
+    trust_rating = st.slider("How much do you trust this headline?", 1, 5, 3, key="trust_slider")
+    user_thoughts = st.text_area("If you could whisper one insight into the Agora, what would it be?", key="reflection_text")
 
-st.subheader("Top Headlines from Reddit")
+    if st.button("Submit Reflection"):
+        reflection_id = str(uuid.uuid4())
+        timestamp = datetime.utcnow().isoformat()
+        reflections_ws.append_row([
+            reflection_id,
+            selected_headline,
+            ", ".join(emotion_choice),
+            trust_rating,
+            user_thoughts,
+            timestamp
+        ])
+        st.success("Your voice has joined the field.")
 
-subreddit = st.selectbox("Choose subreddit:", ["news", "worldnews", "politics"])
-posts = reddit.subreddit(subreddit).hot(limit=10)
+    st.markdown("---")
+    show_public_reflections(selected_headline)
 
-headline_options = []
-for post in posts:
-    if not post.stickied:
-        headline_options.append(post.title)
+def show_public_reflections(selected_headline):
+    st.subheader("Public Reflections")
 
-selected_headline = st.selectbox("Select a headline to reflect on:", headline_options)
-st.markdown(f"**Selected Headline:** {selected_headline}")
+    all_reflections = load_reflections()
+    all_replies = load_replies()
+    matched = all_reflections[all_reflections["headline"] == selected_headline]
 
-st.subheader("Analyzing Reddit Comments...")
+    if matched.empty:
+        st.info("No reflections yet. The field awaits.")
+    else:
+        for _, row in matched.iterrows():
+            st.markdown(f"**Emotions:** {row['emotions']}")
+            st.markdown(f"**Trust Level:** {row['trust_level']}/5")
+            st.markdown(f"**Reflection:** {row['reflection']}")
+            st.caption(f"{row['timestamp']}")
+            with st.form(key=f"reply_form_{row['reflection_id']}"):
+                reply_text = st.text_input("Reply to this reflection:", key=f"r_{row['reflection_id']}")
+                if st.form_submit_button("Send Reply") and reply_text.strip():
+                    replies_ws.append_row([row["reflection_id"], reply_text.strip(), datetime.utcnow().isoformat()])
+                    st.success("Reply added.")
+            st.markdown("---")
 
-# Search Reddit again to get the selected post's full object
-posts = reddit.subreddit(subreddit).hot(limit=10)
-submission = None
+def show_sentiment_field():
+    st.subheader("Sentiment Field — Collective Emotional Landscape")
+    st.markdown("> Every point is a heartbeat. Every color a signal.")
 
-for post in posts:
-    if post.title == selected_headline:
-        submission = reddit.submission(id=post.id)
-        break
+    reflection_data = load_reflections()
 
-if not comment.body or comment.body in ["[deleted]", "[removed]"]:
-   continue       
+    if not reflection_data.empty:
+        reflection_data["timestamp"] = pd.to_datetime(reflection_data["timestamp"], errors="coerce")
+        reflection_data["trust_level"] = pd.to_numeric(reflection_data["trust_level"], errors="coerce")
+        reflection_data = reflection_data.dropna(subset=["trust_level", "emotions", "reflection"])
+        reflection_data["primary_emotion"] = reflection_data["emotions"].apply(
+            lambda x: x.split(",")[0].strip() if pd.notnull(x) else "Neutral"
+        )
 
-if len(comment.body.split()) < 5:
-   continue
+        fig = px.scatter(
+            reflection_data,
+            x="trust_level",
+            y="primary_emotion",
+            color="primary_emotion",
+            hover_data=["reflection"],
+            size_max=60,
+            title="Agora Emotional Field",
+            labels={"trust_level": "Trust Level (1–5)", "primary_emotion": "Emotion"}
+        )
+        fig.update_layout(
+            height=600,
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            font=dict(color="white"),
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("No reflections yet. The field is waiting.")
 
-if submission:
-    submission.comments.replace_more(limit=0)
-    comments = submission.comments[:30]
+def show_morning_digest():
+    st.title("Agora Daily — Morning Digest")
+    today = datetime.utcnow().date()
+    yesterday = today - timedelta(days=1)
+    reflections_df = load_reflections()
+    reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
+    reflections_df["date"] = reflections_df["timestamp"].dt.date
+    yesterday_data = reflections_df[reflections_df["date"] == yesterday]
 
-    from collections import defaultdict
+    if yesterday_data.empty:
+        st.info("No reflections found for yesterday.")
+    else:
+        top_headlines = yesterday_data["headline"].value_counts().head(3).index.tolist()
+        for headline in top_headlines:
+            st.markdown(f"### 📰 {headline}")
+            subset = yesterday_data[yesterday_data["headline"] == headline]
+            grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
+            with st.spinner("Gathering yesterday’s pulse..."):
+                summary = generate_ai_summary(headline, grouped)
+                st.success(summary)
+            st.markdown("---")
 
-    emotion_groups = defaultdict(list)
-    emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
+# --- Main App Layout ---
+st.title("Agora — The Collective Pulse")
+just_comments = st.toggle("I'm just here for the comments")
 
-    for comment in comments:
-        text = comment.body
-        analysis = TextBlob(text)
-        polarity = analysis.sentiment.polarity
+if "show_about" not in st.session_state:
+    st.session_state.show_about = True
 
-        if polarity > 0.1:
-            label = "Positive"
-        elif polarity < -0.1:
-            label = "Negative"
+with st.expander("🌎 About Agora", expanded=st.session_state.show_about):
+    st.session_state.show_about = False
+    st.markdown("""
+    **Agora** is an open space where public sentiment, reflection, and dialogue are woven into a living field.
+    No manipulation. No clickbait. Just collective feeling and thought — emerging in real time.
+    """)
+
+view_mode = st.sidebar.radio("Choose View", ["Live Agora", "Morning Digest"])
+
+if view_mode == "Live Agora":
+    topic = st.text_input("Enter a topic to listen across curated subreddits")
+
+    if topic:
+        post_dict = {}
+        headline_options = []
+        for sub in curated_subreddits:
+            try:
+                for post in reddit.subreddit(sub).search(topic, sort="relevance", time_filter="week", limit=2):
+                    if not post.stickied:
+                        headline_options.append(post.title)
+                        post_dict[post.title] = post
+            except:
+                continue
+
+        if headline_options:
+            selected_headline = st.radio("Select a headline to reflect on:", headline_options)
+
+            if selected_headline:
+                post = post_dict[selected_headline]
+                st.markdown(f"## 📰 {selected_headline}")
+                submission = reddit.submission(id=post.id)
+                submission.comments.replace_more(limit=0)
+                comments = submission.comments[:30]
+
+                emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
+                emotion_groups = defaultdict(list)
+
+                for comment in comments:
+                    text = comment.body.strip()
+                    if text and len(text) > 10:
+                        blob = TextBlob(text)
+                        polarity = blob.sentiment.polarity
+                        label = "Positive" if polarity > 0.1 else "Negative" if polarity < -0.1 else "Neutral"
+                        emotion_counts[label] += 1
+                        emotion_groups[label].append({
+                            "text": text,
+                            "score": round(polarity, 3)
+                        })
+
+                if not just_comments:
+                    with st.spinner("Listening to the field..."):
+                        summary = generate_ai_summary(selected_headline, emotion_groups)
+                        st.success(summary)
+
+                show_reflection_interface(selected_headline)
+                show_sentiment_field()
         else:
-            label = "Neutral"
-
-        emotion_counts[label] += 1
-        emotion_groups[label].append(text)
-
-    st.subheader("Public Sentiment Breakdown")
-    st.bar_chart(emotion_counts)
-
-    st.subheader("Sample Comments by Emotion")
-    for label in ["Positive", "Neutral", "Negative"]:
-        st.markdown(f"**{label} ({emotion_counts[label]})**")
-        for comment_text in emotion_groups[label][:3]:
-            st.markdown(f"- {comment_text}")
+            st.info("No posts found for this topic.")
 else:
-    st.warning("Could not load comments for this post.")
-
-for label in ["Positive", "Neutral", "Negative"]:
-    st.markdown(f"**{label} ({emotion_counts[label]})**")
-
-    for comment in emotion_groups[label][:3]:  # show only 3 per group
-        st.markdown(f"- {comment}")
-
-st.markdown("---")
-st.subheader("Your Reflection")
-
-emotion_choice = st.multiselect(
-    "What emotions do you feel reading this headline and the comments?",
-    ["Angry", "Hopeful", "Skeptical", "Inspired", "Confused", "Indifferent"]
-)
-
-trust_rating = st.slider("How much do you personally trust this headline?", 1, 5, 3)
-
-user_thoughts = st.text_area("Write your reflection (optional)", height=150)
-
-if st.button("Submit Your Response"):
-    st.success("Thanks for adding your voice.")
-    st.write("### Your Response")
-    st.write(f"**Emotions:** {', '.join(emotion_choice)}")
-    st.write(f"**Trust Level:** {trust_rating}/5")
-    st.write(f"**Reflection:** {user_thoughts if user_thoughts else '—'}")
-
-    # You can later save this to a database or CSV
-     
-# Optional: simple pie chart
-st.subheader("Visual Breakdown")
-st.bar_chart(emotion_counts)
-
-# Example headline (replace with real data later)
-headline = "Climate Crisis Accelerates: UN Warns of Irreversible Damage"
-st.subheader(headline)
-
-st.markdown("**How does this headline make you feel?**")
-selected_emotions = st.multiselect("Select one or more emotions:", emotions)
-
-trust_level = st.slider("How much do you trust this headline?", 1, 5, 3)
-reflection = st.text_area("Your reflection (optional)", height=150)
-
-if st.button("Submit Reflection"):
-    st.success("Thanks for your input!")
-    # This is where you'd send data to a backend, save to DB, etc.
-    st.json({
-        "headline": headline,
-        "emotions": selected_emotions,
-        "trust_level": trust_level,
-        "reflection": reflection
-    })
+    show_morning_digest()
