@@ -73,6 +73,19 @@ curated_subreddits = [
     "MiddleEastNews", "technology", "Futurology", "science", "space", "environment", "geopolitics"
 ]
 
+# --- Public Comments Section ---
+st.markdown("### Public Comments")
+if comments:
+    for comment in comments:
+        text = comment.body.strip()
+        if text and len(text) > 10:
+            blob = TextBlob(text)
+            polarity = blob.sentiment.polarity
+            sentiment = "😊 Positive" if polarity > 0.1 else "😐 Neutral" if polarity > -0.1 else "😠 Negative"
+            st.markdown(f"> {text}\n\n*Sentiment: {sentiment}*")
+else:
+    st.info("No readable comments found for this post.")
+
 # --- Core Functions ---
 def show_reflection_interface(selected_headline):
     st.subheader("Your Reflection")
