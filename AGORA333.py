@@ -11,6 +11,7 @@ import uuid
 from openai import OpenAI
 import time
 from PIL import Image
+import plotly.express as px
 
 # --- Banner Loader ---
 placeholder = st.empty()
@@ -214,6 +215,30 @@ if view_mode == "Live View":
                             replies_ws.append_row([row["reflection_id"], reply_text.strip(), datetime.utcnow().isoformat()])
                             st.success("Reply added.")
                     st.markdown("---")
+                    
+                    st.subheader("Sentiment Field — Emotional Landscape")
+
+                    # Load reflections
+                    reflection_data = load_reflections()
+
+                    if not reflection_data.empty:
+                        reflection_data["timestamp"] = pd.to_datetime(reflection_data["timestamp"], errors="coerce")
+                        reflection_data["primary_emotion"] = reflection_data["emotions"].apply(lambda x: x.split(",")[0].strip() if pd.notnull(x) else "Neutral")
+    
+                        fig = px.scatter(
+                            reflection_data,
+                            x="trust_level",
+                            y="primary_emotion",
+                            color="primary_emotion",
+                            hover_data=["reflection", "timestamp"],
+                            size_max=60,
+                            title="Agora Sentiment Field",
+                            labels={"trust_level": "Trust (1 = Distrust, 5 = High Trust)", "primary_emotion": "Primary Emotion"}
+                        )
+                        fig.update_layout(height=600)
+                        st.plotly_chart(fig, use_container_width=True)
+                    else:
+                        st.info("No reflections yet to display in the Sentiment Field.")
 
 elif view_mode == "Morning Digest":
     st.title("Agora Daily — Morning Digest")
