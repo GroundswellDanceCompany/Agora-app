@@ -36,7 +36,7 @@ def generate_ai_summary(headline, grouped_comments):
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "You are a civic poet summarizing emotional public mood."},
+                {"role": "system", "content": "You are a civic poet summarizing public emotional mood."},
                 {"role": "user", "content": prompt}
             ],
             max_tokens=250,
@@ -44,7 +44,7 @@ def generate_ai_summary(headline, grouped_comments):
         )
         return response.choices[0].message.content.strip()
     except Exception:
-        return "**Summary unavailable — but the field is listening.**"
+        return "**Summary unavailable — but the field is still listening.**"
 
 # Google Sheets
 SCOPE = ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/spreadsheets"]
@@ -73,28 +73,15 @@ curated_subreddits = [
     "MiddleEastNews", "technology", "Futurology", "science", "space", "environment", "geopolitics"
 ]
 
-# --- Public Comments Section ---
-st.markdown("### Public Comments")
-if comments:
-    for comment in comments:
-        text = comment.body.strip()
-        if text and len(text) > 10:
-            blob = TextBlob(text)
-            polarity = blob.sentiment.polarity
-            sentiment = "😊 Positive" if polarity > 0.1 else "😐 Neutral" if polarity > -0.1 else "😠 Negative"
-            st.markdown(f"> {text}\n\n*Sentiment: {sentiment}*")
-else:
-    st.info("No readable comments found for this post.")
-
 # --- Core Functions ---
 def show_reflection_interface(selected_headline):
     st.subheader("Your Reflection")
-    st.markdown("> Let the field hear your truth.")
+    st.markdown("> Let the field hear your insight.")
 
     emotions = ["Angry", "Hopeful", "Skeptical", "Confused", "Inspired", "Indifferent"]
-    emotion_choice = st.multiselect("Emotional waves you felt:", emotions, key="emotion_multiselect")
+    emotion_choice = st.multiselect("Emotion waves you felt:", emotions, key="emotion_multiselect")
     trust_rating = st.slider("How much do you trust this headline?", 1, 5, 3, key="trust_slider")
-    user_thoughts = st.text_area("If you could whisper one insight into the Agora, what would it be?", key="reflection_text")
+    user_thoughts = st.text_area("If you could whisper one truth into Agora, what would it be?", key="reflection_text")
 
     if st.button("Submit Reflection"):
         reflection_id = str(uuid.uuid4())
@@ -107,14 +94,13 @@ def show_reflection_interface(selected_headline):
             user_thoughts,
             timestamp
         ])
-        st.success("Your voice has joined the field.")
+        st.success("Your voice has joined the collective field.")
 
     st.markdown("---")
     show_public_reflections(selected_headline)
 
 def show_public_reflections(selected_headline):
     st.subheader("Public Reflections")
-
     all_reflections = load_reflections()
     all_replies = load_replies()
     matched = all_reflections[all_reflections["headline"] == selected_headline]
@@ -135,7 +121,7 @@ def show_public_reflections(selected_headline):
             st.markdown("---")
 
 def show_sentiment_field():
-    st.subheader("Sentiment Field — Collective Emotional Landscape")
+    st.subheader("Sentiment Field — Emotional Landscape")
     st.markdown("> Every point is a heartbeat. Every color a signal.")
 
     reflection_data = load_reflections()
@@ -185,12 +171,12 @@ def show_morning_digest():
             st.markdown(f"### 📰 {headline}")
             subset = yesterday_data[yesterday_data["headline"] == headline]
             grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
-            with st.spinner("Gathering yesterday’s pulse..."):
+            with st.spinner("Gathering yesterday’s emotional pulse..."):
                 summary = generate_ai_summary(headline, grouped)
                 st.success(summary)
             st.markdown("---")
 
-# --- Main App Layout ---
+# --- Main Layout ---
 st.title("Agora — The Collective Pulse")
 just_comments = st.toggle("I'm just here for the comments")
 
@@ -200,14 +186,14 @@ if "show_about" not in st.session_state:
 with st.expander("🌎 About Agora", expanded=st.session_state.show_about):
     st.session_state.show_about = False
     st.markdown("""
-    **Agora** is an open space where public sentiment, reflection, and dialogue are woven into a living field.
-    No manipulation. No clickbait. Just collective feeling and thought — emerging in real time.
+    **Agora** is an open field where public sentiment, reflection, and dialogue are woven into a living pattern.
+    No clickbait. No manipulation. Just real emotions, real signals.
     """)
 
 view_mode = st.sidebar.radio("Choose View", ["Live Agora", "Morning Digest"])
 
 if view_mode == "Live Agora":
-    topic = st.text_input("Enter a topic to listen across curated subreddits")
+    topic = st.text_input("Enter a topic to tune into the field:")
 
     if topic:
         post_dict = {}
@@ -227,6 +213,7 @@ if view_mode == "Live Agora":
             if selected_headline:
                 post = post_dict[selected_headline]
                 st.markdown(f"## 📰 {selected_headline}")
+
                 submission = reddit.submission(id=post.id)
                 submission.comments.replace_more(limit=0)
                 comments = submission.comments[:30]
@@ -251,6 +238,18 @@ if view_mode == "Live Agora":
                         summary = generate_ai_summary(selected_headline, emotion_groups)
                         st.success(summary)
 
+                # --- Public Comments with Sentiment Colors ---
+                st.markdown("### Public Comments")
+                for comment in comments:
+                    text = comment.body.strip()
+                    if text and len(text) > 10:
+                        blob = TextBlob(text)
+                        polarity = blob.sentiment.polarity
+                        sentiment = "Positive" if polarity > 0.1 else "Neutral" if polarity > -0.1 else "Negative"
+                        color = "green" if sentiment == "Positive" else "gray" if sentiment == "Neutral" else "red"
+                        st.markdown(f"<div style='border-left: 4px solid {color}; padding: 10px; margin-bottom: 10px;'>{text}</div>", unsafe_allow_html=True)
+
+                # --- User Reflection + Sentiment Field ---
                 show_reflection_interface(selected_headline)
                 show_sentiment_field()
         else:
