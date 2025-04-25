@@ -151,8 +151,8 @@ if view_mode == "Live View":
                     st.markdown("### Agora AI Summary")
                     st.info(summary)
 
-            st.subheader("Reddit Sentiment Overview")
-            st.bar_chart(emotion_counts)
+            #st.subheader("Reddit Sentiment Overview")
+            #st.bar_chart(emotion_counts)
             emoji_map = {
                 "Positive": ("🟢 😊", "green"),
                 "Neutral": ("⚪️ 😐", "gray"),
