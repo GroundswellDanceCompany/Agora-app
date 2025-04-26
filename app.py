@@ -22,6 +22,15 @@ def show_inspirational_whisper():
         "“Every thought leaves a trace on the collective field.”",
         "“Here, your voice joins the living memory.”",
         "“Emotion is the language of the field.”"
+        "“Somewhere beneath the noise, a new world is humming into being.”",
+        "“Not all awakenings are loud. Some arrive as a whisper inside the crowd.”",
+        "“The field remembers the dreams we have not yet dared to speak.”",
+        "“Every true voice strengthens the weave of the world.”",
+        "“In the spaces between certainties, humanity writes its next story.”",
+        "“No map exists for the collective heart. Only feeling shows the way.”",
+        "“Hope is not a headline. It is a quiet seed waiting inside each mind.”",
+        "“The field is made of listening more than speaking.”",
+        "“Before revolutions are seen, they are felt — here, in the field.”"
     ]
     whisper = random.choice(quotes)
     st.markdown(f"<p style='font-style: italic; color: #bbb; text-align: center;'>{whisper}</p>", unsafe_allow_html=True)
