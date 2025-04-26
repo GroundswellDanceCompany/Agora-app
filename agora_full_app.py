@@ -30,6 +30,31 @@ st.markdown("""
 }
 </style>
 """, unsafe_allow_html=True)
+
+st.markdown("""
+<style>
+.emotion-header {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 400;
+    color: #ccc;
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+.emotion-dot {
+    height: 14px;
+    width: 14px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.positive-dot { background-color: #32CD32; }
+.neutral-dot { background-color: #AAAAAA; }
+.negative-dot { background-color: #FF6347; }
+</style>
+""", unsafe_allow_html=True)
 # ----------------------
 # --- Helper Functions ---
 # ----------------------
@@ -351,10 +376,25 @@ if view_mode == "Live View":
         }
 
         for label in ["Positive", "Neutral", "Negative"]:
-            icon, color = emoji_map[label]
-            centered_header(f"{icon} {label} ({emotion_counts[label]})", level="h2")
             group = emotion_groups[label]
             if group:
+                # -- NEW HEADER --
+                if label == "Positive":
+                    dot_class = "positive-dot"
+                elif label == "Neutral":
+                    dot_class = "neutral-dot"
+                else:
+                    dot_class = "negative-dot"
+
+                st.markdown(f"""
+                <div class='emotion-header'>
+                    <span class='emotion-dot {dot_class}'></span> {label} ({emotion_counts[label]})
+                </div>
+                """, unsafe_allow_html=True)
+
+        # Then display comments for that group
+        for i, comment in enumerate(group[:10]):
+            # (Display comment block, reactions, reflections...)
                 for i, comment in enumerate(group[:10]):  # <-- Show up to 10 comments per emotion
                     st.markdown(f"<div style='border-left: 4px solid {color}; background-color:#222; color:white; padding:10px; margin-bottom:10px;'><strong>Comment {i+1}:</strong> {comment['text']}<br><small>{comment['author']} • {comment['created']} • Sentiment: {comment['score']}</small></div>", unsafe_allow_html=True)
                     comment_id = str(hash(comment["text"]))[:8]
