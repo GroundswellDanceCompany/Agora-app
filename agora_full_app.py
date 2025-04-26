@@ -169,6 +169,7 @@ sheet = client.open("AgoraData")
 reflections_ws = sheet.worksheet("Reflections")
 replies_ws = sheet.worksheet("Replies")
 reaction_ws = sheet.worksheet("CommentReactions")
+comment_reflections_ws = sheet.worksheet("CommentReflections")
 
 reddit = praw.Reddit(
     client_id=st.secrets["reddit"]["client_id"],
