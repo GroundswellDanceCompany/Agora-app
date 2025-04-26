@@ -393,7 +393,7 @@ if view_mode == "Live View":
                 """, unsafe_allow_html=True)
 
         # Then display comments for that group
-        for i, comment in enumerate(group[:10]):
+        
             # (Display comment block, reactions, reflections...)
                 for i, comment in enumerate(group[:10]):  # <-- Show up to 10 comments per emotion
                     st.markdown(f"<div style='border-left: 4px solid {color}; background-color:#222; color:white; padding:10px; margin-bottom:10px;'><strong>Comment {i+1}:</strong> {comment['text']}<br><small>{comment['author']} • {comment['created']} • Sentiment: {comment['score']}</small></div>", unsafe_allow_html=True)
@@ -424,8 +424,8 @@ if view_mode == "Live View":
                             ])
                             auto_trim_worksheet(comment_reflections_ws)
                             st.success("Reflection added!")
-                    else:
-                        st.markdown("<i>No comments found for this category.</i>", unsafe_allow_html=True)
+                     else:
+                         st.markdown("<i>No comments found for this category.</i>", unsafe_allow_html=True)
 
         
 
