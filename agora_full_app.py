@@ -25,6 +25,15 @@ def get_or_create_worksheet(sheet, name, headers):
         ws.append_row(headers)
     return ws
 
+def auto_trim_worksheet(ws, max_rows=1000):
+    data = ws.get_all_values()
+    num_rows = len(data)
+    if num_rows > max_rows:
+        # Keep headers + last max_rows rows
+        rows_to_keep = data[0:1] + data[-max_rows:]
+        ws.clear()
+        ws.update(rows_to_keep)
+
 # --- Data Loading ---
 def load_reflections():
     return pd.DataFrame(reflections_ws.get_all_records())
@@ -340,6 +349,7 @@ if view_mode == "Live View":
                                 user_reflection.strip(),
                                 datetime.utcnow().isoformat()
                             ])
+                            auto_trim_worksheet(comment_reflections_ws)
                             st.success("Reflection added!")
             else:
                 st.markdown("<i>No comments found for this category.</i>", unsafe_allow_html=True)
@@ -367,6 +377,7 @@ if view_mode == "Live View":
                     reply_text = st.text_input("Reply to this reflection:", key=f"r_{row['reflection_id']}")
                     if st.form_submit_button("Submit Reply") and reply_text.strip():
                         replies_ws.append_row([row["reflection_id"], reply_text.strip(), datetime.utcnow().isoformat()])
+                        auto_trim_worksheet(replies_ws)
                         st.success("Reply added.")
 
         # Sentiment Field
