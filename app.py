@@ -15,6 +15,24 @@ from PIL import Image
 import plotly.express as px
 import random  # (at the top of your script, if not already)
 
+def add_button_glow():
+    st.markdown("""
+    <style>
+    div.stButton > button {
+        background-color: #222;
+        color: #fff;
+        border-radius: 8px;
+        padding: 0.5em 2em;
+        transition: box-shadow 0.5s, background-color 0.5s;
+        border: 1px solid #555;
+    }
+    div.stButton > button:hover {
+        box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        background-color: #333;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 if "has_entered" not in st.session_state:
     st.session_state.has_entered = False
 
