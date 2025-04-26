@@ -127,11 +127,14 @@ def detect_collective_mood():
     if reflections_df.empty:
         return "Silent"
 
-    # Clean and prepare
+    # Parse timestamps safely
     reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
-    reflections_df["date"] = reflections_df["timestamp"].dt.date
-    today = datetime.utcnow().date()
+    reflections_df = reflections_df.dropna(subset=["timestamp"])
 
+    # Normalize to date only
+    reflections_df["date"] = reflections_df["timestamp"].dt.date
+
+    today = datetime.utcnow().date()
     today_reflections = reflections_df[reflections_df["date"] == today]
 
     if today_reflections.empty:
@@ -149,16 +152,14 @@ def detect_collective_mood():
     for emotions in today_reflections["emotions"]:
         if pd.isnull(emotions):
             continue
-        for mood in mood_counter.keys():
+        for mood in mood_counter:
             if mood in emotions:
                 mood_counter[mood] += 1
 
-    # Pick the dominant mood
     if max(mood_counter.values()) == 0:
         return "Silent"
 
-    dominant_mood = max(mood_counter, key=mood_counter.get)
-    return dominant_mood
+    return max(mood_counter, key=mood_counter.get)
 
 def show_reflection_interface(selected_headline):
     st.subheader("Your Reflection")
