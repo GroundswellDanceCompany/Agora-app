@@ -13,6 +13,18 @@ from collections import defaultdict
 import time
 from PIL import Image
 import plotly.express as px
+import random  # (at the top of your script, if not already)
+
+def show_inspirational_whisper():
+    quotes = [
+        "“The pulse of humanity can be felt if you listen softly.”",
+        "“Beyond headlines, there are heartbeats.”",
+        "“Every thought leaves a trace on the collective field.”",
+        "“Here, your voice joins the living memory.”",
+        "“Emotion is the language of the field.”"
+    ]
+    whisper = random.choice(quotes)
+    st.markdown(f"<p style='font-style: italic; color: #bbb; text-align: center;'>{whisper}</p>", unsafe_allow_html=True)
 
 def add_breathing_background():
     st.markdown("""
@@ -155,6 +167,7 @@ def show_sentiment_field():
     reflection_data = load_reflections()
 
     if not reflection_data.empty:
+        show_inspirational_whisper()
         reflection_data["timestamp"] = pd.to_datetime(reflection_data["timestamp"], errors="coerce")
         reflection_data["trust_level"] = pd.to_numeric(reflection_data["trust_level"], errors="coerce")
         reflection_data = reflection_data.dropna(subset=["trust_level", "emotions", "reflection"])
