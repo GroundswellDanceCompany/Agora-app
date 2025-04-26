@@ -46,6 +46,10 @@ def add_fade_in_styles():
     img {
         animation: fadeInSlow 2.5s ease-in forwards;
     }
+
+    div[data-testid="stPlotlyChart"] {
+    animation: fadeInSlow 2s ease-in forwards;
+    }
     </style>
     """, unsafe_allow_html=True)
 
