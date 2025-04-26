@@ -304,12 +304,24 @@ if view_mode == "Live View":
             centered_header(f"{icon} {label} ({emotion_counts[label]})", level="h2")
             group = emotion_groups[label]
             if group:
-                highlight = max(group, key=lambda c: abs(c["score"]))
-                st.markdown(f"<div style='border-left: 4px solid {color}; background-color:#222; color:white; padding:10px;'><strong>⭐ Highlight:</strong> {highlight['text']}<br><small>{highlight['author']} • {highlight['created']} • Sentiment: {highlight['score']}</small></div>", unsafe_allow_html=True)
-                highlight_id = str(hash(highlight["text"]))[:8]
-                reaction = st.radio("React:", ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"], key=f"react_{highlight_id}", horizontal=True)
-                if reaction.strip():
-                    reaction_ws.append_row([selected_headline, highlight["text"][:100], reaction, datetime.utcnow().isoformat()])
+                for i, comment in enumerate(group[:10]):  # <-- Show up to 10 comments per emotion
+                    st.markdown(f"<div style='border-left: 4px solid {color}; background-color:#222; color:white; padding:10px; margin-bottom:10px;'><strong>Comment {i+1}:</strong> {comment['text']}<br><small>{comment['author']} • {comment['created']} • Sentiment: {comment['score']}</small></div>", unsafe_allow_html=True)
+                    comment_id = str(hash(comment["text"]))[:8]
+                    reaction = st.radio(
+                        f"React to this comment:",
+                        ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"],
+                        key=f"reaction_{comment_id}",
+                        horizontal=True
+                    )
+                    if reaction.strip():
+                        reaction_ws.append_row([
+                            selected_headline,
+                            comment["text"][:100],
+                            reaction,
+                            datetime.utcnow().isoformat()
+                        ])
+            else:
+                st.markdown("<i>No comments found for this category.</i>", unsafe_allow_html=True)
 
         # Reflections
         centered_header("Public Reflections", level="h2")
