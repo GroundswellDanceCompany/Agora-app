@@ -15,6 +15,9 @@ from PIL import Image
 import plotly.express as px
 import random  # (at the top of your script, if not already)
 
+def centered_header(text, level="h2"):
+    st.markdown(f"<{level} style='text-align: center; color: #fff;'>{text}</{level}>", unsafe_allow_html=True)
+
 def add_button_glow():
     st.markdown("""
     <style>
