@@ -52,13 +52,6 @@ if "has_entered" not in st.session_state:
 if not st.session_state.has_entered:
     st.title("Agora — A Field of Listening")
 
-    st.markdown("""
-    <p style='font-size:18px; color: #bbb; text-align: center;'>
-    There is a field beyond noise.<br><br>
-    You have arrived.
-    </p>
-    """, unsafe_allow_html=True)
-
     add_fade_in_text()  # << Add fade-in styling here
     add_button_glow()   # << Add button glow styling too
 
