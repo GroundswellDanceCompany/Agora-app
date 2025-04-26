@@ -33,6 +33,19 @@ def add_button_glow():
     </style>
     """, unsafe_allow_html=True)
 
+def add_fade_in_text():
+    st.markdown("""
+    <style>
+    @keyframes fadeInSlow {
+        0% {opacity: 0;}
+        100% {opacity: 1;}
+    }
+    .fade-in {
+        animation: fadeInSlow 2s ease-in forwards;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 if "has_entered" not in st.session_state:
     st.session_state.has_entered = False
 
@@ -46,7 +59,15 @@ if not st.session_state.has_entered:
     </p>
     """, unsafe_allow_html=True)
 
-    add_button_glow()  # << Add this before the button appears
+    add_fade_in_text()  # << Add fade-in styling here
+    add_button_glow()   # << Add button glow styling too
+
+    st.markdown("""
+    <p class='fade-in' style='font-size:18px; color: #bbb; text-align: center;'>
+    There is a field beyond noise.<br><br>
+    You have arrived.
+    </p>
+    """, unsafe_allow_html=True)
 
     if st.button("Enter the Field"):
         st.session_state.has_entered = True
