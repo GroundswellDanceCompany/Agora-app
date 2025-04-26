@@ -424,8 +424,8 @@ if view_mode == "Live View":
                             ])
                             auto_trim_worksheet(comment_reflections_ws)
                             st.success("Reflection added!")
-            else:
-                st.markdown("<i>No comments found for this category.</i>", unsafe_allow_html=True)
+                    else:
+                        st.markdown("<i>No comments found for this category.</i>", unsafe_allow_html=True)
 
         
 
