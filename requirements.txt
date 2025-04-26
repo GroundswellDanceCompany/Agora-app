@@ -1,8 +1,9 @@
 streamlit
-gspread
-pandas
-google-auth
 praw
-textblob
+gspread
+google-auth
 openai
+textblob
+pandas
 plotly
+Pillow
