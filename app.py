@@ -102,6 +102,24 @@ def show_inspirational_whisper():
     whisper = random.choice(quotes)
     st.markdown(f"<p style='font-style: italic; color: #bbb; text-align: center;'>{whisper}</p>", unsafe_allow_html=True)
 
+def add_custom_loader():
+    st.markdown("""
+    <style>
+    .listening {
+      font-size: 20px;
+      color: #aaa;
+      text-align: center;
+      margin-top: 50px;
+      animation: pulseDots 2s infinite;
+    }
+    @keyframes pulseDots {
+      0% { opacity: 0.2; }
+      50% { opacity: 1; }
+      100% { opacity: 0.2; }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 def add_breathing_background():
     st.markdown("""
     <style>
@@ -278,38 +296,43 @@ def show_public_reflections(selected_headline):
 def show_sentiment_field():
     st.subheader("Sentiment Field — Emotional Landscape")
     st.markdown("> Every point is a heartbeat. Every color a signal.")
-
+    
     reflection_data = load_reflections()
 
     if not reflection_data.empty:
         show_inspirational_whisper()
-        reflection_data["timestamp"] = pd.to_datetime(reflection_data["timestamp"], errors="coerce")
-        reflection_data["trust_level"] = pd.to_numeric(reflection_data["trust_level"], errors="coerce")
-        reflection_data = reflection_data.dropna(subset=["trust_level", "emotions", "reflection"])
-        reflection_data["primary_emotion"] = reflection_data["emotions"].apply(
-            lambda x: x.split(",")[0].strip() if pd.notnull(x) else "Neutral"
-        )
 
-        fig = px.scatter(
-            reflection_data,
-            x="trust_level",
-            y="primary_emotion",
-            color="primary_emotion",
-            hover_data=["reflection"],
-            size_max=60,
-            title="Agora Emotional Field",
-            labels={"trust_level": "Trust Level (1–5)", "primary_emotion": "Emotion"}
-        )
-        fig.update_layout(
-            height=600,
-            plot_bgcolor='rgba(0,0,0,0)',
-            paper_bgcolor='rgba(0,0,0,0)',
-            font=dict(color="white"),
-        )
-        add_breathing_background()
-        st.plotly_chart(fig, use_container_width=True)
+        add_custom_loader()  # << Add this BEFORE loading field
+
+        with st.spinner("Generating the field..."):
+            time.sleep(2)  # optional: fake a slight delay to show the loader nicely
+            reflection_data["timestamp"] = pd.to_datetime(reflection_data["timestamp"], errors="coerce")
+            reflection_data["trust_level"] = pd.to_numeric(reflection_data["trust_level"], errors="coerce")
+            reflection_data = reflection_data.dropna(subset=["trust_level", "emotions", "reflection"])
+            reflection_data["primary_emotion"] = reflection_data["emotions"].apply(
+                lambda x: x.split(",")[0].strip() if pd.notnull(x) else "Neutral"
+            )
+
+            fig = px.scatter(
+                reflection_data,
+                x="trust_level",
+                y="primary_emotion",
+                color="primary_emotion",
+                hover_data=["reflection"],
+                size_max=60,
+                title="Agora Emotional Field",
+                labels={"trust_level": "Trust Level (1–5)", "primary_emotion": "Emotion"}
+            )
+            fig.update_layout(
+                height=600,
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                font=dict(color="white"),
+            )
+
+            st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("No reflections yet. The field is waiting.")
+        st.info("The field is still. No signals yet.")
 
 def show_morning_digest():
     st.title("Agora Daily — Morning Digest")
