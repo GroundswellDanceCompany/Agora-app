@@ -187,7 +187,7 @@ if not st.session_state.has_entered:
 
     placeholder = st.empty()
     with placeholder.container():
-        banner = Image.open("assets/Agora-image.png")
+        banner = Image.open("Agora-image.png")
         st.image(banner, use_container_width=True)
 
     st.markdown("""
