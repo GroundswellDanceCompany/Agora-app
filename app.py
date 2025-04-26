@@ -122,6 +122,44 @@ def show_public_comments(comments):
             color = "green" if sentiment == "Positive" else "gray" if sentiment == "Neutral" else "red"
             st.markdown(f"<div style='border-left: 4px solid {color}; padding: 10px; margin-bottom: 10px;'>{text}</div>", unsafe_allow_html=True)
 
+def detect_collective_mood():
+    reflections_df = load_reflections()
+    if reflections_df.empty:
+        return "Silent"
+
+    # Clean and prepare
+    reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
+    reflections_df["date"] = reflections_df["timestamp"].dt.date
+    today = datetime.utcnow().date()
+
+    today_reflections = reflections_df[reflections_df["date"] == today]
+
+    if today_reflections.empty:
+        return "Silent"
+
+    mood_counter = {
+        "Hopeful": 0,
+        "Angry": 0,
+        "Confused": 0,
+        "Skeptical": 0,
+        "Inspired": 0,
+        "Indifferent": 0
+    }
+
+    for emotions in today_reflections["emotions"]:
+        if pd.isnull(emotions):
+            continue
+        for mood in mood_counter.keys():
+            if mood in emotions:
+                mood_counter[mood] += 1
+
+    # Pick the dominant mood
+    if max(mood_counter.values()) == 0:
+        return "Silent"
+
+    dominant_mood = max(mood_counter, key=mood_counter.get)
+    return dominant_mood
+
 def show_reflection_interface(selected_headline):
     st.subheader("Your Reflection")
     st.markdown("> Let the field hear your insight.")
@@ -229,6 +267,13 @@ def show_morning_digest():
 
 # --- Main Layout ---
 st.title("Agora — The Collective Pulse")
+mood_today = detect_collective_mood()
+
+if mood_today != "Silent":
+    st.markdown(f"<h5 style='text-align: center; color: #bbb;'>Today’s Emotional Weather: <span style='color:#ffa;'> {mood_today}</span></h5>", unsafe_allow_html=True)
+else:
+    st.markdown(f"<h5 style='text-align: center; color: #555;'>Today’s Emotional Weather: Silent</h5>", unsafe_allow_html=True)
+    
 just_comments = st.toggle("I'm just here for the comments")
 
 if "show_about" not in st.session_state:
