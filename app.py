@@ -14,6 +14,22 @@ import time
 from PIL import Image
 import plotly.express as px
 
+def add_breathing_background():
+    st.markdown("""
+    <style>
+    @keyframes breathing {
+      0% {background-color: rgba(0,0,50,0.2);}
+      50% {background-color: rgba(0,0,80,0.4);}
+      100% {background-color: rgba(0,0,50,0.2);}
+    }
+    div[data-testid="stPlotlyChart"] {
+      animation: breathing 8s infinite;
+      border-radius: 15px;
+      padding: 10px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 # --- Banner Loader ---
 placeholder = st.empty()
 with placeholder.container():
@@ -94,7 +110,7 @@ def show_reflection_interface(selected_headline):
     trust_rating = st.slider("How much do you trust this headline?", 1, 5, 3, key="trust_slider")
     user_thoughts = st.text_area("If you could whisper one truth into Agora, what would it be?", key="reflection_text")
 
-    if st.button("Submit Reflection"):
+    if st.button("Add Your Voice"):
         reflection_id = str(uuid.uuid4())
         timestamp = datetime.utcnow().isoformat()
         reflections_ws.append_row([
@@ -117,7 +133,7 @@ def show_public_reflections(selected_headline):
     matched = all_reflections[all_reflections["headline"] == selected_headline]
 
     if matched.empty:
-        st.info("No reflections yet. The field awaits.")
+        st.info("The field is quiet. You could be the first echo.")
     else:
         for _, row in matched.iterrows():
             st.markdown(f"**Emotions:** {row['emotions']}")
@@ -125,11 +141,12 @@ def show_public_reflections(selected_headline):
             st.markdown(f"**Reflection:** {row['reflection']}")
             st.caption(f"{row['timestamp']}")
             with st.form(key=f"reply_form_{row['reflection_id']}"):
-                reply_text = st.text_input("Reply to this reflection:", key=f"r_{row['reflection_id']}")
-                if st.form_submit_button("Send Reply") and reply_text.strip():
+                reply_text = st.text_input("Offer a Thought:", key=f"r_{row['reflection_id']}")
+                if st.form_submit_button("Send Your Thought") and reply_text.strip():
                     replies_ws.append_row([row["reflection_id"], reply_text.strip(), datetime.utcnow().isoformat()])
                     st.success("Reply added.")
             st.markdown("---")
+
 
 def show_sentiment_field():
     st.subheader("Sentiment Field — Emotional Landscape")
@@ -161,6 +178,7 @@ def show_sentiment_field():
             paper_bgcolor='rgba(0,0,0,0)',
             font=dict(color="white"),
         )
+        add_breathing_background()
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("No reflections yet. The field is waiting.")
