@@ -17,6 +17,14 @@ from PIL import Image
 # --- Helper Functions ---
 # ----------------------
 
+def get_or_create_worksheet(sheet, name, headers):
+    try:
+        ws = sheet.worksheet(name)
+    except gspread.exceptions.WorksheetNotFound:
+        ws = sheet.add_worksheet(title=name, rows="1000", cols="20")
+        ws.append_row(headers)
+    return ws
+
 # --- Data Loading ---
 def load_reflections():
     return pd.DataFrame(reflections_ws.get_all_records())
@@ -166,10 +174,10 @@ SCOPE = ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/au
 creds = Credentials.from_service_account_info(st.secrets["google_service_account"], scopes=SCOPE)
 client = gspread.authorize(creds)
 sheet = client.open("AgoraData")
-reflections_ws = sheet.worksheet("Reflections")
-replies_ws = sheet.worksheet("Replies")
-reaction_ws = sheet.worksheet("CommentReactions")
-comment_reflections_ws = sheet.worksheet("CommentReflections")
+reflections_ws = get_or_create_worksheet(sheet, "Reflections", ["reflection_id", "headline", "emotions", "trust_level", "reflection", "timestamp"])
+replies_ws = get_or_create_worksheet(sheet, "Replies", ["reflection_id", "reply", "timestamp"])
+reaction_ws = get_or_create_worksheet(sheet, "CommentReactions", ["headline", "comment_snippet", "reaction", "timestamp"])
+comment_reflections_ws = get_or_create_worksheet(sheet, "CommentReflections", ["headline", "comment_snippet", "reflection", "timestamp"])
 
 reddit = praw.Reddit(
     client_id=st.secrets["reddit"]["client_id"],
