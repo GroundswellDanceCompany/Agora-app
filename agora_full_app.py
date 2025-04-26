@@ -320,8 +320,22 @@ if view_mode == "Live View":
                             reaction,
                             datetime.utcnow().isoformat()
                         ])
+
+                    with st.form(key=f"form_reflection_{comment_id}"):
+                        user_reflection = st.text_input("Your reflection on this comment:")
+                        if st.form_submit_button("Submit Reflection") and user_reflection.strip():
+        # You could create a new Google Sheet tab like "CommentReflections"
+                            comment_reflections_ws.append_row([
+                                selected_headline,
+                                comment["text"][:100],  # Store the first 100 chars of the comment
+                                user_reflection.strip(),
+                                datetime.utcnow().isoformat()
+                            ])
+                            st.success("Reflection added!")
             else:
                 st.markdown("<i>No comments found for this category.</i>", unsafe_allow_html=True)
+
+        
 
         # Reflections
         centered_header("Public Reflections", level="h2")
