@@ -306,10 +306,25 @@ if view_mode == "Live View":
                 "created": datetime.utcfromtimestamp(comment.created_utc).strftime("%Y-%m-%d %H:%M")
             })
 
-        if not just_comments:
-            with st.spinner("Gathering the field..."):
-                summary = generate_ai_summary(selected_headline, emotion_groups)
-                st.success(summary)
+        if just_comments:
+            st.write(f"Showing {len(comments)} comments...")
+
+            for label in ["Positive", "Neutral", "Negative"]:
+                icon, color = emoji_map[label]
+                centered_header(f"{icon} {label} ({emotion_counts[label]})", level="h2")
+                group = emotion_groups[label]
+                if group:
+                    for i, comment in enumerate(group[:10]):
+                        st.markdown(f"<div style='border-left: 4px solid {color}; background-color:#222; color:white; padding:10px; margin-bottom:10px;'>
+                            <strong>Comment {i+1}:</strong> {comment['text']}
+                            <br><small>{comment['author']} • {comment['created']} • Sentiment: {comment['score']}</small>
+                            </div>", unsafe_allow_html=True)
+        else:
+    # full agora: summary, reactions, reflection writing, sentiment field
+            if not just_comments:
+                with st.spinner("Gathering the field..."):
+                    summary = generate_ai_summary(selected_headline, emotion_groups)
+                    st.success(summary)
 
         emoji_map = {
             "Positive": ("🟢", "green"),
