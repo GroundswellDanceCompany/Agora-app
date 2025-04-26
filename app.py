@@ -15,6 +15,26 @@ from PIL import Image
 import plotly.express as px
 import random  # (at the top of your script, if not already)
 
+if "has_entered" not in st.session_state:
+    st.session_state.has_entered = False
+
+if not st.session_state.has_entered:
+    st.title("Agora — A Field of Listening")
+
+    st.markdown("""
+    <p style='font-size:18px; color: #bbb; text-align: center;'>
+    Welcome to Agora.<br><br>
+    Here, public thought gathers without distortion.<br>
+    Beyond headlines, beyond noise — a quiet field where human emotions ripple through the collective.<br><br>
+    Step into the listening.
+    </p>
+    """, unsafe_allow_html=True)
+
+    if st.button("Enter the Field"):
+        st.session_state.has_entered = True
+
+    st.stop()  # 🚨 VERY important: stop rest of the app until Enter clicked
+
 def show_inspirational_whisper():
     quotes = [
         "“The pulse of humanity can be felt if you listen softly.”",
