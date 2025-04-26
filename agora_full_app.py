@@ -319,7 +319,7 @@ if view_mode == "Live View":
                         <div style='border-left: 4px solid {color}; background-color:#222; color:white; padding:10px; margin-bottom:10px;'>
                             <strong>Comment {i+1}:</strong> {comment['text']}
                             <br><small>{comment['author']} • {comment['created']} • Sentiment: {comment['score']}</small>
-                        </div>", unsafe_allow_html=True)
+                        </div>""", unsafe_allow_html=True)
         else:
     # full agora: summary, reactions, reflection writing, sentiment field
             if not just_comments:
