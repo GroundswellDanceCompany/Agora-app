@@ -33,7 +33,7 @@ def add_button_glow():
     </style>
     """, unsafe_allow_html=True)
 
-def add_fade_in_text():
+def add_fade_in_styles():
     st.markdown("""
     <style>
     @keyframes fadeInSlow {
@@ -42,6 +42,9 @@ def add_fade_in_text():
     }
     .fade-in {
         animation: fadeInSlow 2s ease-in forwards;
+    }
+    img {
+        animation: fadeInSlow 2.5s ease-in forwards;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -52,9 +55,16 @@ if "has_entered" not in st.session_state:
 if not st.session_state.has_entered:
     st.title("Agora — A Field of Listening")
 
-    add_fade_in_text()  # << Add fade-in styling here
-    add_button_glow()   # << Add button glow styling too
+    add_fade_in_styles()  # << Style fade-in for text + logo
+    add_button_glow()     # << Style button glow
 
+    # Banner (Agora Logo)
+    placeholder = st.empty()
+    with placeholder.container():
+        banner = Image.open("Agora-image.png")
+        st.image(banner, use_container_width=True)
+
+    # Welcome Text
     st.markdown("""
     <p class='fade-in' style='font-size:18px; color: #bbb; text-align: center;'>
     There is a field beyond noise.<br><br>
