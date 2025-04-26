@@ -23,17 +23,18 @@ if not st.session_state.has_entered:
 
     st.markdown("""
     <p style='font-size:18px; color: #bbb; text-align: center;'>
-    Welcome to Agora.<br><br>
-    Here, public thought gathers without distortion.<br>
-    Beyond headlines, beyond noise — a quiet field where human emotions ripple through the collective.<br><br>
-    Step into the listening.
+    There is a field beyond noise.<br><br>
+    You have arrived.
     </p>
     """, unsafe_allow_html=True)
 
+    add_button_glow()  # << Add this before the button appears
+
     if st.button("Enter the Field"):
         st.session_state.has_entered = True
+        st.rerun()
 
-    st.stop()  # 🚨 VERY important: stop rest of the app until Enter clicked
+    st.stop()
 
 def show_inspirational_whisper():
     quotes = [
