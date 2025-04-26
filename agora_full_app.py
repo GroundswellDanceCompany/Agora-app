@@ -13,6 +13,23 @@ import time
 import plotly.express as px
 from PIL import Image
 
+st.markdown("""
+<style>
+.comment-block {
+  border-left: 4px solid #00FFFF;
+  background-color: #222;
+  color: white;
+  padding: 10px;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+}
+
+.comment-block:hover {
+  background-color: #333;
+  box-shadow: 0 0 10px rgba(0,255,255,0.4);
+}
+</style>
+""", unsafe_allow_html=True)
 # ----------------------
 # --- Helper Functions ---
 # ----------------------
