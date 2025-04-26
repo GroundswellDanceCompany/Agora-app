@@ -284,24 +284,23 @@ mood_colors = {
 
 badge_color = mood_colors.get(mood_today, "#555555")  # fallback to muted gray
 
-# Render the mood badge
-st.markdown(f"""
-<div style='
-    background-color: {badge_color};
-    padding: 8px 20px;
-    border-radius: 30px;
-    text-align: center;
-    font-size: 18px;
-    color: black;
-    width: fit-content;
-    margin: auto;
-    margin-bottom: 20px;
-'>
-Today’s Emotional Weather: {mood_today}
-</div>
-""", unsafe_allow_html=True)
-
-    st.markdown(f"<h5 style='text-align: center; color: #bbb;'>Today’s Emotional Weather: <span style='color:#ffa;'> {mood_today}</span></h5>", unsafe_allow_html=True)
+# # Only show badge if mood is not Silent
+if mood_today != "Silent":
+    st.markdown(f"""
+    <div style='
+        background-color: {badge_color};
+        padding: 8px 20px;
+        border-radius: 30px;
+        text-align: center;
+        font-size: 18px;
+        color: black;
+        width: fit-content;
+        margin: auto;
+        margin-bottom: 20px;
+    '>
+    Today’s Emotional Weather: {mood_today}
+    </div>
+    """, unsafe_allow_html=True)
 else:
     st.markdown(f"<h5 style='text-align: center; color: #555;'>Today’s Emotional Weather: Silent</h5>", unsafe_allow_html=True)
     
