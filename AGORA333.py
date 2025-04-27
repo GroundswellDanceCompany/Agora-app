@@ -85,7 +85,7 @@ st.markdown("""
 }
 .glow-wrapper {
     padding: 20px;
-    border-radius: 50%;
+    border-radius: 20px;
     animation: breatheGlow 4s infinite alternate;
 }
 @keyframes breatheGlow {
@@ -165,20 +165,23 @@ if not st.session_state.entered_field:
     # Sacred Portal Page
     # Sacred Portal Visual
 
-    st.markdown("<div style='text-align:center; margin-top:80px;'>", unsafe_allow_html=True)
+    st.markdown("<div class='portal-container'>", unsafe_allow_html=True)
 
-    # Breathing Glow Wrapper
     st.markdown("<div class='glow-wrapper'>", unsafe_allow_html=True)
-    st.image("flower_portal.png", width=180)
+    st.image("flower_portal.png", width=280)
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # Soft Text
     st.markdown("""
-    <div style='margin-top:30px; font-size:26px; color:#ccc; font-style:italic;'>
+    <div style='margin-top:30px; font-size:26px; color:#ccc; font-style:italic; text-align:center;'>
         The Field awaits your reflection.
     </div>
-    </div>
     """, unsafe_allow_html=True)
+
+    if st.button("Step Into the Field"):
+        st.session_state.entered_field = True
+        st.rerun()
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
     # Real Enter Button
     if st.button("Step Into the Field"):
