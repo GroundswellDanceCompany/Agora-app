@@ -73,11 +73,27 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# --- Custom Glow CSS ---
 st.markdown("""
 <style>
 @keyframes glowPulse {
     0% { filter: drop-shadow(0 0 5px gold); }
     100% { filter: drop-shadow(0 0 20px gold); }
+}
+.fade-button {
+    margin-top: 30px;
+    text-align: center;
+}
+.fade-button button {
+    font-size: 20px;
+    padding: 10px 30px;
+    border: none;
+    border-radius: 20px;
+    background-color: #333;
+    color: #ccc;
+    cursor: pointer;
+    animation: glowPulse 2s infinite alternate;
+    transition: all 0.3s ease;
 }
 .fade-button button:hover {
     background-color: #444;
@@ -162,7 +178,7 @@ if not st.session_state.entered_field:
     # Real Streamlit Button separately
     if st.button("Step Into the Field"):
         st.session_state.entered_field = True
-        st.experimental_rerun()
+        st.rerun()
 
 else:
     # Agora Main Field
