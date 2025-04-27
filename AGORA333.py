@@ -181,10 +181,6 @@ if not st.session_state.entered_field:
         st.rerun()
 
 else:
-    # Agora Main Field
-    ...
-
-else:
     # --- Main Agora ---
     st.title("Agora — Public Sentiment Field")
 
