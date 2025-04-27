@@ -328,7 +328,32 @@ if view_mode == "Live View":
 
     if selected_headline:
         post = post_dict[selected_headline]
-        st.markdown(f"## 📰 {selected_headline}")
+        st.markdown(f"""
+        <div style='text-align: center; font-size: 26px; font-weight: 400; color: #ccc; margin-top: 20px; margin-bottom: 30px;'>
+        📰 {selected_headline}
+        </div>
+       """, unsafe_allow_html=True)
+
+        centered_header("Your Immediate Reflection", level="h2")
+
+        emotions = ["Angry", "Hopeful", "Skeptical", "Confused", "Inspired", "Indifferent"]
+        emotion_choice = st.multiselect("What emotions do you feel?", emotions)
+        trust_rating = st.slider("How much do you trust this headline?", 1, 5, 3)
+        user_thoughts = st.text_area("Write your immediate reflection...")
+        if st.button("Submit Reflection"):
+            reflection_id = str(uuid.uuid4())
+            timestamp = datetime.utcnow().isoformat()
+            reflections_ws.append_row([
+                reflection_id,
+                selected_headline,
+                ", ".join(emotion_choice),
+                trust_rating,
+                user_thoughts,
+                timestamp
+            ])
+            auto_trim_worksheet(reflections_ws)
+            st.success("Reflection submitted!")
+            
         submission = reddit.submission(id=post.id)
         submission.comments.replace_more(limit=0)
         comments = submission.comments[:30]
