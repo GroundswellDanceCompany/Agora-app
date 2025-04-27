@@ -12,6 +12,7 @@ from openai import OpenAI
 import uuid
 from PIL import Image
 import plotly.express as px
+import time
 
 # --- Page Config ---
 st.set_page_config(
@@ -122,6 +123,16 @@ def golden_divider():
     ' />
     """, unsafe_allow_html=True)
 
+def slow_reveal_sequence(contents, delay=1.5):
+    """
+    Reveal a sequence of content blocks slowly.
+    contents: list of (function, text) pairs
+    delay: seconds between reveals
+    """
+    for func, text in contents:
+        func(text)
+        time.sleep(delay)
+
 def generate_ai_summary(headline, grouped_comments):
     prompt = f"Headline: {headline}\n"
     for label, comments in grouped_comments.items():
@@ -193,13 +204,14 @@ else:
     # --- Main Agora ---
     # --- Example: Sacred Entry Section ---
 
-    centered_header("Agora — Public Sentiment Field", level="h1")
+    add_fade_in_styles()
 
-    centered_paragraph("There is a space beyond the noise of the world.")
-
-    golden_divider()
-
-    centered_quote("The Field awaits your reflection.")
+    slow_reveal_sequence([
+        (centered_header, "Agora — Public Sentiment Field"),
+        (centered_paragraph, "There is a space beyond the noise of the world."),
+        (golden_divider, ""),  # Divider doesn't need text
+        (centered_quote, "The Field awaits your reflection."),
+    ], delay=2)
 
     if "show_about" not in st.session_state:
         st.session_state.show_about = True
