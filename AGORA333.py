@@ -102,7 +102,7 @@ if not st.session_state.entered_field:
     # Enter button
     if st.button("Step Into the Field"):
         st.session_state.entered_field = True
-        st.experimental_rerun(
+        st.rerun()
 
 else:
     # --- Main Agora ---
