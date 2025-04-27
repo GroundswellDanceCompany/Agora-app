@@ -240,7 +240,7 @@ just human voices and emotional clarity.
                 st.warning("No comments found for this topic.")
             else:
                 # (Same comments logic we built together — will continue after this!)
-                                emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
+                emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
                 emotion_groups = defaultdict(list)
 
                 for comment in comments:
