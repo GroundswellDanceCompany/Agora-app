@@ -73,6 +73,15 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+@keyframes glowPulse {
+    0% { filter: drop-shadow(0 0 5px gold); }
+    100% { filter: drop-shadow(0 0 20px gold); }
+}
+.fade-button button:hover {
+    background-color: #444;
+    box-shadow: 0 0 15px gold;
+}
+
 # --- Helper Functions ---
 def get_or_create_worksheet(sheet, name, headers):
     try:
@@ -136,16 +145,29 @@ if "entered_field" not in st.session_state:
     st.session_state.entered_field = False
 
 if not st.session_state.entered_field:
-    st.markdown("""<div style='text-align:center; margin-top:100px; font-size:30px; color:#ccc;' class='fade-in'>
-    Welcome to Agora — a living field of human reflection.
-    </div>""", unsafe_allow_html=True)
+    # Sacred Portal Page
 
-    with st.container():
-        st.markdown("<div class='fade-button'>", unsafe_allow_html=True)
-        if st.button("Enter the Field"):
-            st.session_state.entered_field = True
-            st.rerun()
-        st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("""
+    <div style="text-align:center; margin-top:80px;">
+        <img src="https://yourdomain.com/assets/flower_portal.png" style="width:180px; animation:glowPulse 3s infinite alternate;">
+        <div style="margin-top:30px; font-size:26px; color:#ccc; font-style:italic;">
+            The Field awaits your reflection.
+        </div>
+        <br>
+        <div class="fade-button">
+            <form action="">
+                <button style="margin-top:30px; font-size:20px; padding:10px 30px; border:none; border-radius:20px; background-color:#333; color:#ccc; cursor:pointer; animation:glowPulse 2s infinite alternate;">
+                    Step Into the Field
+                </button>
+            </form>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # When user clicks, set session state manually
+    if st.button("I am ready"):
+        st.session_state.entered_field = True
+        st.rerun()
 
 else:
     # --- Main Agora ---
