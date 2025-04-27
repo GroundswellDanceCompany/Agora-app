@@ -168,7 +168,7 @@ if not st.session_state.entered_field:
     # Sacred Portal Page
     st.markdown("""
     <div style="text-align:center; margin-top:80px;">
-        <img src="https://yourdomain.com/flower_portal.png" style="width:180px; animation:glowPulse 3s infinite alternate;">
+        <img src="flower_portal.png" style="width:180px; animation:glowPulse 3s infinite alternate;">
         <div style="margin-top:30px; font-size:26px; color:#ccc; font-style:italic;">
             The Field awaits your reflection.
         </div>
