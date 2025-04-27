@@ -84,6 +84,35 @@ def centered_header(text, level="h2"):
     '>{text}</{level}>
     """, unsafe_allow_html=True)
 
+def centered_paragraph(text):
+    st.markdown(f"""
+    <p style='
+        text-align: center;
+        color: #aaa;
+        font-size: 18px;
+        font-style: italic;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    '>{text}</p>
+    """, unsafe_allow_html=True)
+
+def centered_quote(text):
+    st.markdown(f"""
+    <div style='
+        text-align: center;
+        background-color: rgba(255, 255, 255, 0.05);
+        padding: 20px;
+        margin: 30px auto;
+        border-radius: 15px;
+        width: 80%;
+        font-size: 20px;
+        font-style: italic;
+        color: #ddd;
+    '>
+    "{text}"
+    </div>
+    """, unsafe_allow_html=True)
+
 def generate_ai_summary(headline, grouped_comments):
     prompt = f"Headline: {headline}\n"
     for label, comments in grouped_comments.items():
