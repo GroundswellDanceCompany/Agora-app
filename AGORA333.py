@@ -80,28 +80,28 @@ reddit = praw.Reddit(
 curated_subreddits = ["news", "worldnews", "politics", "uspolitics", "technology", "science", "geopolitics"]
 
 # --- Welcome Screen Logic ---
-if "entered_field" not in st.session_state:
-    st.session_state.entered_field = False
+if "has_entered" not in st.session_state:
+    st.session_state.has_entered = False
 
-if not st.session_state.entered_field:
-    # Centered layout
-    st.markdown("<div style='text-align:center; margin-top:100px;'>", unsafe_allow_html=True)
+# --- Welcome Page ---
+if not st.session_state.has_entered:
+    add_fade_in_styles()
+    add_button_glow()
 
-    # Logo
-    st.image("Agora-image.png", width=250)  # Adjust width if you like
+    placeholder = st.empty()
+    with placeholder.container():
+        banner = Image.open("Agora-image.png")
+        st.image(banner, use_container_width=True)
 
-    # Poetic Text
     st.markdown("""
-    <div style='margin-top:30px; font-size:26px; color:#ccc; font-style:italic;'>
-        The Field awaits your reflection.
-    </div>
+    <p class='fade-in' style='font-size:18px; color: #bbb; text-align: center;'>
+    There is a field beyond noise.<br><br>
+    You have arrived.
+    </p>
     """, unsafe_allow_html=True)
 
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    # Enter button
-    if st.button("Step Into the Field"):
-        st.session_state.entered_field = True
+    if st.button("Enter the Field"):
+        st.session_state.has_entered = True
         st.rerun()
 
 else:
