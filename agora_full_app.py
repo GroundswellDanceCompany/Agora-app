@@ -361,9 +361,23 @@ if view_mode == "Live View":
 
             # --- Reflection form ---
             emotions = ["Angry", "Hopeful", "Skeptical", "Confused", "Inspired", "Indifferent"]
-            emotion_choice = st.multiselect("What emotions do you feel?", emotions)
-            trust_rating = st.slider("How much do you trust this headline?", 1, 5, 3)
-            user_thoughts = st.text_area("Write your immediate reflection...")
+
+            emotion_choice = st.multiselect(
+                "What emotions do you feel?",
+                emotions,
+                key="emotion_choice"
+            )
+
+            trust_rating = st.slider(
+                "How much do you trust this headline?",
+                1, 5, 3,
+                key="trust_rating"
+            )
+
+            user_thoughts = st.text_area(
+                "Write your immediate reflection...",
+                key="user_thoughts"
+            )
             if st.button("Submit Reflection"):
                 reflection_id = str(uuid.uuid4())
                 timestamp = datetime.utcnow().isoformat()
@@ -377,6 +391,13 @@ if view_mode == "Live View":
                 ])
                 auto_trim_worksheet(reflections_ws)
                 st.success("Reflection submitted!")
+
+                # --- Clear the form fields ---
+                st.session_state["emotion_choice"] = []
+                st.session_state["trust_rating"] = 3
+                st.session_state["user_thoughts"] = ""
+    else:
+        st.warning("Please write a reflection before submitting.")
             
         submission = reddit.submission(id=post.id)
         submission.comments.replace_more(limit=0)
