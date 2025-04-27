@@ -76,36 +76,14 @@ st.markdown("""
 # --- Custom Glow CSS ---
 st.markdown("""
 <style>
-@keyframes glowPulse {
-    0% { filter: drop-shadow(0 0 5px gold); }
-    100% { filter: drop-shadow(0 0 20px gold); }
+.portal-container {
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
-.fade-button {
-    margin-top: 30px;
-    text-align: center;
-}
-.fade-button button {
-    font-size: 20px;
-    padding: 10px 30px;
-    border: none;
-    border-radius: 20px;
-    background-color: #333;
-    color: #ccc;
-    cursor: pointer;
-    animation: glowPulse 2s infinite alternate;
-    transition: all 0.3s ease;
-}
-.fade-button button:hover {
-    background-color: #444;
-    box-shadow: 0 0 15px gold;
-}
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown("""
-<style>
 .glow-wrapper {
-    display: inline-block;
     padding: 20px;
     border-radius: 50%;
     animation: breatheGlow 4s infinite alternate;
@@ -115,7 +93,7 @@ st.markdown("""
         box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
     }
     100% {
-        box-shadow: 0 0 20px rgba(255, 215, 0, 0.9);
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.9);
     }
 }
 </style>
@@ -191,7 +169,7 @@ if not st.session_state.entered_field:
 
     # Breathing Glow Wrapper
     st.markdown("<div class='glow-wrapper'>", unsafe_allow_html=True)
-    st.image("assets/flower_portal.png", width=180)
+    st.image("flower_portal.png", width=180)
     st.markdown("</div>", unsafe_allow_html=True)
 
     # Soft Text
