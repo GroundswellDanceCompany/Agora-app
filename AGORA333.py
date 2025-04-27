@@ -264,30 +264,20 @@ if not st.session_state.has_entered:
     col1, col2, col3 = st.columns([1,2,1])
 
     with col2:
-        st.markdown(
-            """
-            <div style='display: flex; justify-content: center;'>
-                <button onclick="document.querySelector('button[kind=primary]').click();" 
-                    style='
-                        background-color: #333;
-                        color: #ccc;
-                        padding: 12px 30px;
-                        font-size: 20px;
-                        border: none;
-                        border-radius: 25px;
-                        cursor: pointer;
-                        transition: all 0.4s ease;
-                        box-shadow: 0 0 10px gold;
-                    '
-             b  >Enter the Field</button>
-            </div>
-            """, 
-            unsafe_allow_html=True
-        )
-
-        if st.button("Invisible Enter", key="enter"):
+        # Centered custom portal button
+        if st.button("Enter the Field", key="main_enter"):
             st.session_state.has_entered = True
             st.rerun()
+
+    # Center ALL Streamlit buttons to be centered inside columns
+    st.markdown("""
+    <style>
+    div.stButton > button {
+        display: block;
+        margin: 0 auto;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
 else:
     # --- Main Agora ---
