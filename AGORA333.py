@@ -144,7 +144,7 @@ if not st.session_state.entered_field:
         st.markdown("<div class='fade-button'>", unsafe_allow_html=True)
         if st.button("Enter the Field"):
             st.session_state.entered_field = True
-            st.experimental_rerun()
+            st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
 else:
