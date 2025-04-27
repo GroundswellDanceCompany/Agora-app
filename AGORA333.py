@@ -84,25 +84,25 @@ if "entered_field" not in st.session_state:
     st.session_state.entered_field = False
 
 if not st.session_state.entered_field:
-    # Sacred Portal Page
-    # Sacred Portal Visual
+    # Centered layout
+    st.markdown("<div style='text-align:center; margin-top:100px;'>", unsafe_allow_html=True)
 
+    # Logo
+    st.image("assets/flower_portal.png", width=250)  # Adjust width if you like
+
+    # Poetic Text
     st.markdown("""
-    <div style='margin-top:30px; font-size:26px; color:#ccc; font-style:italic; text-align:center;'>
+    <div style='margin-top:30px; font-size:26px; color:#ccc; font-style:italic;'>
         The Field awaits your reflection.
     </div>
     """, unsafe_allow_html=True)
 
-    if st.button("Step Into the Field"):
-        st.session_state.entered_field = True
-        st.rerun()
-
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # Real Enter Button
+    # Enter button
     if st.button("Step Into the Field"):
         st.session_state.entered_field = True
-        st.rerun()
+        st.experimental_rerun(
 
 else:
     # --- Main Agora ---
