@@ -41,7 +41,7 @@ def add_fade_in_styles():
 def add_button_glow():
     st.markdown("""
     <style>
-    .stButton>button {
+    .stButton > button {
         border: none;
         padding: 10px 30px;
         border-radius: 20px;
@@ -50,7 +50,7 @@ def add_button_glow():
         font-size: 18px;
         transition: all 0.3s ease;
     }
-    .stButton>button:hover {
+    .stButton > button:hover {
         background-color: #444;
         box-shadow: 0 0 15px gold;
         color: #fff;
