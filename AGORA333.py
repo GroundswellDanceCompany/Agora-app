@@ -85,7 +85,7 @@ def centered_header(text, level="h2"):
 
 def centered_paragraph(text):
     st.markdown(f"""
-    <p style='
+    <p class='fade-in' style='
         text-align: center;
         color: #aaa;
         font-size: 18px;
@@ -97,7 +97,7 @@ def centered_paragraph(text):
 
 def centered_quote(text):
     st.markdown(f"""
-    <div style='
+    <div class='fade-in' style='
         text-align: center;
         background-color: rgba(255, 255, 255, 0.05);
         padding: 20px;
