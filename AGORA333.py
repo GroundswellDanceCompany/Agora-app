@@ -75,10 +75,9 @@ def auto_trim_worksheet(ws, max_rows=1000):
 
 def centered_header(text, level="h2"):
     st.markdown(f"""
-    <{level} style='
+    <{level} class='fade-in' style='
         text-align: center;
-        color: #ccc;
-        font-weight: 400;
+        color: #fff;
         margin-top: 40px;
         margin-bottom: 20px;
     '>{text}</{level}>
