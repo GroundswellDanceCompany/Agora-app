@@ -261,26 +261,12 @@ if not st.session_state.has_entered:
     </p>
     """, unsafe_allow_html=True)
 
-    center_button = st.markdown("""
-        <div style='display: flex; justify-content: center; margin-top: 40px;'>
-            <form action="#">
-                <button type="submit" style="
-                    background-color: #333;
-                    color: #ccc;
-                    padding: 12px 30px;
-                    font-size: 20px;
-                    border: none;
-                    border-radius: 25px;
-                    cursor: pointer;
-                    transition: all 0.4s ease;
-                ">Enter the Field</button>
-            </form>
-        </div>
-    """, unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([1,2,1])
 
-    if st.button("Invisible_Button_For_Action", key="invisible", help="Invisible helper button"):
-        st.session_state.has_entered = True
-        st.rerun()
+    with col2:
+        if st.button("Enter the Field"):
+            st.session_state.has_entered = True
+            st.rerun()
 
 else:
     # --- Main Agora ---
