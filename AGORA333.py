@@ -73,19 +73,18 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st markdown("""
+st.markdown("""
 <style>
 @keyframes glowPulse {
     0% { filter: drop-shadow(0 0 5px gold); }
     100% { filter: drop-shadow(0 0 20px gold); }
 }
-</style>
-""", unsafe_allow_html=True)
-
 .fade-button button:hover {
     background-color: #444;
     box-shadow: 0 0 15px gold;
 }
+</style>
+""", unsafe_allow_html=True)
 
 # --- Helper Functions ---
 def get_or_create_worksheet(sheet, name, headers):
