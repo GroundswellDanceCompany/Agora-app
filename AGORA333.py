@@ -472,7 +472,7 @@ just human voices and emotional clarity.
                 golden_divider()
 
                 slow_reveal_sequence([
-                    (centered_header, headline, "h2"),
+                    (lambda text: centered_header(text, level="h2"), headline),
                     (centered_paragraph, "Gathering reflections...")
                 ], delay=1.2)
 
