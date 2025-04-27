@@ -21,84 +21,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- Custom CSS ---
-st.markdown("""
-<style>
-.fade-in {
-  opacity: 0;
-  animation: fadeInAnimation ease 1s;
-  animation-fill-mode: forwards;
-  animation-delay: 0.2s;
-}
-.fade-button button {
-  opacity: 0;
-  animation: fadeInAnimation ease 1.5s;
-  animation-fill-mode: forwards;
-  animation-delay: 1.2s;
-}
-@keyframes fadeInAnimation {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
-}
-.comment-block {
-  border-left: 4px solid #00FFFF;
-  background-color: #222;
-  color: white;
-  padding: 10px;
-  margin-bottom: 10px;
-  transition: all 0.3s ease;
-}
-.comment-block:hover {
-  background-color: #333;
-  box-shadow: 0 0 10px rgba(0,255,255,0.4);
-}
-.emotion-header {
-    text-align: center;
-    font-size: 22px;
-    font-weight: 400;
-    color: #ccc;
-    margin-top: 30px;
-    margin-bottom: 10px;
-}
-.emotion-dot {
-    height: 14px;
-    width: 14px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 8px;
-}
-.positive-dot { background-color: #32CD32; }
-.neutral-dot { background-color: #AAAAAA; }
-.negative-dot { background-color: #FF6347; }
-</style>
-""", unsafe_allow_html=True)
-
-# --- Custom Glow CSS ---
-st.markdown("""
-<style>
-.portal-container {
-    height: 90vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-.glow-wrapper {
-    padding: 20px;
-    border-radius: 20px;
-    animation: breatheGlow 4s infinite alternate;
-}
-@keyframes breatheGlow {
-    0% {
-        box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
-    }
-    100% {
-        box-shadow: 0 0 30px rgba(255, 215, 0, 0.9);
-    }
-}
-</style>
-""", unsafe_allow_html=True)
-
 # --- Helper Functions ---
 def get_or_create_worksheet(sheet, name, headers):
     try:
@@ -164,12 +86,6 @@ if "entered_field" not in st.session_state:
 if not st.session_state.entered_field:
     # Sacred Portal Page
     # Sacred Portal Visual
-
-    st.markdown("<div class='portal-container'>", unsafe_allow_html=True)
-
-    st.markdown("<div class='glow-wrapper'>", unsafe_allow_html=True)
-    st.image("flower_portal.png", width=280)
-    st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown("""
     <div style='margin-top:30px; font-size:26px; color:#ccc; font-style:italic; text-align:center;'>
