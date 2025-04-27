@@ -74,7 +74,15 @@ def auto_trim_worksheet(ws, max_rows=1000):
         ws.update(keep)
 
 def centered_header(text, level="h2"):
-    st.markdown(f"<{level} style='text-align: center; color: #fff;'>{text}</{level}>", unsafe_allow_html=True)
+    st.markdown(f"""
+    <{level} style='
+        text-align: center;
+        color: #ccc;
+        font-weight: 400;
+        margin-top: 40px;
+        margin-bottom: 20px;
+    '>{text}</{level}>
+    """, unsafe_allow_html=True)
 
 def generate_ai_summary(headline, grouped_comments):
     prompt = f"Headline: {headline}\n"
@@ -321,7 +329,7 @@ just human voices and emotional clarity.
                                         st.success("Reflection added!")
 
             # --- Public Reflections Section ---
-            st.subheader("Public Reflections")
+            centered_header("Public Reflections")
             all_reflections = pd.DataFrame(reflections_ws.get_all_records())
             if not all_reflections.empty:
                 matched = all_reflections[all_reflections["headline"] == selected_headline]
@@ -335,7 +343,7 @@ just human voices and emotional clarity.
                 st.info("No reflections found yet.")
 
             # --- Sentiment Field Visualization ---
-            st.subheader("Sentiment Field — Emotional Landscape")
+            centered_header("Sentiment Field — Emotional Landscape")
             if not all_reflections.empty:
                 all_reflections["timestamp"] = pd.to_datetime(all_reflections["timestamp"], errors="coerce")
                 all_reflections["primary_emotion"] = all_reflections["emotions"].apply(lambda x: x.split(",")[0].strip() if pd.notnull(x) else "Neutral")
@@ -358,7 +366,7 @@ just human voices and emotional clarity.
 
     # --- Morning Digest Mode ---
     elif view_mode == "Morning Digest":
-        st.title("Agora Morning Digest — Yesterday's Top Reflections")
+        centered_header("Agora Morning Digest — Yesterday's Top Reflections")
 
         today = datetime.utcnow().date()
         yesterday = today - timedelta(days=1)
