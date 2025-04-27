@@ -343,65 +343,59 @@ if view_mode == "Live View":
         selected_headline = None
 
     if selected_headline:
-        post = post_dict[selected_headline]
-        with st.container():
-            st.markdown(f"""
-            <div class='fade-in'>
+    post = post_dict[selected_headline]
 
-                <div style='text-align: center; font-size: 26px; font-weight: 400; color: #ccc; margin-top: 20px; margin-bottom: 30px;'>
-                    📰 {selected_headline}
-                </div>
-
-                <div style='text-align: center; margin-bottom: 40px;'>
-                    <h3 style='color: #aaa;'>Your Immediate Reflection</h3>
-                </div>
-
+    # --- Headline and Immediate Reflection (your nice container) ---
+    with st.container():
+        st.markdown(f"""<div class='fade-in'>
+            <div style='text-align: center; font-size: 26px; font-weight: 400; color: #ccc; margin-top: 20px; margin-bottom: 30px;'>
+                📰 {selected_headline}
             </div>
-            """, unsafe_allow_html=True)
+            <div style='text-align: center; margin-bottom: 40px;'>
+                <h3 style='color: #aaa;'>Your Immediate Reflection</h3>
+            </div>
+        </div>""", unsafe_allow_html=True)
 
-            # --- Reflection form ---
-            emotions = ["Angry", "Hopeful", "Skeptical", "Confused", "Inspired", "Indifferent"]
+        # --- Reflection form ---
+        emotions = ["Angry", "Hopeful", "Skeptical", "Confused", "Inspired", "Indifferent"]
 
-            emotion_choice = st.multiselect(
-                "What emotions do you feel?",
-                emotions,
-                key="emotion_choice"
-            )
+        emotion_choice = st.multiselect(
+            "What emotions do you feel?", emotions, key="emotion_choice"
+        )
+        trust_rating = st.slider(
+            "How much do you trust this headline?", 1, 5, 3, key="trust_rating"
+        )
+        user_thoughts = st.text_area(
+            "Write your immediate reflection...", key="user_thoughts"
+        )
 
-            trust_rating = st.slider(
-                "How much do you trust this headline?",
-                1, 5, 3,
-                key="trust_rating"
-            )
+        if st.button("Submit Reflection"):
+            reflection_id = str(uuid.uuid4())
+            timestamp = datetime.utcnow().isoformat()
+            reflections_ws.append_row([
+                reflection_id,
+                selected_headline,
+                ", ".join(emotion_choice),
+                trust_rating,
+                user_thoughts,
+                timestamp
+            ])
+            auto_trim_worksheet(reflections_ws)
+            st.success("Reflection submitted!")
+            # --- Clear form fields ---
+            st.session_state["emotion_choice"] = []
+            st.session_state["trust_rating"] = 3
+            st.session_state["user_thoughts"] = ""
 
-            user_thoughts = st.text_area(
-                "Write your immediate reflection...",
-                key="user_thoughts"
-            )
-            if st.button("Submit Reflection"):
-                reflection_id = str(uuid.uuid4())
-                timestamp = datetime.utcnow().isoformat()
-                reflections_ws.append_row([
-                    reflection_id,
-                    selected_headline,
-                    ", ".join(emotion_choice),
-                    trust_rating,
-                    user_thoughts,
-                    timestamp
-                ])
-                auto_trim_worksheet(reflections_ws)
-                st.success("Reflection submitted!")
+    # --- NOW (still inside if selected_headline) ---
+    submission = reddit.submission(id=post.id)
+    submission.comments.replace_more(limit=0)
+    comments = submission.comments[:30]
 
-                # --- Clear the form fields ---
-                st.session_state["emotion_choice"] = []
-                st.session_state["trust_rating"] = 3
-                st.session_state["user_thoughts"] = ""
-    else:
-        st.warning("Please write a reflection before submitting.")
-            
-        submission = reddit.submission(id=post.id)
-        submission.comments.replace_more(limit=0)
-        comments = submission.comments[:30]
+    # (then you go on with comments, reactions, public reflections, field...)
+
+else:
+    st.warning("Please select a headline first.")
 
         emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
         emotion_groups = defaultdict(list)
