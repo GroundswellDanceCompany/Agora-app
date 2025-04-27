@@ -360,18 +360,18 @@ if view_mode == "Live View":
         submission.comments.replace_more(limit=0)
         comments = submission.comments[:30]
 
-            # --- Reflection form ---
-            emotions = ["Angry", "Hopeful", "Skeptical", "Confused", "Inspired", "Indifferent"]
+        # --- Reflection form ---
+        emotions = ["Angry", "Hopeful", "Skeptical", "Confused", "Inspired", "Indifferent"]
 
-            emotion_choice = st.multiselect(
-                "What emotions do you feel?", emotions, key="emotion_choice"
-            )
-            trust_rating = st.slider(
-                "How much do you trust this headline?", 1, 5, 3, key="trust_rating"
-            )
-            user_thoughts = st.text_area(
-                "Write your immediate reflection...", key="user_thoughts"
-            )
+        emotion_choice = st.multiselect(
+            "What emotions do you feel?", emotions, key="emotion_choice"
+        )
+        trust_rating = st.slider(
+             "How much do you trust this headline?", 1, 5, 3, key="trust_rating"
+        )
+        user_thoughts = st.text_area(
+             "Write your immediate reflection...", key="user_thoughts"
+        )
 
             if st.button("Submit Reflection"):
                 reflection_id = str(uuid.uuid4())
