@@ -263,10 +263,10 @@ if not st.session_state.has_entered:
 
     col1, col2, col3 = st.columns([1,2,1])
 
-with col2:
-    if st.button("Enter the Field"):
-        st.session_state.has_entered = True
-        st.rerun()
+    with col2:
+        if st.button("Enter the Field"):
+            st.session_state.has_entered = True
+            st.rerun()
 
 else:
     # --- Main Agora ---
