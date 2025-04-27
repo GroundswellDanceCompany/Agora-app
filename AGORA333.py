@@ -22,6 +22,22 @@ st.set_page_config(
 )
 
 # --- Helper Functions ---
+def add_fade_in_styles():
+    st.markdown("""
+    <style>
+    .fade-in {
+        animation: fadeInAnimation 2s ease forwards;
+        opacity: 0;
+    }
+
+    @keyframes fadeInAnimation {
+        to {
+            opacity: 1;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 def get_or_create_worksheet(sheet, name, headers):
     try:
         ws = sheet.worksheet(name)
