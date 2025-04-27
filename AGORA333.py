@@ -444,7 +444,7 @@ just human voices and emotional clarity.
 
     # --- Morning Digest Mode ---
     elif view_mode == "Morning Digest":
-        centered_header("Agora Morning Digest — Yesterday's Top Reflections")
+        add_fade_in_styles()
 
         today = datetime.utcnow().date()
         yesterday = today - timedelta(days=1)
@@ -456,16 +456,25 @@ just human voices and emotional clarity.
         yesterday_data = reflections_df[reflections_df["date"] == yesterday]
 
         if yesterday_data.empty:
-            st.info("No reflections found for yesterday.")
+            slow_reveal_sequence([
+                (centered_header, "Agora Morning Digest"),
+                (centered_paragraph, "No reflections were recorded yesterday. The Field was silent."),
+            ], delay=1.5)
         else:
+            slow_reveal_sequence([
+                (centered_header, "Agora Morning Digest"),
+                (centered_paragraph, "Glimpses into the Field from yesterday's thoughts."),
+            ], delay=1.5)
+
             top_headlines = yesterday_data["headline"].value_counts().head(3).index.tolist()
+
             for headline in top_headlines:
                 golden_divider()
 
                 slow_reveal_sequence([
                     (centered_header, headline, "h2"),
-                    (centered_paragraph, "Gathering reflections..."),
-                ], delay=1)
+                    (centered_paragraph, "Gathering reflections...")
+                ], delay=1.2)
 
                 subset = yesterday_data[yesterday_data["headline"] == headline]
                 grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
@@ -473,17 +482,10 @@ just human voices and emotional clarity.
                 with st.spinner("Summarizing reflections..."):
                     summary = generate_ai_summary(headline, grouped)
 
+                time.sleep(1.0)  # gentle pause
                 centered_quote(summary)
 
-                insert_field_memory()  # <--- sacred memory appears between headlines
+                time.sleep(1.5)  # breathing space
+                insert_field_memory()
 
                 st.markdown("<br><br>", unsafe_allow_html=True)
-                
-            for headline in top_headlines:
-                st.markdown(f"### 📰 {headline}")
-                subset = yesterday_data[yesterday_data["headline"] == headline]
-                grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
-                with st.spinner("Summarizing reflections..."):
-                    summary = generate_ai_summary(headline, grouped)
-                    st.success(summary)
-                st.markdown("---")
