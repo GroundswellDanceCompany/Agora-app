@@ -166,12 +166,14 @@ if "entered_field" not in st.session_state:
 
 if not st.session_state.entered_field:
     # Sacred Portal Page
+    st.markdown("<div style='text-align:center; margin-top:80px;'>", unsafe_allow_html=True)
+    # Correct Python code for the image
+    st.image("flower_portal.png", width=180)
+    
     st.markdown("""
-    <div style="text-align:center; margin-top:80px;">
-        st.image("flower_portal.png", width=180)
-        <div style="margin-top:30px; font-size:26px; color:#ccc; font-style:italic;">
-            The Field awaits your reflection.
-        </div>
+    <div style="margin-top:30px; font-size:26px; color:#ccc; font-style:italic;">
+        The Field awaits your reflection.
+    </div>
     </div>
     """, unsafe_allow_html=True)
 
