@@ -546,26 +546,26 @@ else:
         else:
             st.info("The field is still. No voices today.")
 
-elif view_mode == "Morning Digest":
-    centered_header("Agora Daily — Morning Digest", level="h1")
+    elif view_mode == "Morning Digest":
+        centered_header("Agora Daily — Morning Digest", level="h1")
 
-    today = datetime.utcnow().date()
-    yesterday = today - timedelta(days=1)
-    reflections_df = load_reflections()
-    reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
-    reflections_df["date"] = reflections_df["timestamp"].dt.date
-    yesterday_data = reflections_df[reflections_df["date"] == yesterday]
+        today = datetime.utcnow().date()
+        yesterday = today - timedelta(days=1)
+        reflections_df = load_reflections()
+        reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
+        reflections_df["date"] = reflections_df["timestamp"].dt.date
+        yesterday_data = reflections_df[reflections_df["date"] == yesterday]
 
-    if yesterday_data.empty:
-        st.info("No reflections found for yesterday.")
-    else:
-        top_headlines = yesterday_data["headline"].value_counts().head(3).index.tolist()
-        for headline in top_headlines:
-            centered_header(f"📰 {headline}", level="h2")
-            subset = yesterday_data[yesterday_data["headline"] == headline]
-            grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
-            with st.spinner("Summarizing reflections..."):
-                summary = generate_ai_summary(headline, grouped)
-                st.success(summary)
-            show_inspirational_whisper()
-            st.markdown("---")
+        if yesterday_data.empty:
+            st.info("No reflections found for yesterday.")
+        else:
+            top_headlines = yesterday_data["headline"].value_counts().head(3).index.tolist()
+            for headline in top_headlines:
+                centered_header(f"📰 {headline}", level="h2")
+                subset = yesterday_data[yesterday_data["headline"] == headline]
+                grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
+                with st.spinner("Summarizing reflections..."):
+                    summary = generate_ai_summary(headline, grouped)
+                    st.success(summary)
+                show_inspirational_whisper()
+                st.markdown("---")
