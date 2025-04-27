@@ -75,6 +75,10 @@ def auto_trim_worksheet(ws, max_rows=1000):
         ws.clear()
         ws.update(keep)
 
+def closing_blessing():
+    st.markdown("<br><br>", unsafe_allow_html=True)  # gentle breathing space
+    centered_quote("The Field rests today, awaiting new reflections.")
+
 def centered_header(text, level="h2"):
     st.markdown(f"""
     <{level} class='fade-in' style='
@@ -489,3 +493,5 @@ just human voices and emotional clarity.
                 insert_field_memory()
 
                 st.markdown("<br><br>", unsafe_allow_html=True)
+
+            closing_blessing()
