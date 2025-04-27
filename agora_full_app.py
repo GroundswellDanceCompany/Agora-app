@@ -423,17 +423,17 @@ if view_mode == "Live View":
                         auto_trim_worksheet(reaction_ws)
 
                      # 3. Reflection Form
-                     with st.form(key=f"form_reflection_{comment_id}"):
-                         user_reflection = st.text_input("Your reflection on this comment:")
-                         if st.form_submit_button("Submit Reflection") and user_reflection.strip():
-                             comment_reflections_ws.append_row([
-                                 selected_headline,
-                                 comment["text"][:100],  # first 100 chars of the comment
-                                 user_reflection.strip(),
-                                 datetime.utcnow().isoformat()
-                             ])
-                             auto_trim_worksheet(comment_reflections_ws)
-                             st.success("Reflection added!")
+                    with st.form(key=f"form_reflection_{comment_id}"):
+                        user_reflection = st.text_input("Your reflection on this comment:")
+                        if st.form_submit_button("Submit Reflection") and user_reflection.strip():
+                            comment_reflections_ws.append_row([
+                                selected_headline,
+                                comment["text"][:100],  # first 100 chars of the comment
+                                user_reflection.strip(),
+                                datetime.utcnow().isoformat()
+                            ])
+                            auto_trim_worksheet(comment_reflections_ws)
+                            st.success("Reflection added!")
 
         
 
