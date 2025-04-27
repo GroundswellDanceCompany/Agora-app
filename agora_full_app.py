@@ -372,12 +372,6 @@ if view_mode == "Live View":
                     summary = generate_ai_summary(selected_headline, emotion_groups)
                     st.success(summary)
 
-        emoji_map = {
-            "Positive": ("🟢", "green"),
-            "Neutral": ("⚪️", "gray"),
-            "Negative": ("🔴", "red")
-        }
-
         for label in ["Positive", "Neutral", "Negative"]:
             group = emotion_groups[label]
             if group:
