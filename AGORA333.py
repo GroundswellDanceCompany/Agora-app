@@ -112,6 +112,16 @@ def centered_quote(text):
     </div>
     """, unsafe_allow_html=True)
 
+def golden_divider():
+    st.markdown("""
+    <hr style='
+        border: none;
+        height: 2px;
+        background: linear-gradient(to right, transparent, gold, transparent);
+        margin: 40px 0;
+    ' />
+    """, unsafe_allow_html=True)
+
 def generate_ai_summary(headline, grouped_comments):
     prompt = f"Headline: {headline}\n"
     for label, comments in grouped_comments.items():
@@ -186,6 +196,8 @@ else:
     centered_header("Agora — Public Sentiment Field", level="h1")
 
     centered_paragraph("There is a space beyond the noise of the world.")
+
+    golden_divider()
 
     centered_quote("The Field awaits your reflection.")
 
