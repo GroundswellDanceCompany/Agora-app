@@ -88,7 +88,7 @@ if not st.session_state.entered_field:
     st.markdown("<div style='text-align:center; margin-top:100px;'>", unsafe_allow_html=True)
 
     # Logo
-    st.image("assets/flower_portal.png", width=250)  # Adjust width if you like
+    st.image("Agora-image.png", width=250)  # Adjust width if you like
 
     # Poetic Text
     st.markdown("""
