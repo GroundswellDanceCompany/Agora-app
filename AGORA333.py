@@ -73,6 +73,9 @@ def auto_trim_worksheet(ws, max_rows=1000):
         ws.clear()
         ws.update(keep)
 
+def centered_header(text, level="h2"):
+    st.markdown(f"<{level} style='text-align: center; color: #fff;'>{text}</{level}>", unsafe_allow_html=True)
+
 def generate_ai_summary(headline, grouped_comments):
     prompt = f"Headline: {headline}\n"
     for label, comments in grouped_comments.items():
