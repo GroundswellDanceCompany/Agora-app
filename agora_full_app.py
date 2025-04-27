@@ -395,11 +395,20 @@ if view_mode == "Live View":
         # Then display comments for that group
         
             # (Display comment block, reactions, reflections...)
-                for i, comment in enumerate(group[:10]):  # <-- Show up to 10 comments per emotion
-                    st.markdown(f"<div style='border-left: 4px solid {color}; background-color:#222; color:white; padding:10px; margin-bottom:10px;'><strong>Comment {i+1}:</strong> {comment['text']}<br><small>{comment['author']} • {comment['created']} • Sentiment: {comment['score']}</small></div>", unsafe_allow_html=True)
-                    comment_id = str(hash(comment["text"]))[:8]
+                for i, comment in enumerate(group[:10]):
+    # 1. Display the comment block
+                    st.markdown(f"""
+                    <div class='comment-block'>
+                        <strong>Comment {i+1}:</strong> {comment['text']}
+                        <br><small>{comment['author']} • {comment['created']} • Sentiment: {comment['score']}</small>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                    comment_id = str(hash(comment["text"]))[:8]  # unique per comment
+
+                    # 2. Reaction Radio Buttons
                     reaction = st.radio(
-                        f"React to this comment:",
+                        "React to this comment:",
                         ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"],
                         key=f"reaction_{comment_id}",
                         horizontal=True
@@ -411,21 +420,20 @@ if view_mode == "Live View":
                             reaction,
                             datetime.utcnow().isoformat()
                         ])
+                        auto_trim_worksheet(reaction_ws)
 
-                    with st.form(key=f"form_reflection_{comment_id}"):
-                        user_reflection = st.text_input("Your reflection on this comment:")
-                        if st.form_submit_button("Submit Reflection") and user_reflection.strip():
-        # You could create a new Google Sheet tab like "CommentReflections"
-                            comment_reflections_ws.append_row([
-                                selected_headline,
-                                comment["text"][:100],  # Store the first 100 chars of the comment
-                                user_reflection.strip(),
-                                datetime.utcnow().isoformat()
-                            ])
-                            auto_trim_worksheet(comment_reflections_ws)
-                            st.success("Reflection added!")
-                     else:
-                         st.markdown("<i>No comments found for this category.</i>", unsafe_allow_html=True)
+                     # 3. Reflection Form
+                     with st.form(key=f"form_reflection_{comment_id}"):
+                         user_reflection = st.text_input("Your reflection on this comment:")
+                         if st.form_submit_button("Submit Reflection") and user_reflection.strip():
+                             comment_reflections_ws.append_row([
+                                 selected_headline,
+                                 comment["text"][:100],  # first 100 chars of the comment
+                                 user_reflection.strip(),
+                                 datetime.utcnow().isoformat()
+                             ])
+                             auto_trim_worksheet(comment_reflections_ws)
+                             st.success("Reflection added!")
 
         
 
