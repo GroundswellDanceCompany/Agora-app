@@ -261,6 +261,9 @@ if not st.session_state.has_entered:
     </p>
     """, unsafe_allow_html=True)
 
+    col1, col2, col3 = st.columns([1,2,1])
+
+with col2:
     if st.button("Enter the Field"):
         st.session_state.has_entered = True
         st.rerun()
@@ -536,3 +539,4 @@ just human voices and emotional clarity.
                 st.markdown("<br><br>", unsafe_allow_html=True)
 
             closing_blessing()
+          
