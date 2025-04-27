@@ -130,7 +130,10 @@ def slow_reveal_sequence(contents, delay=1.5):
     delay: seconds between reveals
     """
     for func, text in contents:
-        func(text)
+        if text == "":
+            func()  # no argument needed
+        else:
+            func(text)
         time.sleep(delay)
 
 def generate_ai_summary(headline, grouped_comments):
