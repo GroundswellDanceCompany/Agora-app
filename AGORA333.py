@@ -38,6 +38,26 @@ def add_fade_in_styles():
     </style>
     """, unsafe_allow_html=True)
 
+def add_button_glow():
+    st.markdown("""
+    <style>
+    .stButton>button {
+        border: none;
+        padding: 10px 30px;
+        border-radius: 20px;
+        background-color: #333;
+        color: #ccc;
+        font-size: 18px;
+        transition: all 0.3s ease;
+    }
+    .stButton>button:hover {
+        background-color: #444;
+        box-shadow: 0 0 15px gold;
+        color: #fff;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 def get_or_create_worksheet(sheet, name, headers):
     try:
         ws = sheet.worksheet(name)
