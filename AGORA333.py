@@ -75,9 +75,43 @@ def auto_trim_worksheet(ws, max_rows=1000):
         ws.clear()
         ws.update(keep)
 
+def headline_echo(text):
+    st.markdown(f"""
+    <p class='fade-in' style='
+        text-align: center;
+        color: #ccc;
+        font-size: 22px;
+        font-style: italic;
+        margin-top: 30px;
+        margin-bottom: 10px;
+    '>
+    ❝ {text} ❞
+    </p>
+    """, unsafe_allow_html=True)
+
 def closing_blessing():
-    st.markdown("<br><br>", unsafe_allow_html=True)  # gentle breathing space
-    centered_quote("The Field rests today, awaiting new reflections.")
+    st.markdown("<br><br>", unsafe_allow_html=True)  # Breathing space
+    blessing = random.choice(CLOSING_BLESSINGS)
+    scroll_blessing(blessing)
+
+def scroll_blessing(text):
+    st.markdown(f"""
+    <div style='
+        margin: 50px auto;
+        padding: 30px 20px;
+        border: 2px solid gold;
+        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.03);
+        width: 80%;
+        text-align: center;
+        font-size: 20px;
+        font-style: italic;
+        color: #ddd;
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+    ' class='fade-in'>
+        "{text}"
+    </div>
+    """, unsafe_allow_html=True)
 
 def centered_header(text, level="h2"):
     st.markdown(f"""
@@ -141,6 +175,13 @@ def slow_reveal_sequence(contents, delay=1.5):
             func(text)
         time.sleep(delay)
 
+CLOSING_BLESSINGS = [
+    "The Field rests today, awaiting new reflections.",
+    "May your thoughts today plant seeds in unseen soil.",
+    "The silence between thoughts is the breath of the Field.",
+    "Memory flows onward beyond the noise.",
+    "The Field holds space for tomorrow’s remembering."
+]
 
 FIELD_MEMORIES = [
     "The Field holds every silent word.",
@@ -476,9 +517,9 @@ just human voices and emotional clarity.
                 golden_divider()
 
                 slow_reveal_sequence([
-                    (lambda text: centered_header(text, level="h2"), headline),
+                    (lambda text: headline_echo, headline),
                     (centered_paragraph, "Gathering reflections...")
-                ], delay=1.2)
+                ], delay=1.5)
 
                 subset = yesterday_data[yesterday_data["headline"] == headline]
                 grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
