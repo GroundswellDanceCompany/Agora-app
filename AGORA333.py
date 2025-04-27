@@ -145,7 +145,7 @@ if not st.session_state.has_entered:
 
 else:
     # --- Main Agora ---
-    st.title("Agora — Public Sentiment Field")
+    centered_header("Agora — Public Sentiment Field")
 
     if "show_about" not in st.session_state:
         st.session_state.show_about = True
