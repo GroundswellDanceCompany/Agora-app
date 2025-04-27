@@ -517,7 +517,7 @@ just human voices and emotional clarity.
                 golden_divider()
 
                 slow_reveal_sequence([
-                    (lambda text: headline_echo, headline),
+                    (headline_echo, headline),
                     (centered_paragraph, "Gathering reflections...")
                 ], delay=1.5)
 
