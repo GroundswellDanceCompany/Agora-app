@@ -356,6 +356,10 @@ if view_mode == "Live View":
                 </div>
             </div>""", unsafe_allow_html=True)
 
+        submission = reddit.submission(id=post.id)
+        submission.comments.replace_more(limit=0)
+        comments = submission.comments[:30]
+
             # --- Reflection form ---
             emotions = ["Angry", "Hopeful", "Skeptical", "Confused", "Inspired", "Indifferent"]
 
@@ -394,9 +398,6 @@ if view_mode == "Live View":
 
         # (then you go on with comments, reactions, public reflections, field...)
 
-    else:
-        st.warning("Please select a headline first.")
-
         emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
         emotion_groups = defaultdict(list)
 
@@ -414,6 +415,9 @@ if view_mode == "Live View":
                 "author": str(comment.author),
                 "created": datetime.utcfromtimestamp(comment.created_utc).strftime("%Y-%m-%d %H:%M")
             })
+
+    else:
+        st.warning("Please select a headline first.")
 
         if just_comments:
             st.write(f"Showing {len(comments)} comments...")
