@@ -146,28 +146,23 @@ if "entered_field" not in st.session_state:
 
 if not st.session_state.entered_field:
     # Sacred Portal Page
-
     st.markdown("""
     <div style="text-align:center; margin-top:80px;">
         <img src="https://yourdomain.com/flower_portal.png" style="width:180px; animation:glowPulse 3s infinite alternate;">
         <div style="margin-top:30px; font-size:26px; color:#ccc; font-style:italic;">
             The Field awaits your reflection.
         </div>
-        <br>
-        <div class="fade-button">
-            <form action="">
-                <button style="margin-top:30px; font-size:20px; padding:10px 30px; border:none; border-radius:20px; background-color:#333; color:#ccc; cursor:pointer; animation:glowPulse 2s infinite alternate;">
-                    Step Into the Field
-                </button>
-            </form>
-        </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # When user clicks, set session state manually
-    if st.button("I am ready"):
+    # Real Streamlit Button separately
+    if st.button("Step Into the Field"):
         st.session_state.entered_field = True
-        st.rerun()
+        st.experimental_rerun()
+
+else:
+    # Agora Main Field
+    ...
 
 else:
     # --- Main Agora ---
