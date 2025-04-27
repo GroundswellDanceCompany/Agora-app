@@ -102,6 +102,25 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+st.markdown("""
+<style>
+.glow-wrapper {
+    display: inline-block;
+    padding: 20px;
+    border-radius: 50%;
+    animation: breatheGlow 4s infinite alternate;
+}
+@keyframes breatheGlow {
+    0% {
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+    }
+    100% {
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.9);
+    }
+}
+</style>
+""", unsafe_allow_html=True)
+
 # --- Helper Functions ---
 def get_or_create_worksheet(sheet, name, headers):
     try:
@@ -166,18 +185,24 @@ if "entered_field" not in st.session_state:
 
 if not st.session_state.entered_field:
     # Sacred Portal Page
+    # Sacred Portal Visual
+
     st.markdown("<div style='text-align:center; margin-top:80px;'>", unsafe_allow_html=True)
-    # Correct Python code for the image
-    st.image("flower_portal.png", width=180)
-    
+
+    # Breathing Glow Wrapper
+    st.markdown("<div class='glow-wrapper'>", unsafe_allow_html=True)
+    st.image("assets/flower_portal.png", width=180)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # Soft Text
     st.markdown("""
-    <div style="margin-top:30px; font-size:26px; color:#ccc; font-style:italic;">
+    <div style='margin-top:30px; font-size:26px; color:#ccc; font-style:italic;'>
         The Field awaits your reflection.
     </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # Real Streamlit Button separately
+    # Real Enter Button
     if st.button("Step Into the Field"):
         st.session_state.entered_field = True
         st.rerun()
