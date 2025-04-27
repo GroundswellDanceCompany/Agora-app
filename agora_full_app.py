@@ -373,51 +373,51 @@ if view_mode == "Live View":
              "Write your immediate reflection...", key="user_thoughts"
         )
 
-            if st.button("Submit Reflection"):
-                reflection_id = str(uuid.uuid4())
-                timestamp = datetime.utcnow().isoformat()
-                reflections_ws.append_row([
-                    reflection_id,
-                    selected_headline,
-                    ", ".join(emotion_choice),
-                    trust_rating,
-                    user_thoughts,
-                    timestamp
-                ])
-                auto_trim_worksheet(reflections_ws)
-                st.success("Reflection submitted!")
-                # --- Clear form fields ---
-                st.session_state["emotion_choice"] = []
-                st.session_state["trust_rating"] = 3
-                st.session_state["user_thoughts"] = ""
+        if st.button("Submit Reflection"):
+            reflection_id = str(uuid.uuid4())
+            timestamp = datetime.utcnow().isoformat()
+            reflections_ws.append_row([
+                reflection_id,
+                selected_headline,
+                ", ".join(emotion_choice),
+                trust_rating,
+                user_thoughts,
+                timestamp
+            ])
+            auto_trim_worksheet(reflections_ws)
+            st.success("Reflection submitted!")
+            # --- Clear form fields ---
+            st.session_state["emotion_choice"] = []
+            st.session_state["trust_rating"] = 3
+            st.session_state["user_thoughts"] = ""
 
-        # --- NOW (still inside if selected_headline) ---
-        submission = reddit.submission(id=post.id)
-        submission.comments.replace_more(limit=0)
-        comments = submission.comments[:30]
+    # --- NOW (still inside if selected_headline) ---
+    submission = reddit.submission(id=post.id)
+    submission.comments.replace_more(limit=0)
+    comments = submission.comments[:30]
 
-        # (then you go on with comments, reactions, public reflections, field...)
+    # (then you go on with comments, reactions, public reflections, field...)
 
-        emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
-        emotion_groups = defaultdict(list)
+    emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
+    emotion_groups = defaultdict(list)
 
-        for comment in comments:
-            text = comment.body.strip()
-            if len(text) < 10:
-                continue
-            blob = TextBlob(text)
-            polarity = blob.sentiment.polarity
-            label = "Positive" if polarity > 0.1 else "Negative" if polarity < -0.1 else "Neutral"
-            emotion_counts[label] += 1
-            emotion_groups[label].append({
-                "text": text,
-                "score": round(polarity, 3),
-                "author": str(comment.author),
-                "created": datetime.utcfromtimestamp(comment.created_utc).strftime("%Y-%m-%d %H:%M")
-            })
+    for comment in comments:
+        text = comment.body.strip()
+        if len(text) < 10:
+            continue
+        blob = TextBlob(text)
+        polarity = blob.sentiment.polarity
+        label = "Positive" if polarity > 0.1 else "Negative" if polarity < -0.1 else "Neutral"
+        emotion_counts[label] += 1
+        emotion_groups[label].append({
+            "text": text,
+            "score": round(polarity, 3),
+            "author": str(comment.author),
+            "created": datetime.utcfromtimestamp(comment.created_utc).strftime("%Y-%m-%d %H:%M")
+        })
 
-    else:
-        st.warning("Please select a headline first.")
+else:
+    st.warning("Please select a headline first.")
 
         if just_comments:
             st.write(f"Showing {len(comments)} comments...")
