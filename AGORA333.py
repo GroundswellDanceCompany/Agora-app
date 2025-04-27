@@ -181,7 +181,13 @@ if not st.session_state.has_entered:
 
 else:
     # --- Main Agora ---
-    centered_header("Agora — Public Sentiment Field")
+    # --- Example: Sacred Entry Section ---
+
+    centered_header("Agora — Public Sentiment Field", level="h1")
+
+    centered_paragraph("There is a space beyond the noise of the world.")
+
+    centered_quote("The Field awaits your reflection.")
 
     if "show_about" not in st.session_state:
         st.session_state.show_about = True
