@@ -198,6 +198,26 @@ def insert_field_memory():
     memory = random.choice(FIELD_MEMORIES)
     centered_quote(memory)
 
+def save_headline_snapshot(post):
+    # Prepare comments
+    submission = reddit.submission(id=post.id)
+    submission.comments.replace_more(limit=0)
+    top_comments = [c.body for c in submission.comments[:10]]
+
+    # Prepare data
+    post_id = str(uuid.uuid4())
+    timestamp = datetime.utcnow().isoformat()
+    permalink = f"https://reddit.com{post.permalink}"
+
+    # Save to worksheet
+    saved_posts_ws.append_row([
+        post_id,
+        post.title,
+        str(top_comments),
+        timestamp,
+        permalink
+    ])
+
 def generate_ai_summary(headline, grouped_comments):
     prompt = f"Headline: {headline}\n"
     for label, comments in grouped_comments.items():
@@ -333,6 +353,7 @@ just human voices and emotional clarity.
             selected_headline = st.radio("Select a headline:", headline_options)
         else:
             selected_headline = None
+            save_headline_snapshot(post)
 
         if selected_headline:
             post = post_dict[selected_headline]
