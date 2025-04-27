@@ -13,6 +13,7 @@ import uuid
 from PIL import Image
 import plotly.express as px
 import time
+import random
 
 # --- Page Config ---
 st.set_page_config(
@@ -135,6 +136,22 @@ def slow_reveal_sequence(contents, delay=1.5):
         else:
             func(text)
         time.sleep(delay)
+
+
+FIELD_MEMORIES = [
+    "The Field holds every silent word.",
+    "Each reflection is a seed beyond time.",
+    "In listening, the Field speaks.",
+    "Thoughts drift, but memory roots.",
+    "The unseen remembers what the seen forgets.",
+    "Breath is the bridge between worlds.",
+    "The Field is not found — it is entered.",
+    "Every thought is a step deeper inward."
+]
+
+def insert_field_memory():
+    memory = random.choice(FIELD_MEMORIES)
+    centered_quote(memory)
 
 def generate_ai_summary(headline, grouped_comments):
     prompt = f"Headline: {headline}\n"
@@ -442,6 +459,26 @@ just human voices and emotional clarity.
             st.info("No reflections found for yesterday.")
         else:
             top_headlines = yesterday_data["headline"].value_counts().head(3).index.tolist()
+            for headline in top_headlines:
+                golden_divider()
+
+                slow_reveal_sequence([
+                    (centered_header, headline, "h2"),
+                    (centered_paragraph, "Gathering reflections..."),
+                ], delay=1)
+
+                subset = yesterday_data[yesterday_data["headline"] == headline]
+                grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
+
+                with st.spinner("Summarizing reflections..."):
+                    summary = generate_ai_summary(headline, grouped)
+
+                centered_quote(summary)
+
+                insert_field_memory()  # <--- sacred memory appears between headlines
+
+                st.markdown("<br><br>", unsafe_allow_html=True)
+                
             for headline in top_headlines:
                 st.markdown(f"### 📰 {headline}")
                 subset = yesterday_data[yesterday_data["headline"] == headline]
