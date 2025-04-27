@@ -13,48 +13,6 @@ import time
 import plotly.express as px
 from PIL import Image
 
-st.markdown("""
-<style>
-.comment-block {
-  border-left: 4px solid #00FFFF;
-  background-color: #222;
-  color: white;
-  padding: 10px;
-  margin-bottom: 10px;
-  transition: all 0.3s ease;
-}
-
-.comment-block:hover {
-  background-color: #333;
-  box-shadow: 0 0 10px rgba(0,255,255,0.4);
-}
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown("""
-<style>
-.emotion-header {
-    text-align: center;
-    font-size: 22px;
-    font-weight: 400;
-    color: #ccc;
-    margin-top: 30px;
-    margin-bottom: 10px;
-}
-
-.emotion-dot {
-    height: 14px;
-    width: 14px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 8px;
-}
-
-.positive-dot { background-color: #32CD32; }
-.neutral-dot { background-color: #AAAAAA; }
-.negative-dot { background-color: #FF6347; }
-</style>
-""", unsafe_allow_html=True)
 # ----------------------
 # --- Helper Functions ---
 # ----------------------
@@ -218,7 +176,52 @@ def show_inspirational_whisper():
 # --- App Start ---
 # ----------------------
 
-st.set_page_config(page_title="Agora", page_icon="🌎", layout="wide")
+st.set_page_config(
+    page_title="Agora — Public Sentiment Field",
+    page_icon=":crystal_ball:",
+    layout="centered",
+    initial_sidebar_state="expanded"
+)
+
+# --- Custom CSS (all combined here) ---
+st.markdown("""
+<style>
+.comment-block {
+  border-left: 4px solid #00FFFF;
+  background-color: #222;
+  color: white;
+  padding: 10px;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+}
+
+.comment-block:hover {
+  background-color: #333;
+  box-shadow: 0 0 10px rgba(0,255,255,0.4);
+}
+
+.emotion-header {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 400;
+    color: #ccc;
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+.emotion-dot {
+    height: 14px;
+    width: 14px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.positive-dot { background-color: #32CD32; }
+.neutral-dot { background-color: #AAAAAA; }
+.negative-dot { background-color: #FF6347; }
+</style>
+""", unsafe_allow_html=True)
 
 # --- Setup Services ---
 SCOPE = ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/spreadsheets"]
