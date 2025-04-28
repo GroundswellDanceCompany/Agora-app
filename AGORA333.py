@@ -175,6 +175,9 @@ def slow_reveal_sequence(contents, delay=1.5):
             func(text)
         time.sleep(delay)
 
+def load_reflections():
+    return pd.DataFrame(reflections_ws.get_all_records())
+
 CLOSING_BLESSINGS = [
     "The Field rests today, awaiting new reflections.",
     "May your thoughts today plant seeds in unseen soil.",
