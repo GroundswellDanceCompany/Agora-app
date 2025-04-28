@@ -255,7 +255,7 @@ sheet = client.open("AgoraData")
 reflections_ws = get_or_create_worksheet(sheet, "Reflections", ["reflection_id", "headline", "emotions", "trust_level", "reflection", "timestamp"])
 replies_ws = get_or_create_worksheet(sheet, "Replies", ["reflection_id", "reply", "timestamp"])
 reaction_ws = get_or_create_worksheet(sheet, "CommentReactions", ["headline", "comment_snippet", "reaction", "timestamp"])
-comment_reflections_ws = get_or_create_worksheet(sheet, "CommentReflections", ["headline", "comment_snippet", "reflection", "timestamp"])
+comment_reflections_ws = get_or_create_worksheet(sheet, "CommentReflections", ["field_name", "headline", "comment_snippet", "reflection", "timestamp])
 saved_posts_ws = get_or_create_worksheet(sheet, "SavedPosts", ["id", "title", "top_comments", "date_saved", "permalink"])
 
 # --- Reddit Setup ---
@@ -510,9 +510,9 @@ just human voices and emotional clarity.
                                     user_reflection = st.text_input("Your reflection on this comment:")
                                     if st.form_submit_button("Submit Reflection") and user_reflection.strip():
                                         comment_reflections_ws.append_row([
-                                            selected_headline,
                                             st.session_state.field_name,
-                                            comment["text"][:100],
+                                            selected_headline,
+                                            comment_snippet,  # the short comment excerpt
                                             user_reflection.strip(),
                                             datetime.utcnow().isoformat()
                                         ])
