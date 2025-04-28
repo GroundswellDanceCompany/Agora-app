@@ -178,6 +178,9 @@ def slow_reveal_sequence(contents, delay=1.5):
 def load_reflections():
     return pd.DataFrame(reflections_ws.get_all_records())
 
+def load_comment_reflections():
+    return pd.DataFrame(comment_reflections_ws.get_all_records())
+
 CLOSING_BLESSINGS = [
     "The Field rests today, awaiting new reflections.",
     "May your thoughts today plant seeds in unseen soil.",
@@ -518,6 +521,7 @@ just human voices and emotional clarity.
 
             # --- Sentiment Field Visualization ---
             centered_header("Sentiment Field — Emotional Landscape")
+            all_comment_reflections = load_comment_reflections()
             if not all_reflections.empty:
                 all_reflections["timestamp"] = pd.to_datetime(all_reflections["timestamp"], errors="coerce")
                 all_reflections["primary_emotion"] = all_reflections["emotions"].apply(lambda x: x.split(",")[0].strip() if pd.notnull(x) else "Neutral")
