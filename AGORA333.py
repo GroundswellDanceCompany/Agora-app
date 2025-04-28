@@ -458,6 +458,10 @@ just human voices and emotional clarity.
                 # (Same comments logic we built together — will continue after this!)
                 emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
                 emotion_groups = defaultdict(list)
+                emotion_choice = st.selectbox(
+                "What primary emotion do you feel about this comment?",
+                ["Hope", "Anger", "Confusion", "Inspiration", "Sadness", "Skepticism"]
+            )
 
                 for comment in comments:
                     comment_text = comment.body.strip() 
