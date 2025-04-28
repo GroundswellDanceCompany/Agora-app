@@ -521,10 +521,13 @@ just human voices and emotional clarity.
 
             # --- Sentiment Field Visualization ---
             centered_header("Sentiment Field — Emotional Landscape")
+
             all_comment_reflections = load_comment_reflections()
+
             if not all_comment_reflections.empty:
-                all_comment_reflections["timestamp"] = pd.to_datetime(all_reflections["timestamp"], errors="coerce")
-                all_comment_reflections["primary_emotion"] = all_reflections["emotions"].apply(lambda x: x.split(",")[0].strip() if pd.notnull(x) else "Neutral")
+                all_comment_reflections["timestamp"] = pd.to_datetime(all_comment_reflections["timestamp"], errors="coerce")
+                all_comment_reflections["primary_emotion"] = all_comment_reflections["emotions"].apply(lambda x: x.split(",")[0].strip() if pd.notnull(x) else "Neutral")
+    
                 fig = px.scatter(
                     all_comment_reflections,
                     x="trust_level",
@@ -538,9 +541,6 @@ just human voices and emotional clarity.
                 st.plotly_chart(fig, use_container_width=True)
             else:
                 st.info("No reflections to plot yet.")
-
-        else:
-            st.warning("Please select a headline to continue.")
 
     # --- Morning Digest Mode ---
     elif view_mode == "Morning Digest":
