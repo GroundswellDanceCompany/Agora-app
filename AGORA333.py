@@ -565,8 +565,8 @@ just human voices and emotional clarity.
                     st.success("Reflection woven into the Field.")
                     st.rerun()
                     
-                    else:
-                        st.warning("Please write something before submitting.")
+                else:
+                    st.warning("Please write something before submitting.")
 
             # --- Sentiment Field Visualization ---
             centered_header("Sentiment Field — Emotional Landscape")
