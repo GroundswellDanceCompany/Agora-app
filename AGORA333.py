@@ -350,6 +350,10 @@ else:
 
     add_fade_in_styles()
 
+    view_mode = st.sidebar.radio("View Mode", ["Live View", "Morning Digest"])
+
+    if view_mode == "Live View":
+
     slow_reveal_sequence([
         (centered_header, "Agora — Public Sentiment Field"),
         (centered_paragraph, "There is a space beyond the noise of the world."),
