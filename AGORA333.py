@@ -503,19 +503,52 @@ just human voices and emotional clarity.
                                         st.success("Reflection added!")
 
             # --- Public Reflections Section ---
-            centered_header("Public Reflections")
-            all_reflections = pd.DataFrame(reflections_ws.get_all_records())
-            if not all_reflections.empty:
-                matched = all_reflections[all_reflections["headline"] == selected_headline]
-                for _, row in matched.iterrows():
-                    st.markdown(f"**{row['field_name']}** reflected: {row['reflection']}")
-                    st.markdown(f"**Emotions:** {row['emotions']}")
-                    st.markdown(f"**Trust:** {row['trust_level']}/5")
-                    st.markdown(f"**Reflection:** {row['reflection']}")
-                    st.caption(f"{row['timestamp']}")
-                    st.markdown("---")
-            else:
-                st.info("No reflections found yet.")
+            centered_header("Your Reflection")
+
+            with st.form(key="reflection_form"):
+                emotions = ["Angry", "Hopeful", "Skeptical", "Confused", "Inspired", "Indifferent"]
+    
+                emotion_choice = st.multiselect(
+                    "What emotions do you feel?", 
+                    emotions,
+                    key="emotion_choice"
+                )
+
+                trust_rating = st.slider(
+                    "How much do you trust this headline?",
+                    1, 5, 3,
+                    key="trust_rating"
+                )
+
+                user_thoughts = st.text_area(
+                    "Write your immediate reflection...",
+                    key="user_thoughts"
+                )
+
+                submitted = st.form_submit_button("Submit Reflection")
+
+                if submitted:
+                    if user_thoughts.strip():
+                        reflection_id = str(uuid.uuid4())
+                        timestamp = datetime.utcnow().isoformat()
+                        reflections_ws.append_row([
+                            reflection_id,
+                            selected_headline,
+                            st.session_state.field_name,
+                            ", ".join(emotion_choice),
+                            trust_rating,
+                            user_thoughts,
+                            timestamp
+                        ])
+                        auto_trim_worksheet(reflections_ws)
+                        st.success("Reflection submitted!")
+
+                        # Reset form fields
+                        st.session_state["emotion_choice"] = []
+                        st.session_state["trust_rating"] = 3
+                        st.session_state["user_thoughts"] = ""
+                    else:
+                        st.warning("Please write something before submitting.")
 
             # --- Sentiment Field Visualization ---
             centered_header("Sentiment Field — Emotional Landscape")
