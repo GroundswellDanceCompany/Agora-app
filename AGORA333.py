@@ -558,12 +558,18 @@ just human voices and emotional clarity.
             all_comment_reflections = load_comment_reflections()
 
             if not all_comment_reflections.empty:
-                all_comment_reflections["timestamp"] = pd.to_datetime(all_comment_reflections["timestamp"], errors="coerce")
-                all_comment_reflections["primary_emotion"] = all_comment_reflections["emotions"].apply(lambda x: x.split(",")[0].strip() if pd.notnull(x) else "Neutral")
+                all_comment_reflections["timestamp"] = pd.to_datetime(
+                    all_comment_reflections["timestamp"], errors="coerce"
+                )
     
+                # FIX: Use 'emotion' not 'emotions'
+                all_comment_reflections["primary_emotion"] = all_comment_reflections["emotion"].apply(
+                    lambda x: x if pd.notnull(x) and x.strip() != "" else "Neutral"
+                )
+
                 fig = px.scatter(
                     all_comment_reflections,
-                    x="trust_level",
+                    x="trust_level",  # Only if you collect trust levels (optional)
                     y="primary_emotion",
                     color="primary_emotion",
                     hover_data=["reflection", "timestamp"],
@@ -572,8 +578,9 @@ just human voices and emotional clarity.
                 )
                 fig.update_layout(height=600)
                 st.plotly_chart(fig, use_container_width=True)
+
             else:
-                st.info("No reflections to plot yet.")
+                st.info("No reflections yet to plot.")
 
     # --- Morning Digest Mode ---
     elif view_mode == "Morning Digest":
