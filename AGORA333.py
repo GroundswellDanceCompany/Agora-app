@@ -459,8 +459,8 @@ just human voices and emotional clarity.
                 emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
                 emotion_groups = defaultdict(list)
                 emotion_choice = st.selectbox(
-                "What primary emotion do you feel about this comment?",
-                ["Hope", "Anger", "Confusion", "Inspiration", "Sadness", "Skepticism"]
+                "What emotion best captures your feeling toward this comment?",
+                ["", "Hope", "Anger", "Confusion", "Inspiration", "Sadness", "Skepticism", "Indifference"]
             )
 
                 for comment in comments:
@@ -535,6 +535,10 @@ just human voices and emotional clarity.
 
                                 with st.form(key=f"form_reflection_{comment_id}"):
                                     user_reflection = st.text_input("Your reflection on this comment:")
+                                    emotion_choice = st.selectbox(
+                                        "What emotion best captures your feeling toward this comment?",
+                                        ["", "Hope", "Anger", "Confusion", "Inspiration", "Sadness", "Skepticism", "Indifference"]
+                                    )
                                     if st.form_submit_button("Submit Reflection") and user_reflection.strip():
                                         comment_snippet = comment_text[:100] 
                                         comment_reflections_ws.append_row([
