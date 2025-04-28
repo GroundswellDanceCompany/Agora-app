@@ -542,11 +542,10 @@ just human voices and emotional clarity.
                         ])
                         auto_trim_worksheet(reflections_ws)
                         st.success("Reflection submitted!")
+        
+                        # Instead of manual session clearing, rerun
+                        st.rerun()
 
-                        # Reset form fields
-                        st.session_state["emotion_choice"] = []
-                        st.session_state["trust_rating"] = 3
-                        st.session_state["user_thoughts"] = ""
                     else:
                         st.warning("Please write something before submitting.")
 
