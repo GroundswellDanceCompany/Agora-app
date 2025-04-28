@@ -505,6 +505,8 @@ just human voices and emotional clarity.
             # --- Public Reflections Section ---
             centered_header("Your Reflection")
 
+            all_reflections = load_reflections()
+
             import uuid
 
             form_unique_id = str(uuid.uuid4())[:8]  # Short unique id for the form instance
