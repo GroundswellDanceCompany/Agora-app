@@ -300,9 +300,6 @@ if not st.session_state.has_entered:
     </style>
     """, unsafe_allow_html=True)
 
-else:
-    # --- Main Agora ---
-    # --- Example: Sacred Entry Section ---
 
     # --- Light Field Name Selection ---
     if "field_name" not in st.session_state:
