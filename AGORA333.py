@@ -512,15 +512,22 @@ just human voices and emotional clarity.
 
             import uuid
 
-            form_unique_id = str(uuid.uuid4())[:8]  # Short unique id for the form instance
+            # --- Create a unique ID for the form (prevent key conflicts) ---
+            form_unique_id = str(uuid.uuid4())[:8]
 
+            # --- Display Your Reflection Section ---
+            st.markdown("<h2 style='text-align: center; color: #ccc;'>Your Reflection on the Headline</h2>", unsafe_allow_html=True)
+            golden_divider()
+
+            # --- Immediate Reflection Form ---
             with st.form(key=f"reflection_form_{form_unique_id}"):
                 emotions = ["Angry", "Hopeful", "Skeptical", "Confused", "Inspired", "Indifferent"]
 
+                # --- Inputs ---
                 emotion_choice = st.multiselect(
                     "What emotions do you feel?",
                     emotions,
-                    key=f"emotion_choice_{form_unique_id}"  # <- make the key unique!
+                    key=f"emotion_choice_{form_unique_id}"
                 )
 
                 trust_rating = st.slider(
@@ -534,24 +541,30 @@ just human voices and emotional clarity.
                     key=f"user_thoughts_{form_unique_id}"
                 )
 
-                submitted = st.form_submit_button("Submit Reflection")
+                # --- Submit Button: Disabled until text is entered ---
+                submitted = st.form_submit_button(
+                    "Submit Reflection",
+                    disabled=(user_thoughts.strip() == "")  # disables button if empty
+                )
 
                 if submitted:
-                    if user_thoughts.strip():
-                        reflection_id = str(uuid.uuid4())
-                        timestamp = datetime.utcnow().isoformat()
-                        reflections_ws.append_row([
-                            reflection_id,
-                            selected_headline,
-                            st.session_state.field_name,
-                            ", ".join(emotion_choice),
-                            trust_rating,
-                            user_thoughts,
-                            timestamp
-                        ])
-                        auto_trim_worksheet(reflections_ws)
-                        st.success("Reflection submitted!")
-                        st.rerun()
+                    reflection_id = str(uuid.uuid4())
+                    timestamp = datetime.utcnow().isoformat()
+
+                    reflections_ws.append_row([
+                        reflection_id,
+                        selected_headline,
+                        st.session_state.field_name,  # Attach the user Field Name!
+                        ", ".join(emotion_choice),
+                        trust_rating,
+                        user_thoughts,
+                        timestamp
+                    ])
+                    auto_trim_worksheet(reflections_ws)
+
+                    st.success("Reflection woven into the Field.")
+                    st.rerun()
+                    
                     else:
                         st.warning("Please write something before submitting.")
 
