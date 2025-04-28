@@ -505,24 +505,28 @@ just human voices and emotional clarity.
             # --- Public Reflections Section ---
             centered_header("Your Reflection")
 
-            with st.form(key="reflection_form"):
+            import uuid
+
+            form_unique_id = str(uuid.uuid4())[:8]  # Short unique id for the form instance
+
+            with st.form(key=f"reflection_form_{form_unique_id}"):
                 emotions = ["Angry", "Hopeful", "Skeptical", "Confused", "Inspired", "Indifferent"]
-    
+
                 emotion_choice = st.multiselect(
-                    "What emotions do you feel?", 
+                    "What emotions do you feel?",
                     emotions,
-                    key="emotion_choice"
+                    key=f"emotion_choice_{form_unique_id}"  # <- make the key unique!
                 )
 
                 trust_rating = st.slider(
                     "How much do you trust this headline?",
                     1, 5, 3,
-                    key="trust_rating"
+                    key=f"trust_rating_{form_unique_id}"
                 )
 
                 user_thoughts = st.text_area(
                     "Write your immediate reflection...",
-                    key="user_thoughts"
+                    key=f"user_thoughts_{form_unique_id}"
                 )
 
                 submitted = st.form_submit_button("Submit Reflection")
@@ -542,10 +546,7 @@ just human voices and emotional clarity.
                         ])
                         auto_trim_worksheet(reflections_ws)
                         st.success("Reflection submitted!")
-        
-                        # Instead of manual session clearing, rerun
                         st.rerun()
-
                     else:
                         st.warning("Please write something before submitting.")
 
