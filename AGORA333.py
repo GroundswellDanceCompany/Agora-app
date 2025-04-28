@@ -523,10 +523,10 @@ just human voices and emotional clarity.
             centered_header("Sentiment Field — Emotional Landscape")
             all_comment_reflections = load_comment_reflections()
             if not all_reflections.empty:
-                all_reflections["timestamp"] = pd.to_datetime(all_reflections["timestamp"], errors="coerce")
-                all_reflections["primary_emotion"] = all_reflections["emotions"].apply(lambda x: x.split(",")[0].strip() if pd.notnull(x) else "Neutral")
+                all_comment_reflections["timestamp"] = pd.to_datetime(all_reflections["timestamp"], errors="coerce")
+                all_comment_reflections["primary_emotion"] = all_reflections["emotions"].apply(lambda x: x.split(",")[0].strip() if pd.notnull(x) else "Neutral")
                 fig = px.scatter(
-                    all_reflections,
+                    all_comment_reflections,
                     x="trust_level",
                     y="primary_emotion",
                     color="primary_emotion",
