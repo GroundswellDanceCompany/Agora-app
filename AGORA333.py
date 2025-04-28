@@ -460,6 +460,7 @@ just human voices and emotional clarity.
                 emotion_groups = defaultdict(list)
 
                 for comment in comments:
+                    comment_text = comment.body.strip() 
                     text = comment.body.strip()
                     if len(text) < 10:
                         continue
