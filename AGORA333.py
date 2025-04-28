@@ -346,13 +346,11 @@ if not st.session_state.has_entered:
                 st.success(f"Welcome, {st.session_state.field_name}. You are now part of the Field.")
                 st.rerun()
 
-else:
 
+view_mode = st.sidebar.radio("View Mode", ["Live View", "Morning Digest"])
+
+if view_mode == "Live View":
     add_fade_in_styles()
-
-    view_mode = st.sidebar.radio("View Mode", ["Live View", "Morning Digest"])
-
-    if view_mode == "Live View":
 
     slow_reveal_sequence([
         (centered_header, "Agora — Public Sentiment Field"),
