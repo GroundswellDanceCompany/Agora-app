@@ -531,6 +531,7 @@ just human voices and emotional clarity.
                                 with st.form(key=f"form_reflection_{comment_id}"):
                                     user_reflection = st.text_input("Your reflection on this comment:")
                                     if st.form_submit_button("Submit Reflection") and user_reflection.strip():
+                                        comment_snippet = comment_text[:100] 
                                         comment_reflections_ws.append_row([
                                             st.session_state.field_name,
                                             selected_headline,
