@@ -378,13 +378,24 @@ just human voices and emotional clarity.
 
             with st.container():
                 st.markdown(f"""
-                <div class='fade-in'>
-                    <div style='text-align: center; font-size: 26px; font-weight: 400; color: #ccc; margin-top: 20px; margin-bottom: 30px;'>
-                        📰 {selected_headline}
-                    </div>
-                    <div style='text-align: center; margin-bottom: 40px;'>
-                        <h3 style='color: #aaa;'>Your Immediate Reflection</h3>
-                    </div>
+                <div style='text-align: center; margin-top: 20px; margin-bottom: 10px; font-size: 24px; color: #ccc;'>
+                    📰 {selected_headline}
+                </div>
+                """, unsafe_allow_html=True)
+
+            # --- Pull Top Voted Comment as Subheading ---
+            submission = reddit.submission(id=post.id)
+            submission.comments.replace_more(limit=0)
+            comments = submission.comments[:30]  # or however many you pull
+
+            # Get the top upvoted comment
+            if comments:
+                top_comment = max(comments, key=lambda c: c.score if hasattr(c, 'score') else 0)
+
+                st.markdown(f"""
+                <div style='text-align: center; margin-top: 10px; margin-bottom: 30px;'>
+                    <i>"{top_comment.body.strip()}"</i><br>
+                    <small>— u/{top_comment.author} | {datetime.utcfromtimestamp(top_comment.created_utc).strftime("%Y-%m-%d %H:%M")}</small>
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -504,69 +515,6 @@ just human voices and emotional clarity.
                                         ])
                                         auto_trim_worksheet(comment_reflections_ws)
                                         st.success("Reflection added!")
-
-            # --- Public Reflections Section ---
-            centered_header("Your Reflection")
-
-            all_reflections = load_reflections()
-
-            import uuid
-
-            # --- Create a unique ID for the form (prevent key conflicts) ---
-            form_unique_id = str(uuid.uuid4())[:8]
-
-            # --- Display Your Reflection Section ---
-            st.markdown("<h2 style='text-align: center; color: #ccc;'>Your Reflection on the Headline</h2>", unsafe_allow_html=True)
-            golden_divider()
-
-            # --- Immediate Reflection Form ---
-            with st.form(key=f"reflection_form_{form_unique_id}"):
-                emotions = ["Angry", "Hopeful", "Skeptical", "Confused", "Inspired", "Indifferent"]
-
-                # --- Inputs ---
-                emotion_choice = st.multiselect(
-                    "What emotions do you feel?",
-                    emotions,
-                    key=f"emotion_choice_{form_unique_id}"
-                )
-
-                trust_rating = st.slider(
-                    "How much do you trust this headline?",
-                    1, 5, 3,
-                    key=f"trust_rating_{form_unique_id}"
-                )
-
-                user_thoughts = st.text_area(
-                    "Write your immediate reflection...",
-                    key=f"user_thoughts_{form_unique_id}"
-                )
-
-                # --- Submit Button: Disabled until text is entered ---
-                submitted = st.form_submit_button(
-                    "Submit Reflection",
-                    disabled=(user_thoughts.strip() == "")  # disables button if empty
-                )
-
-                if submitted:
-                    reflection_id = str(uuid.uuid4())
-                    timestamp = datetime.utcnow().isoformat()
-
-                    reflections_ws.append_row([
-                        reflection_id,
-                        selected_headline,
-                        st.session_state.field_name,  # Attach the user Field Name!
-                        ", ".join(emotion_choice),
-                        trust_rating,
-                        user_thoughts,
-                        timestamp
-                    ])
-                    auto_trim_worksheet(reflections_ws)
-
-                    st.success("Reflection woven into the Field.")
-                    st.rerun()
-                    
-                else:
-                    st.warning("Please write something before submitting.")
 
             # --- Sentiment Field Visualization ---
             centered_header("Sentiment Field — Emotional Landscape")
