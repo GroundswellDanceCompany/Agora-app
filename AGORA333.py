@@ -181,6 +181,30 @@ def load_reflections():
 def load_comment_reflections():
     return pd.DataFrame(comment_reflections_ws.get_all_records())
 
+def show_light_reflection(message="Reflection added to the Field."):
+    st.markdown("""
+    <style>
+    .glow-reflection {
+        text-align: center;
+        font-size: 22px;
+        color: #00FFFF;
+        animation: glowPulse 2s ease-in-out infinite alternate;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+    @keyframes glowPulse {
+        from {
+            text-shadow: 0 0 5px #00FFFF, 0 0 10px #00FFFF, 0 0 15px #00FFFF;
+        }
+        to {
+            text-shadow: 0 0 20px #00FFFF, 0 0 30px #00FFFF, 0 0 40px #00FFFF;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown(f"<div class='glow-reflection'>{message}</div>", unsafe_allow_html=True)
+
 CLOSING_BLESSINGS = [
     "The Field rests today, awaiting new reflections.",
     "May your thoughts today plant seeds in unseen soil.",
@@ -420,10 +444,8 @@ just human voices and emotional clarity.
                         timestamp
                     ])
                     auto_trim_worksheet(reflections_ws)
-                    st.success("Reflection submitted!")
-                    st.session_state["emotion_choice"] = []
-                    st.session_state["trust_rating"] = 3
-                    st.session_state["user_thoughts"] = ""
+                    show_light_reflection("Your reflection breathes into the Field.")
+                    st.rerun()
 
             # Reddit Comments Pull
             submission = reddit.submission(id=post.id)
@@ -517,7 +539,8 @@ just human voices and emotional clarity.
                                             datetime.utcnow().isoformat()
                                         ])
                                         auto_trim_worksheet(comment_reflections_ws)
-                                        st.success("Reflection added!")
+                                        show_light_reflection("Your reflection breathes into the Field.")
+                                        st.rerun()
 
             # --- Sentiment Field Visualization ---
             centered_header("Sentiment Field — Emotional Landscape")
