@@ -354,10 +354,10 @@ just human voices and emotional clarity.
             selected_headline = st.radio("Select a headline:", headline_options)
         else:
             selected_headline = None
-            save_headline_snapshot(post)
 
         if selected_headline:
             post = post_dict[selected_headline]
+            save_headline_snapshot(post)
 
             with st.container():
                 st.markdown(f"""
