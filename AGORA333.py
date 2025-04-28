@@ -304,6 +304,23 @@ else:
     # --- Main Agora ---
     # --- Example: Sacred Entry Section ---
 
+    # --- Light Field Name Selection ---
+    if "field_name" not in st.session_state:
+        st.session_state.field_name = ""
+
+    if st.session_state.field_name == "":
+        st.subheader("Whisper your Field Name")
+
+        chosen_name = st.text_input("Choose a name that feels right for the Field (e.g., SkySeeker, LightWanderer)")
+
+        if st.button("Confirm Name"):
+            if chosen_name.strip():
+                st.session_state.field_name = chosen_name.strip()
+                st.success(f"Welcome, {st.session_state.field_name}. You are now part of the Field.")
+                st.rerun()
+
+else:
+
     add_fade_in_styles()
 
     slow_reveal_sequence([
@@ -480,6 +497,7 @@ just human voices and emotional clarity.
                                     if st.form_submit_button("Submit Reflection") and user_reflection.strip():
                                         comment_reflections_ws.append_row([
                                             selected_headline,
+                                            st.session_state.field_name,
                                             comment["text"][:100],
                                             user_reflection.strip(),
                                             datetime.utcnow().isoformat()
@@ -493,6 +511,7 @@ just human voices and emotional clarity.
             if not all_reflections.empty:
                 matched = all_reflections[all_reflections["headline"] == selected_headline]
                 for _, row in matched.iterrows():
+                    st.markdown(f"**{row['field_name']}** reflected: {row['reflection']}")
                     st.markdown(f"**Emotions:** {row['emotions']}")
                     st.markdown(f"**Trust:** {row['trust_level']}/5")
                     st.markdown(f"**Reflection:** {row['reflection']}")
