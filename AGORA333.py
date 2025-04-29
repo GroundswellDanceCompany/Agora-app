@@ -346,8 +346,6 @@ if not st.session_state.has_entered:
                 st.success(f"Welcome, {st.session_state.field_name}. You are now part of the Field.")
                 st.rerun()
 
-else:
-
     # --- Sidebar setup ---
     view_mode = st.sidebar.radio("View Mode", ["Live View", "Morning Digest"])
     just_comments = st.sidebar.toggle("Just Comments Mode")
