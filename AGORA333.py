@@ -314,63 +314,25 @@ curated_subreddits = [
 ]
 
 # --- Welcome Screen Logic ---
-# --- SESSION STATE SETUP ---
-if "has_entered" not in st.session_state:
-    st.session_state.has_entered = False
-if "field_name" not in st.session_state:
-    st.session_state.field_name = ""
-
-# --- GLOW + FADE STYLES (Include These Once) ---
-def add_button_glow():
-    st.markdown("""
-    <style>
-    .stButton>button {
-        border: none;
-        padding: 12px 36px;
-        border-radius: 30px;
-        background-color: #111;
-        color: #ccc;
-        font-size: 17px;
-        font-weight: 500;
-        transition: all 0.4s ease;
-        box-shadow: 0 0 5px #333;
-        margin-top: 10px;
-    }
-    .stButton>button:hover {
-        background-color: #222;
-        color: #fff;
-        box-shadow: 0 0 15px gold;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-def add_fade_in_styles():
-    st.markdown("""
-    <style>
-    .fade-in {
-        animation: fadeInAnimation 2s ease forwards;
-        opacity: 0;
-    }
-    @keyframes fadeInAnimation {
-        to { opacity: 1; }
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-# --- WELCOME SCREEN ---
 def show_welcome_screen():
     add_fade_in_styles()
     add_button_glow()
-    st.image("Agora-image.png", width=200)
+
     st.markdown("""
-    <div class="fade-in" style='text-align: center; font-size: 20px; color: #ccc; margin-top: 30px;'>
-        There is a field beyond noise and name.<br>
-        Whisper yours to enter.
+    <div style='display: flex; justify-content: center;'>
+        <img src='https://raw.githubusercontent.com/your-repo/assets/flower_portal.png' width='300'>
     </div>
     """, unsafe_allow_html=True)
-    st.markdown("<br>", unsafe_allow_html=True)
 
-    # Centered enter button
+    st.markdown("""
+    <div class="fade-in" style='text-align: center; font-size: 22px; color: #ccc; margin-top: 40px;'>
+        There is a field beyond noise and thought.<br>
+        You are invited to cross the threshold.
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<br><br>", unsafe_allow_html=True)
+
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         if st.button("Enter the Field"):
@@ -380,11 +342,26 @@ def show_welcome_screen():
 # --- FIELD NAME SCREEN ---
 def show_field_name_screen():
     add_button_glow()
-    st.markdown("### Whisper your Field Name")
+    add_fade_in_styles()
+
+    st.markdown("""
+    <div style='display: flex; justify-content: center;'>
+        <img src='https://raw.githubusercontent.com/your-repo/assets/flower_portal.png' width='300'>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="fade-in" style='text-align: center; font-size: 20px; color: #ccc; margin-top: 30px;'>
+        Whisper your Field Name.
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        name_input = st.text_input("Choose your Field Name", key="field_name_input")
-        if st.button("Confirm Name", key="confirm_button"):
+        name_input = st.text_input("Your Field Name", key="field_name_input")
+        if st.button("Confirm Name"):
             name = name_input.strip()
             if name:
                 timestamp = datetime.utcnow().isoformat()
@@ -392,9 +369,9 @@ def show_field_name_screen():
                 st.session_state.field_name = name
                 st.rerun()
             else:
-                st.warning("Your Field Name cannot be empty.")
+                st.warning("Please choose a name before entering.")
 
-# --- GATED ENTRY LOGIC ---
+# --- FLOW CONTROLS ---
 if not st.session_state.has_entered:
     show_welcome_screen()
     st.stop()
