@@ -341,7 +341,7 @@ else:
         if field_name:
             st.session_state.field_name = field_name
             st.success(f"Welcome, {field_name}!")
-            st.experimental_rerun(
+            st.rerun()
                 
     
 # --- Sidebar setup ---
