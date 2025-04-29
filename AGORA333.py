@@ -560,7 +560,7 @@ else:
                                         st.rerun()
 
  # --- Morning Digest Mode ---
-elif view_mode == "Morning Digest":
+ elif view_mode == "Morning Digest":
     add_fade_in_styles()
 
     today = datetime.utcnow().date()
