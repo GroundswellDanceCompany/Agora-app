@@ -403,8 +403,8 @@ elif view_mode == "Morning Digest":
 
         if headline_options:
             selected_headline = st.radio("Select a headline:", headline_options)
-        else:
-            selected_headline = None
+    else:
+        selected_headline = None
 
         if selected_headline:
             post = post_dict[selected_headline]
