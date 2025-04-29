@@ -328,14 +328,6 @@ if not st.session_state.has_entered:
         st.session_state.has_entered = True
         st.rerun()
 
-    col1, col2, col3 = st.columns([1,2,1])
-
-    with col2:
-        # Centered custom portal button
-        if st.button("Enter the Field", key="main_enter"):
-            st.session_state.has_entered = True
-            st.rerun()
-
     # Center ALL Streamlit buttons to be centered inside columns
     st.markdown("""
     <style>
