@@ -341,17 +341,6 @@ if not st.session_state.has_entered:
 
     # --- Field Name Setup ---#
 
-    field_name = st.text_input("Choose your Field Name:")
-
-    if st.button("Enter the Field"):
-        field_name = field_name.strip()
-        if field_name:
-            timestamp = datetime.utcnow().isoformat()
-            field_names_ws.append_row([field_name, timestamp])
-            st.session_state.field_name = field_name
-            st.session_state.has_entered = True
-            st.rerun()
-
     else:
         # --- Field Name Selection ---
         if not st.session_state.field_name:
