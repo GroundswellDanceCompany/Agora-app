@@ -314,59 +314,106 @@ curated_subreddits = [
 ]
 
 # --- Welcome Screen Logic ---
+# --- SESSION STATE SETUP ---
 if "has_entered" not in st.session_state:
     st.session_state.has_entered = False
+if "field_name" not in st.session_state:
+    st.session_state.field_name = ""
 
-# --- Welcome Page ---
-if not st.session_state.has_entered:
-    add_fade_in_styles()
-    add_button_glow()
-
-    placeholder = st.empty()
-    with placeholder.container():
-        banner = Image.open("Agora-image.png")
-        st.image(banner, use_container_width=True)
-
-    st.markdown("""
-    <p class='fade-in' style='font-size:18px; color: #bbb; text-align: center;'>
-    There is a field beyond noise.<br><br>
-    You have arrived.
-    </p>
-    """, unsafe_allow_html=True)
-
-    col1, col2, col3 = st.columns([1,2,1])
-
-    with col2:
-        # Centered custom portal button
-        if st.button("Enter the Field", key="main_enter"):
-            st.session_state.has_entered = True
-            st.rerun()
-
-    # Center ALL Streamlit buttons to be centered inside columns
+# --- GLOW + FADE STYLES (Include These Once) ---
+def add_button_glow():
     st.markdown("""
     <style>
-    div.stButton > button {
-        display: block;
-        margin: 0 auto;
+    .stButton>button {
+        border: none;
+        padding: 12px 36px;
+        border-radius: 30px;
+        background-color: #111;
+        color: #ccc;
+        font-size: 17px;
+        font-weight: 500;
+        transition: all 0.4s ease;
+        box-shadow: 0 0 5px #333;
+        margin-top: 10px;
+    }
+    .stButton>button:hover {
+        background-color: #222;
+        color: #fff;
+        box-shadow: 0 0 15px gold;
     }
     </style>
     """, unsafe_allow_html=True)
 
+def add_fade_in_styles():
+    st.markdown("""
+    <style>
+    .fade-in {
+        animation: fadeInAnimation 2s ease forwards;
+        opacity: 0;
+    }
+    @keyframes fadeInAnimation {
+        to { opacity: 1; }
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-    # --- Light Field Name Selection ---
-    if "field_name" not in st.session_state:
-        st.session_state.field_name = ""
+# --- WELCOME SCREEN ---
+def show_welcome_screen():
+    add_fade_in_styles()
+    add_button_glow()
+    st.image("flower_portal.png", width=200)
+    st.markdown("""
+    <div class="fade-in" style='text-align: center; font-size: 20px; color: #ccc; margin-top: 30px;'>
+        There is a field beyond noise and name.<br>
+        Whisper yours to enter.
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
 
-    if st.session_state.field_name == "":
-        st.subheader("Whisper your Field Name")
+    # Centered enter button
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("Enter the Field"):
+            st.session_state.has_entered = True
+            st.rerun()
 
-        chosen_name = st.text_input("Choose a name that feels right for the Field (e.g., SkySeeker, LightWanderer)")
-
-        if st.button("Confirm Name"):
-            if chosen_name.strip():
-                st.session_state.field_name = chosen_name.strip()
-                st.success(f"Welcome, {st.session_state.field_name}. You are now part of the Field.")
+# --- FIELD NAME SCREEN ---
+def show_field_name_screen():
+    add_button_glow()
+    st.markdown("### Whisper your Field Name")
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        name_input = st.text_input("Choose your Field Name", key="field_name_input")
+        if st.button("Confirm Name", key="confirm_button"):
+            name = name_input.strip()
+            if name:
+                timestamp = datetime.utcnow().isoformat()
+                field_names_ws.append_row([name, timestamp])
+                st.session_state.field_name = name
                 st.rerun()
+            else:
+                st.warning("Your Field Name cannot be empty.")
+
+# --- GATED ENTRY LOGIC ---
+if not st.session_state.has_entered:
+    show_welcome_screen()
+    st.stop()
+
+if not st.session_state.field_name:
+    show_field_name_screen()
+    st.stop()
+
+# --- MAIN APP BEGINS ---
+view_mode = st.sidebar.radio("View Mode", ["Live View", "Morning Digest"])
+just_comments = st.sidebar.toggle("Just Comments Mode")
+
+if view_mode == "Live View":
+    # (your live field logic here)
+    pass
+
+elif view_mode == "Morning Digest":
+    # (your digest logic here)
+    pass
                 
     
 # --- Sidebar setup ---
