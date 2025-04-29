@@ -346,33 +346,41 @@ if not st.session_state.has_entered:
                 st.success(f"Welcome, {st.session_state.field_name}. You are now part of the Field.")
                 st.rerun()
 
+    if "has_entered" not in st.session_state:
+    st.session_state.has_entered = False
 
-# --- Sidebar setup ---
-view_mode = st.sidebar.radio("View Mode", ["Live View", "Morning Digest"])
-just_comments = st.sidebar.toggle("Just Comments Mode")
+    if not st.session_state.has_entered:
+    # --- Welcome Screen Only ---
+    show_welcome_screen()
 
-# --- Main logic ---
-if view_mode == "Live View":
-    add_fade_in_styles()
+else:
 
-    slow_reveal_sequence([
-        (centered_header, "Agora — Public Sentiment Field"),
-        (centered_paragraph, "There is a space beyond the noise of the world."),
-        (golden_divider, ""),
-        (centered_quote, "The Field awaits your reflection."),
-    ], delay=2)
+    # --- Sidebar setup ---
+    view_mode = st.sidebar.radio("View Mode", ["Live View", "Morning Digest"])
+    just_comments = st.sidebar.toggle("Just Comments Mode")
 
-    if "show_about" not in st.session_state:
-        st.session_state.show_about = True
+    # --- Main logic ---
+    if view_mode == "Live View":
+        add_fade_in_styles()
 
-    with st.expander("🌎 What is Agora?", expanded=st.session_state.show_about):
-        st.session_state.show_about = False
-        st.markdown("""
-Agora is a breathing space for public reflection —  
-powered by Reddit comments, AI summaries, and human insight.  
-No algorithms manipulating emotions, no rage optimizations —  
-just human voices and emotional clarity.
-""")
+        slow_reveal_sequence([
+            (centered_header, "Agora — Public Sentiment Field"),
+            (centered_paragraph, "There is a space beyond the noise of the world."),
+            (golden_divider, ""),
+            (centered_quote, "The Field awaits your reflection."),
+        ], delay=2)
+
+        if "show_about" not in st.session_state:
+            st.session_state.show_about = True
+
+        with st.expander("🌎 What is Agora?", expanded=st.session_state.show_about):
+            st.session_state.show_about = False
+            st.markdown("""
+    Agora is a breathing space for public reflection —  
+    powered by Reddit comments, AI summaries, and human insight.  
+    No algorithms manipulating emotions, no rage optimizations —  
+    just human voices and emotional clarity.
+    """)
 
     # --- Topic and live feed ---
     topic = st.text_input("Search a topic")
