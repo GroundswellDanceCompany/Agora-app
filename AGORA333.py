@@ -310,9 +310,12 @@ curated_subreddits = ["news", "worldnews", "politics", "uspolitics", "technology
 # --- Welcome Screen Logic ---
 if "has_entered" not in st.session_state:
     st.session_state.has_entered = False
+if "field_name" not in st.session_state:
+    st.session_state.field_name = ""
 
+# --- Portal Logic ---
 if not st.session_state.has_entered:
-    # Only show Welcome Screen
+    # Show welcome screen only
     add_fade_in_styles()
     add_button_glow()
 
@@ -323,33 +326,22 @@ if not st.session_state.has_entered:
     </div>
     """, unsafe_allow_html=True)
 
-    centered_enter = st.button("Enter the Field")
-    if centered_enter:
+    if st.button("Enter the Field"):
         st.session_state.has_entered = True
         st.rerun()
 
-    # Center ALL Streamlit buttons to be centered inside columns
-    st.markdown("""
-    <style>
-    div.stButton > button {
-        display: block;
-        margin: 0 auto;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+else:
+    # --- Inside Agora proper now ---
+    
+    # --- Field Name Selection ---
+    if not st.session_state.field_name:
+        st.markdown("### Choose your Field Name (your civic voice)")
+        field_name = st.text_input("Enter a Field Name:")
 
-
-    # --- Field Name Setup ---#
-
-    else:
-        # --- Field Name Selection ---
-        if not st.session_state.field_name:
-            st.markdown('### Choose your Field Name (your civic voice)')
-            field_name = st.text_input('Enter a Field Name:')
-            if field_name:
-                st.session_state.field_name = field_name
-                st.success(f'Welcome, {field_name}!')
-                st.rerun()
+        if field_name:
+            st.session_state.field_name = field_name
+            st.success(f"Welcome, {field_name}!")
+            st.experimental_rerun(
                 
     
 # --- Sidebar setup ---
