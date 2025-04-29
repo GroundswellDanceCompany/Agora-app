@@ -345,9 +345,8 @@ else:
                 
     
 # --- Sidebar setup ---
-else:
-    view_mode = st.sidebar.radio("View Mode", ["Live View", "Morning Digest"])
-    just_comments = st.sidebar.toggle("Just Comments Mode")
+view_mode = st.sidebar.radio("View Mode", ["Live View", "Morning Digest"])
+just_comments = st.sidebar.toggle("Just Comments Mode")
 
 # --- Main logic ---
 if view_mode == "Live View":
