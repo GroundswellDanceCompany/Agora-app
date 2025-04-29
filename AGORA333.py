@@ -346,13 +346,6 @@ if not st.session_state.has_entered:
                 st.success(f"Welcome, {st.session_state.field_name}. You are now part of the Field.")
                 st.rerun()
 
-    if "has_entered" not in st.session_state:
-    st.session_state.has_entered = False
-
-    if not st.session_state.has_entered:
-    # --- Welcome Screen Only ---
-    show_welcome_screen()
-
 else:
 
     # --- Sidebar setup ---
