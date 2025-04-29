@@ -345,6 +345,7 @@ if not st.session_state.has_entered:
                 st.session_state.field_name = chosen_name.strip()
                 st.success(f"Welcome, {st.session_state.field_name}. You are now part of the Field.")
                 st.rerun()
+                
     else:
         # --- Sidebar setup ---
         view_mode = st.sidebar.radio("View Mode", ["Live View", "Morning Digest"])
@@ -559,7 +560,8 @@ if not st.session_state.has_entered:
 
         # --- Morning Digest Mode ---
         elif view_mode == "Morning Digest":
-            add_fade_in_styles()
+            st.title("Morning Echoes — Agora Digest")
+            
 
             today = datetime.utcnow().date()
             yesterday = today - timedelta(days=1)
