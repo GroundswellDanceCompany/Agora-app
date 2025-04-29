@@ -347,15 +347,18 @@ if not st.session_state.has_entered:
                 st.rerun()
 
 
+# --- Sidebar setup ---
 view_mode = st.sidebar.radio("View Mode", ["Live View", "Morning Digest"])
+just_comments = st.sidebar.toggle("Just Comments Mode")
 
+# --- Main logic ---
 if view_mode == "Live View":
     add_fade_in_styles()
 
     slow_reveal_sequence([
         (centered_header, "Agora — Public Sentiment Field"),
         (centered_paragraph, "There is a space beyond the noise of the world."),
-        (golden_divider, ""),  # Divider doesn't need text
+        (golden_divider, ""),
         (centered_quote, "The Field awaits your reflection."),
     ], delay=2)
 
@@ -371,23 +374,25 @@ No algorithms manipulating emotions, no rage optimizations —
 just human voices and emotional clarity.
 """)
 
-    view_mode = st.sidebar.radio("View Mode", ["Live Field", "Morning Digest"])
-    just_comments = st.sidebar.toggle("Just Comments Mode")
+    # --- Topic and live feed ---
+    topic = st.text_input("Search a topic")
+    headline_options = []
+    post_dict = {}
 
-    if view_mode == "Live Field":
-        topic = st.text_input("Search a topic")
-        headline_options = []
-        post_dict = {}
+    if topic:
+        for sub in curated_subreddits:
+            try:
+                for post in reddit.subreddit(sub).search(topic, sort="relevance", time_filter="week", limit=2):
+                    if not post.stickied:
+                        headline_options.append(post.title)
+                        post_dict[post.title] = post
+            except:
+                continue
 
-        if topic:
-            for sub in curated_subreddits:
-                try:
-                    for post in reddit.subreddit(sub).search(topic, sort="relevance", time_filter="week", limit=2):
-                        if not post.stickied:
-                            headline_options.append(post.title)
-                            post_dict[post.title] = post
-                except:
-                    continue
+elif view_mode == "Morning Digest":
+    # --- Morning Digest logic ---
+    st.title("Morning Echoes — Agora Digest")
+    # (digest display code here)
         else:
             subreddit = st.selectbox("Or pick a subreddit:", curated_subreddits)
             posts = reddit.subreddit(subreddit).hot(limit=15)
