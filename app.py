@@ -72,6 +72,9 @@ def get_or_create_worksheet(sheet, name, headers):
 def auto_trim_worksheet(ws, max_rows=1000):
     data = ws.get_all_values()
     if len(data) > max_rows:
+        keep = data[0:1] + data[-max_rows:]
+        ws.clear()
+        ws.update(keep)
 
 # --- Session State Setup ---
 if 'has_entered' not in st.session_state:
