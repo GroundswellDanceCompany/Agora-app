@@ -326,7 +326,7 @@ if not st.session_state.has_entered:
     centered_enter = st.button("Enter the Field")
     if centered_enter:
         st.session_state.has_entered = True
-        st.rerun(
+        st.rerun()
 
     col1, col2, col3 = st.columns([1,2,1])
 
