@@ -310,12 +310,9 @@ curated_subreddits = ["news", "worldnews", "politics", "uspolitics", "technology
 # --- Welcome Screen Logic ---
 if "has_entered" not in st.session_state:
     st.session_state.has_entered = False
-if "field_name" not in st.session_state:
-    st.session_state.field_name = ""
 
-# --- Portal Logic ---
 if not st.session_state.has_entered:
-    # Show welcome screen only
+    # Only show Welcome Screen
     add_fade_in_styles()
     add_button_glow()
 
@@ -326,9 +323,10 @@ if not st.session_state.has_entered:
     </div>
     """, unsafe_allow_html=True)
 
-    if st.button("Enter the Field"):
+    centered_enter = st.button("Enter the Field")
+    if centered_enter:
         st.session_state.has_entered = True
-        st.rerun()
+        st.rerun(
 
 else:
     # --- Inside Agora proper now ---
