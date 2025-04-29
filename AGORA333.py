@@ -23,6 +23,22 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+def show_welcome_screen():
+    add_fade_in_styles()
+    add_button_glow()
+
+    st.markdown("""
+    <div class='fade-in'>
+    <h1 style='text-align: center; color: #bbb;'>There is a field beyond the noise.</h1>
+    <p style='text-align: center; color: #888;'>You have found the threshold.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    centered_enter = st.button("Enter the Field")
+    if centered_enter:
+        st.session_state.has_entered = True
+        st.rerun()
+
 # --- Helper Functions ---
 def add_fade_in_styles():
     st.markdown("""
@@ -295,22 +311,22 @@ curated_subreddits = ["news", "worldnews", "politics", "uspolitics", "technology
 if "has_entered" not in st.session_state:
     st.session_state.has_entered = False
 
-# --- Welcome Page ---
 if not st.session_state.has_entered:
+    # Only show Welcome Screen
     add_fade_in_styles()
     add_button_glow()
 
-    placeholder = st.empty()
-    with placeholder.container():
-        banner = Image.open("Agora-image.png")
-        st.image(banner, use_container_width=True)
-
     st.markdown("""
-    <p class='fade-in' style='font-size:18px; color: #bbb; text-align: center;'>
-    There is a field beyond noise.<br><br>
-    You have arrived.
-    </p>
+    <div class='fade-in'>
+    <h1 style='text-align: center; color: #bbb;'>There is a field beyond the noise.</h1>
+    <p style='text-align: center; color: #888;'>You have found the threshold.</p>
+    </div>
     """, unsafe_allow_html=True)
+
+    centered_enter = st.button("Enter the Field")
+    if centered_enter:
+        st.session_state.has_entered = True
+        st.rerun(
 
     col1, col2, col3 = st.columns([1,2,1])
 
@@ -338,14 +354,6 @@ if not st.session_state.has_entered:
     if st.session_state.field_name == "":
         st.subheader("Whisper your Field Name")
 
-        chosen_name = st.text_input("Choose a name that feels right for the Field (e.g., SkySeeker, LightWanderer)")
-
-        if st.button("Confirm Name"):
-            if chosen_name.strip():
-                st.session_state.field_name = chosen_name.strip()
-                st.success(f"Welcome, {st.session_state.field_name}. You are now part of the Field.")
-                st.rerun()
-
         field_name = st.text_input("Choose your Field Name:")
 
         if st.button("Enter the Field"):
@@ -357,8 +365,9 @@ if not st.session_state.has_entered:
                 
     
 # --- Sidebar setup ---
-view_mode = st.sidebar.radio("View Mode", ["Live View", "Morning Digest"])
-just_comments = st.sidebar.toggle("Just Comments Mode")
+else:
+    view_mode = st.sidebar.radio("View Mode", ["Live View", "Morning Digest"])
+    just_comments = st.sidebar.toggle("Just Comments Mode")
 
 # --- Main logic ---
 if view_mode == "Live View":
