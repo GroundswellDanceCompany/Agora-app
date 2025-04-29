@@ -362,26 +362,26 @@ just_comments = st.sidebar.toggle("Just Comments Mode")
 
 # --- Main logic ---
 if view_mode == "Live View":
-add_fade_in_styles()
+    add_fade_in_styles()
 
-slow_reveal_sequence([
-    (centered_header, "Agora — Public Sentiment Field"),
-    (centered_paragraph, "There is a space beyond the noise of the world."),
-    (golden_divider, ""),
-    (centered_quote, "The Field awaits your reflection."),
-], delay=2)
+    slow_reveal_sequence([
+        (centered_header, "Agora — Public Sentiment Field"),
+        (centered_paragraph, "There is a space beyond the noise of the world."),
+        (golden_divider, ""),
+        (centered_quote, "The Field awaits your reflection."),
+    ], delay=2)
 
-        if "show_about" not in st.session_state:
-            st.session_state.show_about = True
+    if "show_about" not in st.session_state:
+        st.session_state.show_about = True
 
-        with st.expander("🌎 What is Agora?", expanded=st.session_state.show_about):
-            st.session_state.show_about = False
-            st.markdown("""
-    Agora is a breathing space for public reflection —  
-    powered by Reddit comments, AI summaries, and human insight.  
-    No algorithms manipulating emotions, no rage optimizations —  
-    just human voices and emotional clarity.
-    """)
+    with st.expander("🌎 What is Agora?", expanded=st.session_state.show_about):
+        st.session_state.show_about = False
+        st.markdown("""
+Agora is a breathing space for public reflection —  
+powered by Reddit comments, AI summaries, and human insight.  
+No algorithms manipulating emotions, no rage optimizations —  
+just human voices and emotional clarity.
+""")
 
     # --- Topic and live feed ---
     topic = st.text_input("Search a topic")
@@ -567,54 +567,43 @@ slow_reveal_sequence([
                                         show_light_reflection("Your reflection breathes into the Field.")
                                         st.rerun()
 
-    # --- Morning Digest Mode ---
-    elif view_mode == "Morning Digest":
-        st.title("Morning Echoes — Agora Digest")
-            
+elif view_mode == "Morning Digest":
+    # --- Morning Digest logic ---
 
-        today = datetime.utcnow().date()
-        yesterday = today - timedelta(days=1)
+    st.title("Morning Echoes — Agora Digest")
 
-        reflections_df = pd.DataFrame(reflections_ws.get_all_records())
+    # Load reflections from Google Sheets
+    reflections_df = load_comment_reflections()
+
+    if reflections_df.empty:
+        st.info("No reflections from yesterday yet — the Field is silent.")
+    else:
         reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
         reflections_df["date"] = reflections_df["timestamp"].dt.date
 
-        yesterday_data = reflections_df[reflections_df["date"] == yesterday]
+        yesterday = datetime.utcnow().date() - timedelta(days=1)
+        yesterday_reflections = reflections_df[reflections_df["date"] == yesterday]
 
-        if yesterday_data.empty:
-            slow_reveal_sequence([
-                (centered_header, "Agora Morning Digest"),
-                (centered_paragraph, "No reflections were recorded yesterday. The Field was silent."),
-            ], delay=1.5)
+        if yesterday_reflections.empty:
+            st.info("No reflections from yesterday — the Field rests.")
         else:
-            slow_reveal_sequence([
-                (centered_header, "Agora Morning Digest"),
-                (centered_paragraph, "Glimpses into the Field from yesterday's thoughts."),
-            ], delay=1.5)
-
-            top_headlines = yesterday_data["headline"].value_counts().head(3).index.tolist()
+            # Show top headlines reflected on yesterday
+            top_headlines = yesterday_reflections["headline"].value_counts().head(3).index.tolist()
 
             for headline in top_headlines:
+                centered_header(f"📰 {headline}", level="h3")
+                subset = yesterday_reflections[yesterday_reflections["headline"] == headline]
+
+                for idx, row in subset.iterrows():
+                    st.markdown(f"""
+                    <div style='border-left: 3px solid #888; background-color: #222; padding:10px; margin-bottom:10px;'>
+                    <i>"{row['comment_snippet']}..."</i><br><br>
+                    <b>{row['field_name']} reflected:</b> {row['reflection']}
+                    </div>
+                    """, unsafe_allow_html=True)
+
                 golden_divider()
 
-                slow_reveal_sequence([
-                    (headline_echo, headline),
-                    (centered_paragraph, "Gathering reflections...")
-                ], delay=1.5)
-
-                subset = yesterday_data[yesterday_data["headline"] == headline]
-                grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
-
-                with st.spinner("Summarizing reflections..."):
-                    summary = generate_ai_summary(headline, grouped)
-
-                time.sleep(1.0)  # gentle pause
-                centered_quote(summary)
-
-                time.sleep(1.5)  # breathing space
-                insert_field_memory()
-
-                st.markdown("<br><br>", unsafe_allow_html=True)
-
-            closing_blessing()
+            # Closing blessing
+            centered_quote("The Field remembers every voice.")
           
