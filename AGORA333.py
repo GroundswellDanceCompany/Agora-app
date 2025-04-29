@@ -389,22 +389,22 @@ just human voices and emotional clarity.
             except:
                 continue
 
-elif view_mode == "Morning Digest":
+
     # --- Morning Digest logic ---
     st.title("Morning Echoes — Agora Digest")
     # (digest display code here)
-        else:
-            subreddit = st.selectbox("Or pick a subreddit:", curated_subreddits)
-            posts = reddit.subreddit(subreddit).hot(limit=15)
-            for post in posts:
+    else:
+        subreddit = st.selectbox("Or pick a subreddit:", curated_subreddits)
+        posts = reddit.subreddit(subreddit).hot(limit=15)
+        for post in posts:
                 if not post.stickied:
                     headline_options.append(post.title)
                     post_dict[post.title] = post
 
         if headline_options:
             selected_headline = st.radio("Select a headline:", headline_options)
-    else:
-        selected_headline = None
+        else:
+            selected_headline = None
 
         if selected_headline:
             post = post_dict[selected_headline]
