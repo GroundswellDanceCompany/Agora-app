@@ -311,35 +311,56 @@ curated_subreddits = ["news", "worldnews", "politics", "uspolitics", "technology
 if "has_entered" not in st.session_state:
     st.session_state.has_entered = False
 
+# --- Welcome Page ---
 if not st.session_state.has_entered:
-    # Only show Welcome Screen
     add_fade_in_styles()
     add_button_glow()
 
+    placeholder = st.empty()
+    with placeholder.container():
+        banner = Image.open("Agora-image.png")
+        st.image(banner, use_container_width=True)
+
     st.markdown("""
-    <div class='fade-in'>
-    <h1 style='text-align: center; color: #bbb;'>There is a field beyond the noise.</h1>
-    <p style='text-align: center; color: #888;'>You have found the threshold.</p>
-    </div>
+    <p class='fade-in' style='font-size:18px; color: #bbb; text-align: center;'>
+    There is a field beyond noise.<br><br>
+    You have arrived.
+    </p>
     """, unsafe_allow_html=True)
 
-    centered_enter = st.button("Enter the Field")
-    if centered_enter:
-        st.session_state.has_entered = True
-        st.rerun()
+    col1, col2, col3 = st.columns([1,2,1])
 
-else:
-    # --- Inside Agora proper now ---
-    
-    # --- Field Name Selection ---
-    if not st.session_state.field_name:
-        st.markdown("### Choose your Field Name (your civic voice)")
-        field_name = st.text_input("Enter a Field Name:")
-
-        if field_name:
-            st.session_state.field_name = field_name
-            st.success(f"Welcome, {field_name}!")
+    with col2:
+        # Centered custom portal button
+        if st.button("Enter the Field", key="main_enter"):
+            st.session_state.has_entered = True
             st.rerun()
+
+    # Center ALL Streamlit buttons to be centered inside columns
+    st.markdown("""
+    <style>
+    div.stButton > button {
+        display: block;
+        margin: 0 auto;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+
+    # --- Light Field Name Selection ---
+    if "field_name" not in st.session_state:
+        st.session_state.field_name = ""
+
+    if st.session_state.field_name == "":
+        st.subheader("Whisper your Field Name")
+
+        chosen_name = st.text_input("Choose a name that feels right for the Field (e.g., SkySeeker, LightWanderer)")
+
+        if st.button("Confirm Name"):
+            if chosen_name.strip():
+                st.session_state.field_name = chosen_name.strip()
+                st.success(f"Welcome, {st.session_state.field_name}. You are now part of the Field.")
+                st.rerun()
                 
     
 # --- Sidebar setup ---
