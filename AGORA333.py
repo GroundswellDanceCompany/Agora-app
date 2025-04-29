@@ -390,8 +390,7 @@ just human voices and emotional clarity.
                 continue
 
 
-    # --- Morning Digest logic ---
-    st.title("Morning Echoes — Agora Digest")
+    
     # (digest display code here)
     else:
         subreddit = st.selectbox("Or pick a subreddit:", curated_subreddits)
