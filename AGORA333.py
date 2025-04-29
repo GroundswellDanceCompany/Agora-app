@@ -341,7 +341,6 @@ if not st.session_state.has_entered:
 
     # --- Field Name Setup ---
     if "field_name" not in st.session_state or not st.session_state.field_name:
-        st.subheader("Whisper your Field Name")
 
         field_name = st.text_input("Choose your Field Name:")
 
