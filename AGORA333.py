@@ -354,14 +354,14 @@ if not st.session_state.has_entered:
                 st.rerun()
 
     else:
-    # --- Field Name Selection ---
-    if not st.session_state.field_name:
-        st.markdown('### Choose your Field Name (your civic voice)')
-        field_name = st.text_input('Enter a Field Name:')
-        if field_name:
-            st.session_state.field_name = field_name
-            st.success(f'Welcome, {field_name}!')
-            st.rerun()
+        # --- Field Name Selection ---
+        if not st.session_state.field_name:
+            st.markdown('### Choose your Field Name (your civic voice)')
+            field_name = st.text_input('Enter a Field Name:')
+            if field_name:
+                st.session_state.field_name = field_name
+                st.success(f'Welcome, {field_name}!')
+                st.rerun()
                 
     
 # --- Sidebar setup ---
