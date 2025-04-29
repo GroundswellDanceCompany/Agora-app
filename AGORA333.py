@@ -326,7 +326,7 @@ if not st.session_state.has_entered:
     centered_enter = st.button("Enter the Field")
     if centered_enter:
         st.session_state.has_entered = True
-        st.rerun(
+        st.rerun()
 
 else:
     # --- Inside Agora proper now ---
