@@ -347,21 +347,20 @@ if not st.session_state.has_entered:
     """, unsafe_allow_html=True)
 
 
-    # --- Light Field Name Selection ---
-    if "field_name" not in st.session_state:
-        st.session_state.field_name = ""
-
-    if st.session_state.field_name == "":
+    # --- Field Name Setup ---
+    if "field_name" not in st.session_state or not st.session_state.field_name:
         st.subheader("Whisper your Field Name")
 
         field_name = st.text_input("Choose your Field Name:")
 
         if st.button("Enter the Field"):
-            timestamp = datetime.utcnow().isoformat()
-            field_names_ws.append_row([field_name.strip(), timestamp])
-            st.session_state.field_name = field_name.strip()
-            st.session_state.has_entered = True
-            st.rerun()
+            field_name = field_name.strip()
+            if field_name:
+                timestamp = datetime.utcnow().isoformat()
+                field_names_ws.append_row([field_name, timestamp])
+                st.session_state.field_name = field_name
+                st.session_state.has_entered = True
+                st.rerun()
                 
     
 # --- Sidebar setup ---
