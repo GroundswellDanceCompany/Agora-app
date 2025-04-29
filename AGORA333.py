@@ -361,7 +361,7 @@ def add_fade_in_styles():
 def show_welcome_screen():
     add_fade_in_styles()
     add_button_glow()
-    st.image("flower_portal.png", width=200)
+    st.image("Agora-image.png", width=200)
     st.markdown("""
     <div class="fade-in" style='text-align: center; font-size: 20px; color: #ccc; margin-top: 30px;'>
         There is a field beyond noise and name.<br>
