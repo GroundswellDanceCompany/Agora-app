@@ -23,6 +23,13 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# --- Ensure session state keys exist ---
+if "has_entered" not in st.session_state:
+    st.session_state.has_entered = False
+
+if "field_name" not in st.session_state:
+    st.session_state.field_name = ""
+
 def show_welcome_screen():
     add_fade_in_styles()
     add_button_glow()
