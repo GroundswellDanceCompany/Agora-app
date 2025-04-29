@@ -305,7 +305,13 @@ reddit = praw.Reddit(
     user_agent=st.secrets["reddit"]["user_agent"]
 )
 
-curated_subreddits = ["news", "worldnews", "politics", "uspolitics", "technology", "science", "geopolitics"]
+curated_subreddits = [
+    "news", "worldnews", "politics", "uspolitics",
+    "ukpolitics", "geopolitics", "europe", "MiddleEastNews",
+    "technology", "Futurology", "science", "environment",
+    "TrueOffMyChest", "ChangeMyView", "AskPolitics",
+    "Philosophy", "CasualConversation", "UpliftingNews"
+]
 
 # --- Welcome Screen Logic ---
 if "has_entered" not in st.session_state:
