@@ -339,8 +339,7 @@ if not st.session_state.has_entered:
     """, unsafe_allow_html=True)
 
 
-    # --- Field Name Setup ---
-    if "field_name" not in st.session_state or not st.session_state.field_name:
+    # --- Field Name Setup ---#
 
         field_name = st.text_input("Choose your Field Name:")
 
