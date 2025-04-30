@@ -83,14 +83,6 @@ def add_button_glow():
     </style>
     """, unsafe_allow_html=True)
 
-def get_or_create_worksheet(sheet, name, headers):
-    try:
-        return sheet.worksheet(name)
-    except gspread.exceptions.WorksheetNotFound:
-        ws = sheet.add_worksheet(title=name, rows="1000", cols="2")
-        ws.append_row(headers)
-        return ws
-
 field_names_ws = get_or_create_worksheet(sheet, "FieldNames", ["field_name", "timestamp"])
 
 def get_or_create_worksheet(sheet, name, headers):
@@ -315,6 +307,14 @@ reaction_ws = get_or_create_worksheet(sheet, "CommentReactions", ["headline", "c
 comment_reflections_ws = get_or_create_worksheet(sheet, "CommentReflections", ["field_name", "headline", "comment_snippet", "reflection", "emotion", "timestamp"])
 saved_posts_ws = get_or_create_worksheet(sheet, "SavedPosts", ["id", "title", "top_comments", "date_saved", "permalink"])
 field_names_ws = sheet.worksheet("FieldNames") 
+
+def get_or_create_worksheet(sheet, name, headers):
+    try:
+        return sheet.worksheet(name)
+    except gspread.exceptions.WorksheetNotFound:
+        ws = sheet.add_worksheet(title=name, rows="1000", cols="2")
+        ws.append_row(headers)
+        return ws
 
 # --- Reddit Setup ---
 reddit = praw.Reddit(
