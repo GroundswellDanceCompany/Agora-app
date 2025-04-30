@@ -386,7 +386,7 @@ if not st.session_state.has_entered:
                 st.session_state.field_name = chosen_name.strip()
                 st.success(f"Welcome, {st.session_state.field_name}. You are now part of the Field.")
                 st.rerun()
-
+else:
     # --- Sidebar setup ---
     view_mode = st.sidebar.radio("View Mode", ["Live View", "Morning Digest"])
     just_comments = st.sidebar.toggle("Just Comments Mode")
@@ -597,56 +597,30 @@ if not st.session_state.has_entered:
                                         auto_trim_worksheet(comment_reflections_ws)
                                         show_light_reflection("Your reflection breathes into the Field.")
                                         st.rerun()
-
-           
-    
     elif view_mode == "Morning Digest":
-    
-        centered_header ("Morning Echoes - Agora Digest")
+        centered_header("Agora Daily — Morning Digest", level="h1")
 
         today = datetime.utcnow().date()
         yesterday = today - timedelta(days=1)
-
-        reflections_df = pd.DataFrame(reflections_ws.get_all_records())
+        reflections_df = load_reflections()
         reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
         reflections_df["date"] = reflections_df["timestamp"].dt.date
-
         yesterday_data = reflections_df[reflections_df["date"] == yesterday]
 
         if yesterday_data.empty:
-            slow_reveal_sequence([
-                (centered_header, "Agora Morning Digest"),
-                (centered_paragraph, "No reflections were recorded yesterday. The Field was silent."),
-            ], delay=1.5)
+            st.info("No reflections found for yesterday.")
         else:
-            slow_reveal_sequence([
-                (centered_header, "Agora Morning Digest"),
-                (centered_paragraph, "Glimpses into the Field from yesterday's thoughts."),
-            ], delay=1.5)
-
             top_headlines = yesterday_data["headline"].value_counts().head(3).index.tolist()
-
             for headline in top_headlines:
-                golden_divider()
-
-                slow_reveal_sequence([
-                    (headline_echo, headline),
-                    (centered_paragraph, "Gathering reflections...")
-                ], delay=1.5)
-
+                centered_header(f"📰 {headline}", level="h2")
                 subset = yesterday_data[yesterday_data["headline"] == headline]
                 grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
-
                 with st.spinner("Summarizing reflections..."):
                     summary = generate_ai_summary(headline, grouped)
-
-                time.sleep(1.0)  # gentle pause
-                centered_quote(summary)
-
-                time.sleep(1.5)  # breathing space
-                insert_field_memory()
-
-                st.markdown("<br><br>", unsafe_allow_html=True)
-
-            closing_blessing()
+                    st.success(summary)
+                show_inspirational_whisper()
+                st.markdown("---")
+           
+    
+    
           
