@@ -598,7 +598,7 @@ else:
                                         show_light_reflection("Your reflection breathes into the Field.")
                                         st.rerun()
 
-# --- Morning Digest Mode ---
+
 elif view_mode == "Morning Digest":
     st.title ("Morning Echoes - Agora Digest")
 
