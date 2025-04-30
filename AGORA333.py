@@ -312,7 +312,7 @@ if not st.session_state.has_entered:
     # Centered portal image
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.image("Agora-image.png", use_column_width=True)
+        st.image("Agora-image.png", use_container_width=True)
 
     st.markdown("""
     <div style='text-align: center; font-size: 20px; color: #ccc; margin-top: 30px;'>
@@ -334,7 +334,7 @@ if not st.session_state.has_entered:
 
 # --- FIELD NAME SCREEN ---
 if not st.session_state.field_name:
-    st.image("Agora-image.png", use_column_width=True)
+    st.image("Agora-image.png", use_container_width=True)
 
     st.markdown("""
     <div style='text-align: center; font-size: 20px; color: #ccc; margin-top: 30px;'>
