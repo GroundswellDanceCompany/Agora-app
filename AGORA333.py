@@ -367,19 +367,7 @@ if not st.session_state.has_entered:
 if not st.session_state.field_name:
     show_field_name_screen()
     st.stop()
-
-# --- MAIN APP BEGINS ---
-view_mode = st.sidebar.radio("View Mode", ["Live View", "Morning Digest"])
-just_comments = st.sidebar.toggle("Just Comments Mode")
-
-if view_mode == "Live View":
-    # (your live field logic here)
-    pass
-
-elif view_mode == "Morning Digest":
-    # (your digest logic here)
-    pass
-                
+ 
     
 # --- Sidebar setup ---
 view_mode = st.sidebar.radio("View Mode", ["Live View", "Morning Digest"])
