@@ -600,7 +600,7 @@ else:
 
 # --- Morning Digest Mode ---
 elif view_mode == "Morning Digest":
-    add_fade_in_styles()
+    st.title
 
     today = datetime.utcnow().date()
     yesterday = today - timedelta(days=1)
