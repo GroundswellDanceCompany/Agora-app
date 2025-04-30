@@ -311,7 +311,7 @@ def show_welcome_screen():
     add_button_glow()
 
     st.markdown("<br><br>", unsafe_allow_html=True)
-    st.image("flower_portal.png", width=250)  # make sure this image is in your root folder
+    st.image("Agora-image.png", width=250)  # make sure this image is in your root folder
 
     st.markdown("""
     <div class='fade-in' style='text-align: center; font-size: 22px; color: #ccc; margin-top: 40px;'>
