@@ -67,8 +67,6 @@ def add_button_glow():
     </style>
     """, unsafe_allow_html=True)
 
-field_names_ws = get_or_create_worksheet(sheet, "FieldNames", ["field_name", "timestamp"])
-
 def get_or_create_worksheet(sheet, name, headers):
     try:
         ws = sheet.worksheet(name)
