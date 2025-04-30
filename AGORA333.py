@@ -310,15 +310,12 @@ def show_welcome_screen():
     add_fade_in_styles()
     add_button_glow()
 
-    st.markdown("""
-    <div style='display: flex; justify-content: center;'>
-        <img src='Agora-image.png' width='300'>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    st.image("flower_portal.png", width=250)  # make sure this image is in your root folder
 
     st.markdown("""
-    <div class="fade-in" style='text-align: center; font-size: 22px; color: #ccc; margin-top: 40px;'>
-        There is a field beyond noise and thought.<br>
+    <div class='fade-in' style='text-align: center; font-size: 22px; color: #ccc; margin-top: 40px;'>
+        There is a field beyond noise and thought.<br><br>
         You are invited to cross the threshold.
     </div>
     """, unsafe_allow_html=True)
@@ -336,10 +333,22 @@ def show_field_name_screen():
     add_fade_in_styles()
     add_button_glow()
 
-    st.image("Agora-image.png", width=300)
+    st.markdown("""
+    <style>
+    .background-image {
+        background-image: url('Agora-image.png');
+        background-size: contain;
+        background-position: center top;
+        background-repeat: no-repeat;
+        padding-top: 250px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<div class='background-image'></div>", unsafe_allow_html=True)
 
     st.markdown("""
-    <div class="fade-in" style='text-align: center; font-size: 20px; color: #ccc; margin-top: 30px;'>
+    <div class='fade-in' style='text-align: center; font-size: 20px; color: #ccc; margin-top: 30px;'>
         Whisper your Field Name.
     </div>
     """, unsafe_allow_html=True)
@@ -348,9 +357,9 @@ def show_field_name_screen():
 
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        name_input = st.text_input("Your Field Name", key="field_name_input")
+        field_name = st.text_input("Your Field Name", key="field_name_input")
         if st.button("Confirm Name"):
-            name = name_input.strip()
+            name = field_name.strip()
             if name:
                 timestamp = datetime.utcnow().isoformat()
                 field_names_ws.append_row([name, timestamp])
