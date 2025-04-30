@@ -600,7 +600,7 @@ else:
 
 # --- Morning Digest Mode ---
 elif view_mode == "Morning Digest":
-    st.title
+    st.title ("Morning Echoes - Agora Digest")
 
     today = datetime.utcnow().date()
     yesterday = today - timedelta(days=1)
