@@ -596,55 +596,87 @@ else:
                                         ])
                                         auto_trim_worksheet(comment_reflections_ws)
                                         show_light_reflection("Your reflection breathes into the Field.")
-else:                                   st.rerun()
+                                        st.rerun()
 
-    view_mode == "Morning Digest":
+
+
+
+    elif view_mode == "Morning Digest":
+        centered_header("Agora Daily — Morning Digest", level="h1")
+
+        today = datetime.utcnow().date()
+        yesterday = today - timedelta(days=1)
+        reflections_df = load_reflections()
+        reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
+        reflections_df["date"] = reflections_df["timestamp"].dt.date
+        yesterday_data = reflections_df[reflections_df["date"] == yesterday]
+
+        if yesterday_data.empty:
+            st.info("No reflections found for yesterday.")
+        else:
+            top_headlines = yesterday_data["headline"].value_counts().head(3).index.tolist()
+            for headline in top_headlines:
+                centered_header(f"📰 {headline}", level="h2")
+                subset = yesterday_data[yesterday_data["headline"] == headline]
+                grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
+                with st.spinner("Summarizing reflections..."):
+                    summary = generate_ai_summary(headline, grouped)
+                    st.success(summary)
+                show_inspirational_whisper()
+                st.markdown("---")
+
+                
+
+
+
     
-    st.title ("Morning Echoes - Agora Digest")
+    elif view_mode == "Morning Digest":
+    
+        centered_header ("Morning Echoes - Agora Digest")
 
-    today = datetime.utcnow().date()
-    yesterday = today - timedelta(days=1)
+        today = datetime.utcnow().date()
+        yesterday = today - timedelta(days=1)
 
-    reflections_df = pd.DataFrame(reflections_ws.get_all_records())
-    reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
-    reflections_df["date"] = reflections_df["timestamp"].dt.date
+        reflections_df = pd.DataFrame(reflections_ws.get_all_records())
+        reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
+        reflections_df["date"] = reflections_df["timestamp"].dt.date
 
-    yesterday_data = reflections_df[reflections_df["date"] == yesterday]
+        yesterday_data = reflections_df[reflections_df["date"] == yesterday]
 
-    if yesterday_data.empty:
-        slow_reveal_sequence([
-            (centered_header, "Agora Morning Digest"),
-            (centered_paragraph, "No reflections were recorded yesterday. The Field was silent."),
-        ], delay=1.5)
-    else:
-        slow_reveal_sequence([
-            (centered_header, "Agora Morning Digest"),
-            (centered_paragraph, "Glimpses into the Field from yesterday's thoughts."),
-        ], delay=1.5)
-
-        top_headlines = yesterday_data["headline"].value_counts().head(3).index.tolist()
-
-        for headline in top_headlines:
-            golden_divider()
-
+        if yesterday_data.empty:
             slow_reveal_sequence([
-                (headline_echo, headline),
-                (centered_paragraph, "Gathering reflections...")
+                (centered_header, "Agora Morning Digest"),
+                (centered_paragraph, "No reflections were recorded yesterday. The Field was silent."),
+            ], delay=1.5)
+        else:
+            slow_reveal_sequence([
+                (centered_header, "Agora Morning Digest"),
+                (centered_paragraph, "Glimpses into the Field from yesterday's thoughts."),
             ], delay=1.5)
 
-            subset = yesterday_data[yesterday_data["headline"] == headline]
-            grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
+            top_headlines = yesterday_data["headline"].value_counts().head(3).index.tolist()
 
-            with st.spinner("Summarizing reflections..."):
-                summary = generate_ai_summary(headline, grouped)
+            for headline in top_headlines:
+                golden_divider()
 
-            time.sleep(1.0)  # gentle pause
-            centered_quote(summary)
+                slow_reveal_sequence([
+                    (headline_echo, headline),
+                    (centered_paragraph, "Gathering reflections...")
+                ], delay=1.5)
 
-            time.sleep(1.5)  # breathing space
-            insert_field_memory()
+                subset = yesterday_data[yesterday_data["headline"] == headline]
+                grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
 
-            st.markdown("<br><br>", unsafe_allow_html=True)
+                with st.spinner("Summarizing reflections..."):
+                    summary = generate_ai_summary(headline, grouped)
 
-        closing_blessing()
+                time.sleep(1.0)  # gentle pause
+                centered_quote(summary)
+
+                time.sleep(1.5)  # breathing space
+                insert_field_memory()
+
+                st.markdown("<br><br>", unsafe_allow_html=True)
+
+            closing_blessing()
           
