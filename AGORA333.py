@@ -312,7 +312,7 @@ def show_welcome_screen():
 
     st.markdown("""
     <div style='display: flex; justify-content: center;'>
-        <img src='https://raw.githubusercontent.com/your-repo/assets/flower_portal.png' width='300'>
+        <img src='Agora-image.png' width='300'>
     </div>
     """, unsafe_allow_html=True)
 
@@ -336,7 +336,7 @@ def show_field_name_screen():
     add_fade_in_styles()
     add_button_glow()
 
-    st.image("flower_portal.png", width=300)
+    st.image("Agora-image.png", width=300)
 
     st.markdown("""
     <div class="fade-in" style='text-align: center; font-size: 20px; color: #ccc; margin-top: 30px;'>
