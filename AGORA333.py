@@ -85,6 +85,16 @@ def add_button_glow():
 
 def get_or_create_worksheet(sheet, name, headers):
     try:
+        return sheet.worksheet(name)
+    except gspread.exceptions.WorksheetNotFound:
+        ws = sheet.add_worksheet(title=name, rows="1000", cols="2")
+        ws.append_row(headers)
+        return ws
+
+field_names_ws = get_or_create_worksheet(sheet, "FieldNames", ["field_name", "timestamp"])
+
+def get_or_create_worksheet(sheet, name, headers):
+    try:
         ws = sheet.worksheet(name)
     except gspread.exceptions.WorksheetNotFound:
         ws = sheet.add_worksheet(title=name, rows="1000", cols="20")
