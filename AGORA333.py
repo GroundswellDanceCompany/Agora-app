@@ -23,41 +23,12 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- Google Sheets ---
-SCOPE = ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/spreadsheets"]
-creds = Credentials.from_service_account_info(st.secrets["google_service_account"], scopes=SCOPE)
-client = gspread.authorize(creds)
-sheet = client.open("AgoraData")
-
-reflections_ws = get_or_create_worksheet(sheet, "Reflections", ["reflection_id", "headline", "emotions", "trust_level", "reflection", "timestamp"])
-replies_ws = get_or_create_worksheet(sheet, "Replies", ["reflection_id", "reply", "timestamp"])
-reaction_ws = get_or_create_worksheet(sheet, "CommentReactions", ["headline", "comment_snippet", "reaction", "timestamp"])
-comment_reflections_ws = get_or_create_worksheet(sheet, "CommentReflections", ["field_name", "headline", "comment_snippet", "reflection", "emotion", "timestamp"])
-saved_posts_ws = get_or_create_worksheet(sheet, "SavedPosts", ["id", "title", "top_comments", "date_saved", "permalink"])
-field_names_ws = get_or_create_worksheet(sheet, "FieldNames", ["field_name", "timestamp"])
-
 # --- Ensure session state keys exist ---
 if "has_entered" not in st.session_state:
     st.session_state.has_entered = False
 
 if "field_name" not in st.session_state:
     st.session_state.field_name = ""
-
-def show_welcome_screen():
-    add_fade_in_styles()
-    add_button_glow()
-
-    st.markdown("""
-    <div class='fade-in'>
-    <h1 style='text-align: center; color: #bbb;'>There is a field beyond the noise.</h1>
-    <p style='text-align: center; color: #888;'>You have found the threshold.</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    centered_enter = st.button("Enter the Field")
-    if centered_enter:
-        st.session_state.has_entered = True
-        st.rerun()
 
 # --- Helper Functions ---
 def add_fade_in_styles():
@@ -308,6 +279,19 @@ def generate_ai_summary(headline, grouped_comments):
     except Exception as e:
         return f"Could not generate summary: {str(e)}"
 
+# --- Google Sheets ---
+SCOPE = ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/spreadsheets"]
+creds = Credentials.from_service_account_info(st.secrets["google_service_account"], scopes=SCOPE)
+client = gspread.authorize(creds)
+sheet = client.open("AgoraData")
+
+reflections_ws = get_or_create_worksheet(sheet, "Reflections", ["reflection_id", "headline", "emotions", "trust_level", "reflection", "timestamp"])
+replies_ws = get_or_create_worksheet(sheet, "Replies", ["reflection_id", "reply", "timestamp"])
+reaction_ws = get_or_create_worksheet(sheet, "CommentReactions", ["headline", "comment_snippet", "reaction", "timestamp"])
+comment_reflections_ws = get_or_create_worksheet(sheet, "CommentReflections", ["field_name", "headline", "comment_snippet", "reflection", "emotion", "timestamp"])
+saved_posts_ws = get_or_create_worksheet(sheet, "SavedPosts", ["id", "title", "top_comments", "date_saved", "permalink"])
+field_names_ws = get_or_create_worksheet(sheet, "FieldNames", ["field_name", "timestamp"])
+
 # --- Reddit Setup ---
 reddit = praw.Reddit(
     client_id=st.secrets["reddit"]["client_id"],
@@ -351,14 +335,10 @@ def show_welcome_screen():
 
 # --- FIELD NAME SCREEN ---
 def show_field_name_screen():
-    add_button_glow()
     add_fade_in_styles()
+    add_button_glow()
 
-    st.markdown("""
-    <div style='display: flex; justify-content: center;'>
-        <img src='https://raw.githubusercontent.com/your-repo/assets/flower_portal.png' width='300'>
-    </div>
-    """, unsafe_allow_html=True)
+    st.image("flower_portal.png", width=300)
 
     st.markdown("""
     <div class="fade-in" style='text-align: center; font-size: 20px; color: #ccc; margin-top: 30px;'>
