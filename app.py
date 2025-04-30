@@ -596,8 +596,10 @@ else:
                                         ])
                                         auto_trim_worksheet(comment_reflections_ws)
                                         show_light_reflection("Your reflection breathes into the Field.")
-else:                                       st.rerun()
+else:                                   st.rerun()
+
     view_mode == "Morning Digest":
+    
     st.title ("Morning Echoes - Agora Digest")
 
     today = datetime.utcnow().date()
