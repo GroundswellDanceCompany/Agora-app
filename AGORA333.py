@@ -306,67 +306,53 @@ curated_subreddits = [
 ]
 
 # --- Welcome Screen Logic ---
-def show_welcome_screen():
-    add_fade_in_styles()
-    add_button_glow()
-
+if not st.session_state.has_entered:
     st.markdown("<br><br>", unsafe_allow_html=True)
-    st.image("Agora-image.png", width=250)  # make sure this image is in your root folder
+
+    # Centered portal image
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.image("flower_portal.png", use_column_width=True)
 
     st.markdown("""
-    <div class='fade-in' style='text-align: center; font-size: 22px; color: #ccc; margin-top: 40px;'>
+    <div style='text-align: center; font-size: 20px; color: #ccc; margin-top: 30px;'>
         There is a field beyond noise and thought.<br><br>
         You are invited to cross the threshold.
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<br><br>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
 
+    # Centered button
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        if st.button("Enter the Field"):
+        if st.button("Enter the Field", key="welcome_button"):
             st.session_state.has_entered = True
             st.rerun()
 
+    st.stop()
+
 # --- FIELD NAME SCREEN ---
-def show_field_name_screen():
-    add_fade_in_styles()
-    add_button_glow()
+if not st.session_state.field_name:
+    st.image("flower_portal.png", use_column_width=True)
 
     st.markdown("""
-    <style>
-    .background-image {
-        background-image: url('Agora-image.png');
-        background-size: contain;
-        background-position: center top;
-        background-repeat: no-repeat;
-        padding-top: 250px;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-    st.markdown("<div class='background-image'></div>", unsafe_allow_html=True)
-
-    st.markdown("""
-    <div class='fade-in' style='text-align: center; font-size: 20px; color: #ccc; margin-top: 30px;'>
+    <div style='text-align: center; font-size: 20px; color: #ccc; margin-top: 30px;'>
         Whisper your Field Name.
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
-
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        field_name = st.text_input("Your Field Name", key="field_name_input")
+        name_input = st.text_input("Your Field Name", key="field_name_input")
         if st.button("Confirm Name"):
-            name = field_name.strip()
-            if name:
-                timestamp = datetime.utcnow().isoformat()
-                field_names_ws.append_row([name, timestamp])
-                st.session_state.field_name = name
+            if name_input.strip():
+                st.session_state.field_name = name_input.strip()
                 st.rerun()
             else:
-                st.warning("Please choose a name before entering.")
+                st.warning("Please choose a name before continuing.")
+
+    st.stop()
 
 # --- FLOW CONTROLS ---
 if not st.session_state.has_entered:
