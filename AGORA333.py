@@ -451,43 +451,6 @@ just human voices and emotional clarity.
                 </div>
                 """, unsafe_allow_html=True)
 
-            highlight_id = str(hash(highlight["text"]))[:8]
-
-            st.markdown(f"""
-            <div class='comment-block'>
-                <strong>⭐ Highlighted Comment:</strong> {highlight['text']}
-                <br><small>{highlight['author']} • {highlight['created']} • Sentiment: {highlight['score']}</small>
-            </div>
-            """, unsafe_allow_html=True)
-
-            selected_reaction = st.radio(
-                "React to this comment:",
-                ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"],
-                key=f"highlight_react_{highlight_id}",
-                horizontal=True
-            )
-
-            if selected_reaction.strip():
-                reaction_ws.append_row([
-                    selected_headline,
-                    highlight["text"][:100],
-                    selected_reaction,
-                    datetime.utcnow().isoformat()
-                ])
-                st.success(f"Reaction recorded: {reaction_emojis[selected_reaction]} {selected_reaction}")
-
-            with st.form(key=f"highlight_form_{highlight_id}"):
-                reflection = st.text_area("Leave a reflection on this highlighted comment (optional):")
-                if st.form_submit_button("Submit Reflection") and reflection.strip():
-                    comment_reflections_ws.append_row([
-                        selected_headline,
-                        highlight["text"][:100],
-                        reflection.strip(),
-                        datetime.utcnow().isoformat()
-                    ])
-                    auto_trim_worksheet(comment_reflections_ws)
-                    st.success("Reflection submitted.")
-
             # Reddit Comments Pull
             submission = reddit.submission(id=post.id)
             submission.comments.replace_more(limit=0)
@@ -524,6 +487,7 @@ just human voices and emotional clarity.
                     for label in ["Positive", "Neutral", "Negative"]:
                         group = emotion_groups[label]
                         if group:
+                            highlight = max(group, key=lambda c: abs(c["score"]))
                             st.markdown(f"""
                             <div class='emotion-header'>
                                 <span class='emotion-dot {label.lower()}-dot'></span> {label} ({emotion_counts[label]})
@@ -536,6 +500,44 @@ just human voices and emotional clarity.
                                     <br><small>{comment['author']} • {comment['created']} • Sentiment: {comment['score']}</small>
                                 </div>
                                 """, unsafe_allow_html=True)
+
+                                highlight_id = str(hash(highlight["text"]))[:8]
+
+                                st.markdown(f"""
+                                <div class='comment-block'>
+                                    <strong>⭐ Highlighted Comment:</strong> {highlight['text']}
+                                    <br><small>{highlight['author']} • {highlight['created']} • Sentiment: {highlight['score']}</small>
+                                </div>
+                                """, unsafe_allow_html=True)
+
+                                selected_reaction = st.radio(
+                                    "React to this comment:",
+                                    ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"],
+                                    key=f"highlight_react_{highlight_id}",
+                                    horizontal=True
+                                )
+
+                                if selected_reaction.strip():
+                                    reaction_ws.append_row([
+                                        selected_headline,
+                                        highlight["text"][:100],
+                                        selected_reaction,
+                                        datetime.utcnow().isoformat()
+                                    ])
+                                    st.success(f"Reaction recorded: {reaction_emojis[selected_reaction]} {selected_reaction}")
+
+                                with st.form(key=f"highlight_form_{highlight_id}"):
+                                    reflection = st.text_area("Leave a reflection on this highlighted comment (optional):")
+                                    if st.form_submit_button("Submit Reflection") and reflection.strip():
+                                        comment_reflections_ws.append_row([
+                                            selected_headline,
+                                            highlight["text"][:100],
+                                            reflection.strip(),
+                                            datetime.utcnow().isoformat()
+                                        ])
+                                        auto_trim_worksheet(comment_reflections_ws)
+                                        st.success("Reflection submitted.")
+                   
                 else:
                     # Full Agora Mode
                     with st.spinner("Gathering the emotional field..."):
