@@ -526,56 +526,92 @@ just human voices and emotional clarity.
                         summary = generate_ai_summary(selected_headline, emotion_groups)
                         st.success(summary)
 
-                    for label in ["Positive", "Neutral", "Negative"]:
-                        group = emotion_groups[label]
-                        if group:
+                    reaction_emojis = {
+                    "Angry": "😡", "Sad": "😢", "Hopeful": "🌈", 
+                    "Confused": "😕", "Neutral": "😐"
+                }
+
+                # Load all existing reactions and reflections
+                all_reactions = pd.DataFrame(reaction_ws.get_all_records())
+                all_comment_reflections = pd.DataFrame(comment_reflections_ws.get_all_records())
+
+                for label in ["Positive", "Neutral", "Negative"]:
+                    group = emotion_groups[label]
+                    if group:
+                        for i, comment in enumerate(group[:10]):
+                            comment_id = str(hash(comment["text"]))[:8]
+                            comment_snippet = comment["text"][:100]
+
+                            # Filter reactions for this comment
+                            reaction_data = all_reactions[all_reactions["comment_snippet"] == comment_snippet]
+                            reaction_counts = reaction_data["reaction"].value_counts().to_dict()
+
+                            # Show comment
                             st.markdown(f"""
-                            <div class='emotion-header'>
-                                <span class='emotion-dot {label.lower()}-dot'></span> {label} ({emotion_counts[label]})
+                            <div class='comment-block'>
+                                <strong>Comment {i+1}:</strong> {comment['text']}
+                                <br><small>{comment['author']} • {comment['created']} • Sentiment: {comment['score']}</small>
                             </div>
                             """, unsafe_allow_html=True)
-                            for i, comment in enumerate(group[:10]):
-                                comment_id = str(hash(comment["text"]))[:8]
-                                st.markdown(f"""
-                                <div class='comment-block'>
-                                    <strong>Comment {i+1}:</strong> {comment['text']}
-                                    <br><small>{comment['author']} • {comment['created']} • Sentiment: {comment['score']}</small>
-                                </div>
-                                """, unsafe_allow_html=True)
 
-                                reaction = st.radio(
-                                    "React to this comment:",
-                                    ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"],
-                                    key=f"reaction_{comment_id}",
-                                    horizontal=True
+                            # Show reaction counters
+                            counter_display = " | ".join([
+                                f"{reaction_emojis[k]} {reaction_counts.get(k, 0)}"
+                                for k in reaction_emojis
+                            ])
+                            st.markdown(f"<p style='color:#888; text-align:center;'>{counter_display}</p>", unsafe_allow_html=True)
+
+                            # Reaction radio
+                            selected_reaction = st.radio(
+                                "React to this comment:",
+                                options=list(reaction_emojis.keys()),
+                                format_func=lambda x: f"{reaction_emojis[x]} {x}",
+                                horizontal=True,
+                                key=f"reaction_{comment_id}"
+                            )
+                            if selected_reaction:
+                                reaction_ws.append_row([
+                                    selected_headline,
+                                    comment_snippet,
+                                    selected_reaction,
+                                    datetime.utcnow().isoformat()
+                                ])
+                                auto_trim_worksheet(reaction_ws)
+                                st.success(f"Reaction recorded: {reaction_emojis[selected_reaction]} {selected_reaction}")
+
+                            # Reflection form
+                            with st.form(key=f"form_reflection_{comment_id}"):
+                                reflection_text = st.text_area("Your reflection on this comment:")
+                                emotion_tag = st.selectbox(
+                                    "What emotion best captures your feeling toward this comment?",
+                                    list(reaction_emojis.keys()),
+                                    key=f"emotion_dropdown_{comment_id}"
                                 )
-                                if reaction.strip():
-                                    reaction_ws.append_row([
+                                if st.form_submit_button("Submit Reflection") and reflection_text.strip():
+                                    comment_reflections_ws.append_row([
                                         selected_headline,
-                                        comment["text"][:100],
-                                        reaction,
+                                        comment_snippet,
+                                        reflection_text.strip(),
+                                        emotion_tag,
                                         datetime.utcnow().isoformat()
                                     ])
-                                    auto_trim_worksheet(reaction_ws)
+                                    auto_trim_worksheet(comment_reflections_ws)
+                                    st.success("Reflection added!")
 
-                                with st.form(key=f"form_reflection_{comment_id}"):
-                                    user_reflection = st.text_input("Your reflection on this comment:")
-                                    emotion_choice = st.selectbox(
-                                        "What emotion best captures your feeling toward this comment?",
-                                        ["", "Hope", "Anger", "Confusion", "Inspiration", "Sadness", "Skepticism", "Indifference"]
-                                    )
-                                    if st.form_submit_button("Submit Reflection") and user_reflection.strip():
-                                        comment_snippet = comment_text[:100] 
-                                        comment_reflections_ws.append_row([
-                                            st.session_state.field_name,
-                                            selected_headline,
-                                            comment_snippet,  # the short comment excerpt
-                                            user_reflection.strip(),
-                                            datetime.utcnow().isoformat()
-                                        ])
-                                        auto_trim_worksheet(comment_reflections_ws)
-                                        show_light_reflection("Your reflection breathes into the Field.")
-                                        st.rerun()
+                            # Show previous reflections for this comment
+                            reflections_for_comment = all_comment_reflections[
+                                all_comment_reflections["comment_snippet"] == comment_snippet
+                            ]
+                            if not reflections_for_comment.empty:
+                                st.markdown("<i>Recent reflections:</i>", unsafe_allow_html=True)
+                                for _, row in reflections_for_comment.tail(2).iterrows():
+                                    st.markdown(f"""
+                                    <div style='margin-left:15px; font-size:14px; color:#ccc;'>
+                                        • {row['reflection']} <span style='color:#888'>[{row['emotion_tag']}]</span>
+                                    </div>
+                                    """, unsafe_allow_html=True)
+
+                            st.markdown("---")
 
 elif view_mode == "Morning Digest":
     # --- Morning Digest logic ---
