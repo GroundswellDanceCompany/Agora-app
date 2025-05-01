@@ -564,20 +564,21 @@ just human voices and emotional clarity.
                             # Reaction radio
                             selected_reaction = st.radio(
                                 "React to this comment:",
-                                options=list(reaction_emojis.keys()),
-                                format_func=lambda x: f"{reaction_emojis[x]} {x}",
+                                options=[""] + list(reaction_emojis.keys()),  # Add blank option
+                                format_func=lambda x: f"{reaction_emojis.get(x, '')} {x}" if x else "Choose...",
                                 horizontal=True,
                                 key=f"reaction_{comment_id}"
                             )
-                            if selected_reaction:
+                            
+                            if selected_reaction and selected_reaction != "":
                                 reaction_ws.append_row([
-                                    selected_headline,
-                                    comment_snippet,
-                                    selected_reaction,
-                                    datetime.utcnow().isoformat()
-                                ])
-                                auto_trim_worksheet(reaction_ws)
-                                st.success(f"Reaction recorded: {reaction_emojis[selected_reaction]} {selected_reaction}")
+                                selected_headline,
+                                comment_snippet,
+                                selected_reaction,
+                                datetime.utcnow().isoformat()
+                            ])
+                            auto_trim_worksheet(reaction_ws)
+                            st.success(f"Reaction recorded: {reaction_emojis[selected_reaction]} {selected_reaction}")
 
                             # Reflection form
                             with st.form(key=f"form_reflection_{comment_id}"):
