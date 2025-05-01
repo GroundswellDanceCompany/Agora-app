@@ -578,7 +578,7 @@ just human voices and emotional clarity.
                                 datetime.utcnow().isoformat()
                             ])
                             auto_trim_worksheet(reaction_ws)
-                            st.success(f"Reaction recorded: {reaction_emojis[selected_reaction]} {selected_reaction}")
+                            st.success(f"Reaction recorded: {reaction_emojis.get(selected_reaction, '')} {selected_reaction}")
 
                             # Reflection form
                             with st.form(key=f"form_reflection_{comment_id}"):
