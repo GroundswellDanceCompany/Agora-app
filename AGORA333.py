@@ -347,6 +347,7 @@ if not st.session_state.field_name:
         name_input = st.text_input("Your Field Name", key="field_name_input")
         if st.button("Confirm Name"):
             if name_input.strip():
+                timestamp = datetime.utcnow().isoformat()
                 field_names_ws.append_row([name_input.strip(), timestamp])
                 st.session_state.field_name = name_input.strip()
                 st.rerun()
