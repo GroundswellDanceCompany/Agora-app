@@ -452,9 +452,9 @@ just human voices and emotional clarity.
                 """, unsafe_allow_html=True)
 
             emotions = ["Angry", "Hopeful", "Skeptical", "Confused", "Inspired", "Indifferent"]
-            emotion_choice = st.multiselect("What emotions do you feel?", emotions, key="emotion_choice")
-            trust_rating = st.slider("How much do you trust this headline?", 1, 5, 3, key="trust_rating")
-            user_thoughts = st.text_area("Write your immediate reflection...", key="user_thoughts")
+            #emotion_choice = st.multiselect("What emotions do you feel?", emotions, key="emotion_choice")#
+            #trust_rating = st.slider("How much do you trust this headline?", 1, 5, 3, key="trust_rating")#
+            #user_thoughts = st.text_area("Write your immediate reflection...", key="user_thoughts")#
 
             if st.button("Submit Reflection"):
                 if user_thoughts.strip():
