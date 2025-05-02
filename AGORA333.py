@@ -455,9 +455,9 @@ just human voices and emotional clarity.
                 </div>
                 """, unsafe_allow_html=True)
 
-            submission = reddit.submission(id=post.id)
-            submission.comments.replace_more(limit=0)
-            comments = submission.comments[:30] 
+                submission = reddit.submission(id=post.id)
+                submission.comments.replace_more(limit=0)
+                comments = submission.comments[:30] 
 
                 # --- Sentiment Grouping ---
                 emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
