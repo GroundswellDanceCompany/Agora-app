@@ -525,8 +525,21 @@ just human voices and emotional clarity.
                     summary = generate_ai_summary(selected_headline, emotion_groups)
                     st.success(summary)
 
+            # --- Display Grouped Comments ---
+            for label in ["Positive", "Neutral", "Negative"]:
+                group = emotion_groups[label]
+                if group:
+                    st.markdown(f"### {label} Comments ({len(group)})")
+                    for i, comment in enumerate(group[:10]):
+                        st.markdown(f"""
+                        <div class='comment-block'>
+                            <strong>Comment {i+1}:</strong> {comment['text']}
+                            <br><small>{comment['author']} • {comment['created']} • Sentiment: {comment['score']}</small>
+                        </div>
+                        """, unsafe_allow_html=True)
+
             # Prepare data if not in just_comments mode
-            if not just_comments:
+            
                 all_reactions = pd.DataFrame(reaction_ws.get_all_records())
 
             reaction_emojis = {
