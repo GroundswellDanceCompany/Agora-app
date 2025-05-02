@@ -521,6 +521,10 @@ just human voices and emotional clarity.
                     summary = generate_ai_summary(selected_headline, emotion_groups)
                     st.success(summary)
 
+                submission = reddit.submission(id=post.id)
+                submission.comments.replace_more(limit=0)
+                comments = submission.comments[:30] 
+
             # Load all reactions once
             all_reactions = pd.DataFrame(reaction_ws.get_all_records())
 
