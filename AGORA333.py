@@ -515,19 +515,22 @@ just human voices and emotional clarity.
             
 
             # Full Agora Mode
+            # --- Full Agora Mode ---
             if not just_comments:
                 with st.spinner("Gathering the emotional field..."):
                     summary = generate_ai_summary(selected_headline, emotion_groups)
                     st.success(summary)
-                        
-            
+
+            # Load all reactions once
             all_reactions = pd.DataFrame(reaction_ws.get_all_records())
 
+            # Define emoji mapping
             reaction_emojis = {
                 "Angry": "😡", "Sad": "😢", "Hopeful": "🌈",
                 "Confused": "😕", "Neutral": "😐"
             }
 
+            # Display grouped comments
             for label in ["Positive", "Neutral", "Negative"]:
                 group = emotion_groups[label]
                 if group:
@@ -547,6 +550,7 @@ just human voices and emotional clarity.
                         comment_text = comment.get("text", "")
                         comment_id = str(hash(comment_text))[:8]
 
+                        # Display comment block
                         st.markdown(f"""
                         <div class='comment-block'>
                             <strong>Comment {i+1}:</strong> {comment_text}
@@ -554,7 +558,7 @@ just human voices and emotional clarity.
                         </div>
                         """, unsafe_allow_html=True)
 
-                        # Show emoji counters (live)
+                        # --- Live emoji reaction counters ---
                         if not just_comments:
                             snippet = comment_text[:100]
                             comment_reacts = all_reactions[all_reactions["comment_snippet"] == snippet]
@@ -569,7 +573,7 @@ just human voices and emotional clarity.
                                     unsafe_allow_html=True
                                 )
 
-                        # Show interaction form only in Live Feed
+                        # --- Optional reflection + reaction form ---
                         if not just_comments:
                             with st.form(key=f"form_{comment_id}"):
                                 selected_reaction = st.radio(
@@ -605,6 +609,7 @@ just human voices and emotional clarity.
                                         st.success("Reflection submitted.")
 
                         st.markdown("---")
+            
 
 elif view_mode == "Morning Digest":
     # --- Morning Digest logic ---
