@@ -267,6 +267,93 @@ def save_headline_snapshot(post):
         with st.spinner("Gathering the emotional field..."):
             summary = generate_ai_summary(selected_headline, emotion_groups)
             st.success(summary)
+
+    # Load reactions
+all_reactions = pd.DataFrame(reaction_ws.get_all_records())
+
+# Define emoji mapping
+reaction_emojis = {
+    "Angry": "😡", "Sad": "😢", "Hopeful": "🌈",
+    "Confused": "😕", "Neutral": "😐"
+}
+
+# Display comments grouped by sentiment
+for label in ["Positive", "Neutral", "Negative"]:
+    group = emotion_groups[label]
+    if group:
+        dot_class = (
+            "positive-dot" if label == "Positive"
+            else "neutral-dot" if label == "Neutral"
+            else "negative-dot"
+        )
+
+        st.markdown(f"""
+        <div class='emotion-header'>
+            <span class='emotion-dot {dot_class}'></span> {label.upper()} ({len(group)})
+        </div>
+        """, unsafe_allow_html=True)
+
+        for i, comment in enumerate(group[:10]):
+            comment_text = comment.get("text", "")
+            comment_id = str(hash(comment_text))[:8]
+            snippet = comment_text[:100]
+
+            st.markdown(f"""
+            <div class='comment-block'>
+                <strong>Comment {i+1}:</strong> {comment_text}
+                <br><small>{comment.get('author', '')} • {comment.get('created', '')} • Sentiment: {comment.get('score', '')}</small>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # Emoji reaction counts (live display)
+            comment_reacts = all_reactions[all_reactions["comment_snippet"] == snippet]
+            counts = comment_reacts["reaction"].value_counts().to_dict()
+            emoji_counts = "  ".join(
+                f"{reaction_emojis[r]} {count}" for r, count in counts.items() if r in reaction_emojis
+            )
+            if emoji_counts:
+                st.markdown(
+                    f"<div style='color:#ccc; font-size: 14px; margin-bottom: 6px;'>Reactions: {emoji_counts}</div>",
+                    unsafe_allow_html=True
+                )
+
+            # Interaction Form
+            with st.form(key=f"form_{comment_id}"):
+                selected_reaction = st.radio(
+                    "React to this comment:",
+                    ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"],
+                    key=f"react_radio_{comment_id}",
+                    horizontal=True
+                )
+
+                reflection = st.text_area("Leave a reflection (optional):", key=f"reflect_text_{comment_id}")
+
+                if st.form_submit_button("Submit"):
+                    timestamp = datetime.utcnow().isoformat()
+
+                    if selected_reaction.strip():
+                        reaction_ws.append_row([
+                            selected_headline,
+                            snippet,
+                            selected_reaction,
+                            timestamp
+                        ])
+                        auto_trim_worksheet(reaction_ws)
+                        st.success(f"Reaction recorded: {reaction_emojis[selected_reaction]} {selected_reaction}")
+
+                    if reflection.strip():
+                        comment_reflections_ws.append_row([
+                            selected_field_name,
+                            selected_headline,
+                            snippet,
+                            reflection.strip(),
+                            selected_reaction.strip() if selected_reaction else "",
+                            timestamp
+                        ])
+                        auto_trim_worksheet(comment_reflections_ws)
+                        st.success("Reflection submitted.")
+
+            st.markdown("---")
     
 
     # Save to worksheet
