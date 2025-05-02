@@ -1,5 +1,7 @@
 
 # --- Imports ---
+
+# --- Imports ---
 import streamlit as st
 import pandas as pd
 import praw
@@ -237,10 +239,10 @@ def insert_field_memory():
 
 def save_headline_snapshot(post):
     # Prepare comments
+    
     submission = reddit.submission(id=post.id)
     submission.comments.replace_more(limit=0)
     comments = submission.comments[:30]
-    top_comments = [c.body for c in comments[:10]]
 
     # --- Sentiment Grouping ---
     emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
@@ -260,12 +262,12 @@ def save_headline_snapshot(post):
             "created": datetime.utcfromtimestamp(comment.created_utc).strftime("%Y-%m-%d %H:%M")
         })
 
-    # Prepare data
-    post_id = str(uuid.uuid4())
-    timestamp = datetime.utcnow().isoformat()
-    permalink = f"https://reddit.com{post.permalink}"
-    comments = submission.comments[:30]
-    top_comments = [c.body for c in comments[:10]]
+    # --- AI Summary ---
+    if not just_comments:
+        with st.spinner("Gathering the emotional field..."):
+            summary = generate_ai_summary(selected_headline, emotion_groups)
+            st.success(summary)
+    }"
 
     # Save to worksheet
     saved_posts_ws.append_row([
