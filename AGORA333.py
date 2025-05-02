@@ -516,57 +516,57 @@ just human voices and emotional clarity.
                 summary = generate_ai_summary(selected_headline, emotion_groups)
                 st.success(summary)
 
-                    reaction_emojis = {
-                    "Angry": "😡", "Sad": "😢", "Hopeful": "🌈", 
-                    "Confused": "😕", "Neutral": "😐"
-                }
+            reaction_emojis = {
+            "Angry": "😡", "Sad": "😢", "Hopeful": "🌈", 
+            "Confused": "😕", "Neutral": "😐"
+        }
 
-                # Load all existing reactions and reflections
-                all_reactions = pd.DataFrame(reaction_ws.get_all_records())
-                all_comment_reflections = pd.DataFrame(comment_reflections_ws.get_all_records())
+        # Load all existing reactions and reflections
+        all_reactions = pd.DataFrame(reaction_ws.get_all_records())
+        all_comment_reflections = pd.DataFrame(comment_reflections_ws.get_all_records())
 
-                for label in ["Positive", "Neutral", "Negative"]:
-                    group = emotion_groups[label]
-                    if group:
-                        for i, comment in enumerate(group[:10]):
-                            comment_id = str(hash(comment["text"]))[:8]
+        for label in ["Positive", "Neutral", "Negative"]:
+            group = emotion_groups[label]
+            if group:
+                for i, comment in enumerate(group[:10]):
+                    comment_id = str(hash(comment["text"]))[:8]
 
-                            st.markdown(f"""
-                            <div class='comment-block'>
-                                <strong>Comment {i+1}:</strong> {comment['text']}
-                                <br><small>{comment['author']} • {comment['created']} • Sentiment: {comment['score']}</small>
-                            </div>
-                            """, unsafe_allow_html=True)
+                    st.markdown(f"""
+                    <div class='comment-block'>
+                        <strong>Comment {i+1}:</strong> {comment['text']}
+                        <br><small>{comment['author']} • {comment['created']} • Sentiment: {comment['score']}</small>
+                    </div>
+                    """, unsafe_allow_html=True)
 
-                            selected_reaction = st.radio(
-                                "React to this comment:",
-                                ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"],
-                                key=f"react_{comment_id}",
-                                horizontal=True
-                            )
+                    selected_reaction = st.radio(
+                        "React to this comment:",
+                        ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"],
+                        key=f"react_{comment_id}",
+                        horizontal=True
+                    )
 
-                            if selected_reaction.strip():
-                                reaction_ws.append_row([
-                                    selected_headline,
-                                    comment["text"][:100],
-                                    selected_reaction,
-                                    datetime.utcnow().isoformat()
-                                ])
-                                st.success(f"Reaction recorded: {reaction_emojis[selected_reaction]} {selected_reaction}")
+                    if selected_reaction.strip():
+                        reaction_ws.append_row([
+                            selected_headline,
+                            comment["text"][:100],
+                            selected_reaction,
+                            datetime.utcnow().isoformat()
+                        ])
+                        st.success(f"Reaction recorded: {reaction_emojis[selected_reaction]} {selected_reaction}")
 
-                            with st.form(key=f"form_reflect_{comment_id}"):
-                                reflection = st.text_area("Leave a reflection on this comment (optional):")
-                                if st.form_submit_button("Submit Reflection") and reflection.strip():
-                                    comment_reflections_ws.append_row([
-                                        selected_headline,
-                                        comment["text"][:100],
-                                        reflection.strip(),
-                                        datetime.utcnow().isoformat()
-                                    ])
-                                    auto_trim_worksheet(comment_reflections_ws)
-                                    st.success("Reflection submitted.")
+                    with st.form(key=f"form_reflect_{comment_id}"):
+                        reflection = st.text_area("Leave a reflection on this comment (optional):")
+                        if st.form_submit_button("Submit Reflection") and reflection.strip():
+                            comment_reflections_ws.append_row([
+                                selected_headline,
+                                comment["text"][:100],
+                                reflection.strip(),
+                                datetime.utcnow().isoformat()
+                            ])
+                            auto_trim_worksheet(comment_reflections_ws)
+                            st.success("Reflection submitted.")
 
-                            st.markdown("---")
+                    st.markdown("---")
 
 elif view_mode == "Morning Digest":
     # --- Morning Digest logic ---
