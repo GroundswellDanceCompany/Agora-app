@@ -469,7 +469,7 @@ just human voices and emotional clarity.
 
                 
                    
-                else:
+                
                     # Full Agora Mode
                     with st.spinner("Gathering the emotional field..."):
                         summary = generate_ai_summary(selected_headline, emotion_groups)
