@@ -267,7 +267,7 @@ def save_headline_snapshot(post):
         with st.spinner("Gathering the emotional field..."):
             summary = generate_ai_summary(selected_headline, emotion_groups)
             st.success(summary)
-    }"
+    
 
     # Save to worksheet
     saved_posts_ws.append_row([
