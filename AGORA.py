@@ -240,6 +240,7 @@ def save_headline_snapshot(post):
     submission = reddit.submission(id=post.id)
     submission.comments.replace_more(limit=0)
     comments = submission.comments[:30]
+    top_comments = [c.body for c in comments[:10]]
 
     # --- Sentiment Grouping ---
     emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
