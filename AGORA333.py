@@ -587,7 +587,7 @@ just human voices and emotional clarity.
 
                                 reflection = st.text_area("Leave a reflection (optional):", key=f"reflect_text_{comment_id}")
 
-                               if st.form_submit_button("Submit"):
+                                if st.form_submit_button("Submit"):
                                     timestamp = datetime.utcnow().isoformat()
 
                                     if selected_reaction.strip():
