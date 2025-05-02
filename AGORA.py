@@ -1,40 +1,291 @@
 
+# --- Imports ---
 import streamlit as st
-import praw
-from textblob import TextBlob
-from collections import defaultdict
 import pandas as pd
+import praw
 import gspread
 from google.oauth2.service_account import Credentials
+from textblob import TextBlob
+from collections import defaultdict
 from datetime import datetime, timedelta
-import uuid
 from openai import OpenAI
-import time
+import uuid
 from PIL import Image
+import plotly.express as px
+import time
+import random
 
-# --- Banner Loader ---
-placeholder = st.empty()
-with placeholder.container():
-    banner = Image.open("Agora-image.png")
-    st.image(banner, use_container_width=True)
-    st.markdown("<h4 style='text-align: center;'>Loading Agora...</h4>", unsafe_allow_html=True)
-    time.sleep(2)
-placeholder.empty()
+# --- Page Config ---
+st.set_page_config(
+    page_title="Agora — Public Sentiment Field",
+    page_icon=":crystal_ball:",
+    layout="centered",
+    initial_sidebar_state="expanded"
+)
 
-# --- OpenAI Summary ---
+# --- Ensure session state keys exist ---
+if "has_entered" not in st.session_state:
+    st.session_state.has_entered = False
+
+if "field_name" not in st.session_state:
+    st.session_state.field_name = ""
+
+# --- Helper Functions ---
+def add_fade_in_styles():
+    st.markdown("""
+    <style>
+    .fade-in {
+        animation: fadeInAnimation 2s ease forwards;
+        opacity: 0;
+    }
+
+    @keyframes fadeInAnimation {
+        to {
+            opacity: 1;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+def add_button_glow():
+    st.markdown("""
+    <style>
+    .stButton > button {
+        border: none;
+        padding: 10px 30px;
+        border-radius: 20px;
+        background-color: #333;
+        color: #ccc;
+        font-size: 18px;
+        transition: all 0.3s ease;
+    }
+    .stButton > button:hover {
+        background-color: #444;
+        box-shadow: 0 0 15px gold;
+        color: #fff;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+def get_or_create_worksheet(sheet, name, headers):
+    try:
+        ws = sheet.worksheet(name)
+    except gspread.exceptions.WorksheetNotFound:
+        ws = sheet.add_worksheet(title=name, rows="1000", cols="20")
+        ws.append_row(headers)
+    return ws
+
+def auto_trim_worksheet(ws, max_rows=1000):
+    data = ws.get_all_values()
+    if len(data) > max_rows:
+        keep = data[0:1] + data[-max_rows:]
+        ws.clear()
+        ws.update(keep)
+
+def headline_echo(text):
+    st.markdown(f"""
+    <p class='fade-in' style='
+        text-align: center;
+        color: #ccc;
+        font-size: 22px;
+        font-style: italic;
+        margin-top: 30px;
+        margin-bottom: 10px;
+    '>
+    ❝ {text} ❞
+    </p>
+    """, unsafe_allow_html=True)
+
+def closing_blessing():
+    st.markdown("<br><br>", unsafe_allow_html=True)  # Breathing space
+    blessing = random.choice(CLOSING_BLESSINGS)
+    scroll_blessing(blessing)
+
+def scroll_blessing(text):
+    st.markdown(f"""
+    <div style='
+        margin: 50px auto;
+        padding: 30px 20px;
+        border: 2px solid gold;
+        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.03);
+        width: 80%;
+        text-align: center;
+        font-size: 20px;
+        font-style: italic;
+        color: #ddd;
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+    ' class='fade-in'>
+        "{text}"
+    </div>
+    """, unsafe_allow_html=True)
+
+def centered_header(text, level="h2"):
+    st.markdown(f"""
+    <{level} class='fade-in' style='
+        text-align: center;
+        color: #fff;
+        margin-top: 40px;
+        margin-bottom: 20px;
+    '>{text}</{level}>
+    """, unsafe_allow_html=True)
+
+def centered_paragraph(text):
+    st.markdown(f"""
+    <p class='fade-in' style='
+        text-align: center;
+        color: #aaa;
+        font-size: 18px;
+        font-style: italic;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    '>{text}</p>
+    """, unsafe_allow_html=True)
+
+def centered_quote(text):
+    st.markdown(f"""
+    <div class='fade-in' style='
+        text-align: center;
+        background-color: rgba(255, 255, 255, 0.05);
+        padding: 20px;
+        margin: 30px auto;
+        border-radius: 15px;
+        width: 80%;
+        font-size: 20px;
+        font-style: italic;
+        color: #ddd;
+    '>
+    "{text}"
+    </div>
+    """, unsafe_allow_html=True)
+
+def golden_divider():
+    st.markdown("""
+    <hr style='
+        border: none;
+        height: 2px;
+        background: linear-gradient(to right, transparent, gold, transparent);
+        margin: 40px 0;
+    ' />
+    """, unsafe_allow_html=True)
+
+def slow_reveal_sequence(contents, delay=1.5):
+    """
+    Reveal a sequence of content blocks slowly.
+    contents: list of (function, text) pairs
+    delay: seconds between reveals
+    """
+    for func, text in contents:
+        if text == "":
+            func()  # no argument needed
+        else:
+            func(text)
+        time.sleep(delay)
+
+def load_reflections():
+    return pd.DataFrame(reflections_ws.get_all_records())
+
+def load_comment_reflections():
+    return pd.DataFrame(comment_reflections_ws.get_all_records())
+
+def show_light_reflection(message="Reflection added to the Field."):
+    st.markdown("""
+    <style>
+    .glow-reflection {
+        text-align: center;
+        font-size: 22px;
+        color: #00FFFF;
+        animation: glowPulse 2s ease-in-out infinite alternate;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+    @keyframes glowPulse {
+        from {
+            text-shadow: 0 0 5px #00FFFF, 0 0 10px #00FFFF, 0 0 15px #00FFFF;
+        }
+        to {
+            text-shadow: 0 0 20px #00FFFF, 0 0 30px #00FFFF, 0 0 40px #00FFFF;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown(f"<div class='glow-reflection'>{message}</div>", unsafe_allow_html=True)
+
+CLOSING_BLESSINGS = [
+    "The Field rests today, awaiting new reflections.",
+    "May your thoughts today plant seeds in unseen soil.",
+    "The silence between thoughts is the breath of the Field.",
+    "Memory flows onward beyond the noise.",
+    "The Field holds space for tomorrow’s remembering."
+]
+
+FIELD_MEMORIES = [
+    "The Field holds every silent word.",
+    "Each reflection is a seed beyond time.",
+    "In listening, the Field speaks.",
+    "Thoughts drift, but memory roots.",
+    "The unseen remembers what the seen forgets.",
+    "Breath is the bridge between worlds.",
+    "The Field is not found — it is entered.",
+    "Every thought is a step deeper inward."
+]
+
+def insert_field_memory():
+    memory = random.choice(FIELD_MEMORIES)
+    centered_quote(memory)
+
+def save_headline_snapshot(post):
+    # Prepare comments
+    submission = reddit.submission(id=post.id)
+    submission.comments.replace_more(limit=0)
+    comments = submission.comments[:30]
+
+    # --- Sentiment Grouping ---
+    emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
+    emotion_groups = defaultdict(list)
+
+    for comment in comments:
+        text = comment.body.strip()
+        if not text or len(text) < 10:
+            continue
+        polarity = TextBlob(text).sentiment.polarity
+        label = "Positive" if polarity > 0.1 else "Negative" if polarity < -0.1 else "Neutral"
+        emotion_counts[label] += 1
+        emotion_groups[label].append({
+            "text": text,
+            "score": round(polarity, 3),
+            "author": str(comment.author),
+            "created": datetime.utcfromtimestamp(comment.created_utc).strftime("%Y-%m-%d %H:%M")
+        })
+
+    # Prepare data
+    post_id = str(uuid.uuid4())
+    timestamp = datetime.utcnow().isoformat()
+    permalink = f"https://reddit.com{post.permalink}"
+
+    # Save to worksheet
+    saved_posts_ws.append_row([
+        post_id,
+        post.title,
+        str(top_comments),
+        timestamp,
+        permalink
+    ])
+
 def generate_ai_summary(headline, grouped_comments):
     prompt = f"Headline: {headline}\n"
     for label, comments in grouped_comments.items():
         prompt += f"\n{label} Comments:\n"
         for c in comments[:2]:
             prompt += f"- {c['text']}\n"
-    prompt += "\nSummarize public sentiment in 2-3 sentences. Be neutral and insightful."
+    prompt += "\nSummarize public sentiment in 2-3 sentences."
     try:
         client = OpenAI(api_key=st.secrets["openai"]["api_key"])
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "You are a news analyst summarizing public emotional sentiment."},
+                {"role": "system", "content": "You are a neutral news sentiment summarizer."},
                 {"role": "user", "content": prompt}
             ],
             max_tokens=250,
@@ -49,15 +300,13 @@ SCOPE = ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/au
 creds = Credentials.from_service_account_info(st.secrets["google_service_account"], scopes=SCOPE)
 client = gspread.authorize(creds)
 sheet = client.open("AgoraData")
-reflections_ws = sheet.worksheet("Reflections")
-replies_ws = sheet.worksheet("Replies")
-reaction_ws = sheet.worksheet("CommentReactions")
-summary_ws = sheet.worksheet("Summaries")
 
-def load_reflections():
-    return pd.DataFrame(reflections_ws.get_all_records())
-def load_replies():
-    return pd.DataFrame(replies_ws.get_all_records())
+reflections_ws = get_or_create_worksheet(sheet, "Reflections", ["reflection_id", "headline", "emotions", "trust_level", "reflection", "timestamp"])
+replies_ws = get_or_create_worksheet(sheet, "Replies", ["reflection_id", "reply", "timestamp"])
+reaction_ws = get_or_create_worksheet(sheet, "CommentReactions", ["headline", "comment_snippet", "reaction", "timestamp"])
+comment_reflections_ws = get_or_create_worksheet(sheet, "CommentReflections", ["field_name", "headline", "comment_snippet", "reflection", "emotion", "timestamp"])
+saved_posts_ws = get_or_create_worksheet(sheet, "SavedPosts", ["id", "title", "top_comments", "date_saved", "permalink"])
+field_names_ws = get_or_create_worksheet(sheet, "FieldNames", ["field_name", "timestamp"])
 
 # --- Reddit Setup ---
 reddit = praw.Reddit(
@@ -66,28 +315,106 @@ reddit = praw.Reddit(
     user_agent=st.secrets["reddit"]["user_agent"]
 )
 
-# --- Subreddits ---
-curated_subreddits = ["news", "worldnews", "politics", "uspolitics", "ukpolitics", "europe", "MiddleEastNews", "technology", "Futurology", "science", "space", "environment", "geopolitics", "AutoNews"]
+curated_subreddits = [
+    "news", "worldnews", "politics", "uspolitics",
+    "ukpolitics", "geopolitics", "europe", "MiddleEastNews",
+    "technology", "Futurology", "science", "environment",
+    "TrueOffMyChest", "ChangeMyView", "AskPolitics",
+    "Philosophy", "CasualConversation", "UpliftingNews"
+]
 
-# --- UI Layout ---
-st.title("Agora — Live Public Sentiment")
-just_comments = st.toggle("I'm just here for the comments")
+# --- Welcome Screen Logic ---
+if not st.session_state.has_entered:
+    st.markdown("<br><br>", unsafe_allow_html=True)
 
-if "show_about" not in st.session_state:
-    st.session_state.show_about = True
+    # Centered portal image
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.image("Agora-image.png", use_container_width=True)
 
-with st.expander("🌎 What is Agora?", expanded=st.session_state.show_about):
-    st.session_state.show_about = False
     st.markdown("""
-Agora is a space for exploring public sentiment on the news — powered by Reddit comments, AI summaries, and community reflections.
-    """)
+    <div style='text-align: center; font-size: 20px; color: #ccc; margin-top: 30px;'>
+        There is a field beyond noise and thought.<br><br>
+        You are invited to cross the threshold.
+    </div>
+    """, unsafe_allow_html=True)
 
-# --- View Mode Toggle ---
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # Centered button
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("Enter the Field", key="welcome_button"):
+            st.session_state.has_entered = True
+            st.rerun()
+
+    st.stop()
+
+# --- FIELD NAME SCREEN ---
+if not st.session_state.field_name:
+    st.image("Agora-image.png", use_container_width=True)
+
+    st.markdown("""
+    <div style='text-align: center; font-size: 20px; color: #ccc; margin-top: 30px;'>
+        Whisper your Field Name.
+    </div>
+    """, unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        name_input = st.text_input("Your Field Name", key="field_name_input")
+        if st.button("Confirm Name"):
+            if name_input.strip():
+                timestamp = datetime.utcnow().isoformat()
+                field_names_ws.append_row([name_input.strip(), timestamp])
+                st.session_state.field_name = name_input.strip()
+                st.rerun()
+            else:
+                st.warning("Please choose a name before continuing.")
+
+    st.stop()
+
+# --- FLOW CONTROLS ---
+if not st.session_state.has_entered:
+    show_welcome_screen()
+    st.stop()
+
+if not st.session_state.field_name:
+    show_field_name_screen()
+    st.stop()
+ 
+    
+# --- Sidebar setup ---
 view_mode = st.sidebar.radio("View Mode", ["Live View", "Morning Digest"])
+just_comments = st.sidebar.toggle("Just Comments Mode")
 
+# --- Main logic ---
 if view_mode == "Live View":
-    topic = st.text_input("Enter a topic to search across curated subreddits")
-    headline_options, post_dict = [], {}
+    add_fade_in_styles()
+
+    slow_reveal_sequence([
+        (centered_header, "Agora — Public Sentiment Field"),
+        (centered_paragraph, "There is a space beyond the noise of the world."),
+        (golden_divider, ""),
+        (centered_quote, "The Field awaits your reflection."),
+    ], delay=2)
+
+    if "show_about" not in st.session_state:
+        st.session_state.show_about = True
+
+    with st.expander("🌎 What is Agora?", expanded=st.session_state.show_about):
+        st.session_state.show_about = False
+        st.markdown("""
+Agora is a breathing space for public reflection —  
+powered by Reddit comments, AI summaries, and human insight.  
+No algorithms manipulating emotions, no rage optimizations —  
+just human voices and emotional clarity.
+""")
+
+    # --- Topic and live feed ---
+    topic = st.text_input("Search a topic")
+    headline_options = []
+    post_dict = {}
 
     if topic:
         for sub in curated_subreddits:
@@ -98,177 +425,253 @@ if view_mode == "Live View":
                         post_dict[post.title] = post
             except:
                 continue
-        page_size = 5
-        total_pages = len(headline_options) // page_size + int(len(headline_options) % page_size > 0)
-        page = st.number_input("Page", min_value=1, max_value=total_pages, step=1) if total_pages > 1 else 1
-        start, end = (page - 1) * page_size, page * page_size
-        paged_headlines = headline_options[start:end]
-        st.caption(f"Showing {start+1} to {min(end, len(headline_options))} of {len(headline_options)} results")
-        selected_headline = st.radio("Select a headline to reflect on:", paged_headlines)
+
+
+    
+    # (digest display code here)
     else:
-        subreddit = st.selectbox("Choose subreddit:", ["news", "worldnews", "politics"])
+        subreddit = st.selectbox("Or pick a subreddit:", curated_subreddits)
         posts = reddit.subreddit(subreddit).hot(limit=15)
         for post in posts:
-            if not post.stickied:
-                headline_options.append(post.title)
-                post_dict[post.title] = post
-        selected_headline = st.radio("Select a headline to reflect on:", headline_options)
+                if not post.stickied:
+                    headline_options.append(post.title)
+                    post_dict[post.title] = post
 
-    if selected_headline:
-        post = post_dict[selected_headline]
-        st.markdown(f"## 📰 {selected_headline}")
-        submission = reddit.submission(id=post.id)
-        submission.comments.replace_more(limit=0)
-        comments = submission.comments[:30]
-        st.write(f"Total comments pulled from Reddit: {len(comments)}")
-
-        emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
-        emotion_groups = defaultdict(list)
-        filtered_out = 0
-
-        for comment in comments:
-            text = comment.body.strip()
-            if not text or len(text) < 10:
-                filtered_out += 1
-                continue
-            blob = TextBlob(text)
-            polarity = blob.sentiment.polarity
-            label = "Positive" if polarity > 0.1 else "Negative" if polarity < -0.1 else "Neutral"
-            emotion_counts[label] += 1
-            emotion_groups[label].append({
-                "text": text,
-                "score": round(polarity, 3),
-                "author": str(comment.author),
-                "created": datetime.utcfromtimestamp(comment.created_utc).strftime("%Y-%m-%d %H:%M")
-            })
-
-        if sum(emotion_counts.values()) == 0:
-            st.warning("No comments passed the quality filter. Try another post or relax the filtering.")
+        if headline_options:
+            selected_headline = st.radio("Select a headline:", headline_options)
         else:
-            if just_comments:
-                st.subheader("Reddit Comments by Sentiment")
+            selected_headline = None
 
-                def emotion_style(label):
-                    return {
-                        "Positive": ("😊", "green"),
-                        "Neutral": ("😐", "gray"),
-                        "Negative": ("😠", "red")
-                    }.get(label, ("❓", "blue"))
+        if selected_headline:
+            post = post_dict[selected_headline]
+            save_headline_snapshot(post)
 
-                for label in ["Positive", "Neutral", "Negative"]:
-                    emoji, color = emotion_style(label)
-                    st.markdown(f"<h3 style='color:{color}'>{emoji} {label}</h3>", unsafe_allow_html=True)
+            with st.container():
+                st.markdown(f"""
+                <div style='text-align: center; margin-top: 20px; margin-bottom: 10px; font-size: 24px; color: #ccc;'>
+                    📰 {selected_headline}
+                </div>
+                """, unsafe_allow_html=True)
 
-            else:
-                with st.spinner("Generating AI insight..."):
-                    summary = generate_ai_summary(selected_headline, emotion_groups)
-                    st.markdown("### Agora AI Summary")
-                    st.info(summary)
+            # --- Pull Top Voted Comment as Subheading ---
+            submission = reddit.submission(id=post.id)
+            submission.comments.replace_more(limit=0)
+            comments = submission.comments[:30]  # or however many you pull
 
-                render_sentiment_section(
-                    selected_headline,
-                    comments,
-                    emotion_counts,
-                    emotion_groups,
-                    filtered_out
-                )
-                group = emotion_groups[label]
-                if group:
-                    for c in group[:5]:  # Show top 5 per category
-                        st.markdown(f"""
-                <blockquote>{c['text']}</blockquote>
-                <span style='color:gray; font-size:0.75em'><i>{c['author']} • {c['created']} • Sentiment: {c['score']}</i></span>
-                        """, unsafe_allow_html=True)
-                    else:
-                        st.markdown("<i>No comments found for this category.</i>", unsafe_allow_html=True)
+            # Get the top upvoted comment
+            # Show top upvoted comment from Reddit
+            if comments:
+                top_comment = max(comments, key=lambda c: c.score if hasattr(c, 'score') else 0)
+                top_text = top_comment.body.strip()
+                top_author = str(top_comment.author)
+                top_time = datetime.utcfromtimestamp(top_comment.created_utc).strftime("%Y-%m-%d %H:%M")
 
-            else:
-                with st.spinner("Generating AI insight..."):
-                    summary = generate_ai_summary(selected_headline, emotion_groups)
-                    st.markdown("### Agora AI Summary")
-                    st.info(summary)
+                st.markdown(f"""
+                <div style='text-align: center; margin-top: 20px; margin-bottom: 40px;'>
+                    <i>"{top_text}"</i><br>
+                    <small>— u/{top_author} | {top_time}</small>
+                </div>
+                """, unsafe_allow_html=True)
 
-            # Sentiment Display
-            st.subheader("Reddit Sentiment Overview")
-            st.bar_chart(emotion_counts)
+                # --- Sentiment Grouping ---
+                emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
+                emotion_groups = defaultdict(list)
+                
 
-            emoji_map = {"Positive": ("🟢 😊", "green"), "Neutral": ("⚪️ 😐", "gray"), "Negative": ("🔴 😠", "red")}
-            reaction_emojis = {"Angry": "😡", "Sad": "😢", "Hopeful": "🌈", "Confused": "😕", "Neutral": "😐"}
-            for label in ["Positive", "Neutral", "Negative"]:
-                icon, color = emoji_map[label]
-                st.markdown(f"<h3 style='color:{color}'>{icon} {label.upper()} ({emotion_counts[label]})</h3>", unsafe_allow_html=True)
-                group = emotion_groups[label]
-                if group:
-                    highlight = max(group, key=lambda c: abs(c["score"]))
-                    st.markdown(f"<div style='border-left: 4px solid {color}; background-color:#222; color:white; padding:10px;'><strong>⭐ Highlight:</strong> {highlight['text']}<br><small>{highlight['author']} • {highlight['created']} • Sentiment: {highlight['score']}</small></div>", unsafe_allow_html=True)
-                    highlight_id = str(hash(highlight["text"]))[:8]
-                    reaction = st.radio("React to this highlighted comment:", ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"], key=f"highlight_{highlight_id}", horizontal=True)
-                    if reaction.strip():
-                        reaction_ws.append_row([selected_headline, highlight["text"][:100], reaction, datetime.utcnow().isoformat()])
-                    for c in group[:2]:
-                        comment_id = str(hash(c["text"]))[:8]
-                        st.markdown(f"<blockquote>{c['text']}</blockquote><small>{c['author']} • {c['created']} • Sentiment: {c['score']}</small>", unsafe_allow_html=True)
-                        reaction = st.radio("React emotionally:", ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"], key=f"extra_{comment_id}", horizontal=True)
-                        if reaction.strip():
-                            reaction_ws.append_row([selected_headline, c["text"][:100], reaction, datetime.utcnow().isoformat()])
-                else:
-                    st.markdown("<i>No comments found for this emotion.</i>", unsafe_allow_html=True)
+                if not just_comments:
+                    top_comment_id = str(hash(top_text))[:8]
+                    with st.form(key=f"top_comment_form_{top_comment_id}"):
+                        top_reaction = st.radio(
+                            "React to this top comment:",
+                            ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"],
+                            key=f"top_react_radio_{top_comment_id}",
+                            horizontal=True
+                        )
 
-            # Reflection Input
-            st.markdown("---")
-            st.subheader("Your Reflection")
-            emotions = ["Angry", "Hopeful", "Skeptical", "Confused", "Inspired", "Indifferent"]
-            emotion_choice = st.multiselect("What emotions do you feel?", emotions)
-            trust_rating = st.slider("How much do you trust this headline?", 1, 5, 3)
-            user_thoughts = st.text_area("Write your reflection")
-            if st.button("Submit Reflection"):
-                reflection_id = str(uuid.uuid4())
-                timestamp = datetime.utcnow().isoformat()
-                reflections_ws.append_row([reflection_id, selected_headline, ", ".join(emotion_choice), trust_rating, user_thoughts, timestamp])
-                st.success("Reflection submitted!")
+                        top_reflection = st.text_area("Reflect on the top comment (optional):", key=f"top_reflect_{top_comment_id}")
 
-            # Display Reflections
-            st.markdown("---")
-            st.subheader("Public Reflections")
-            all_reflections = load_reflections()
-            all_replies = load_replies()
-            matched = all_reflections[all_reflections["headline"] == selected_headline]
-            if matched.empty:
-                st.info("No reflections yet.")
-            else:
-                for _, row in matched.iterrows():
-                    st.markdown(f"**Emotions:** {row['emotions']}")
-                    st.markdown(f"**Trust:** {row['trust_level']}/5")
-                    st.markdown(f"**Reflection:** {row['reflection']}")
-                    st.caption(f"{row['timestamp']}")
-                    if "reflection_id" in all_replies.columns:
-                        replies = all_replies[all_replies["reflection_id"] == row["reflection_id"]]
-                        for _, reply in replies.iterrows():
-                            st.markdown(f"↳ _{reply.get('reply', '')}_ — {reply.get('timestamp', '')}")
-                    with st.form(key=f"reply_form_{row['reflection_id']}"):
-                        reply_text = st.text_input("Reply to this reflection:", key=f"r_{row['reflection_id']}")
-                        if st.form_submit_button("Submit Reply") and reply_text.strip():
-                            replies_ws.append_row([row["reflection_id"], reply_text.strip(), datetime.utcnow().isoformat()])
-                            st.success("Reply added.")
-                    st.markdown("---")
+                        if st.form_submit_button("Submit"):
+                            timestamp = datetime.utcnow().isoformat()
+
+                            if top_reaction.strip():
+                                reaction_ws.append_row([
+                                    selected_headline,
+                                    top_text[:100],
+                                    top_reaction,
+                                    timestamp
+                                ])
+                                auto_trim_worksheet(reaction_ws)
+                                st.success(f"Reaction recorded: {reaction_emojis[top_reaction]} {top_reaction}")
+
+                            if top_reflection.strip():
+                                comment_reflections_ws.append_row([
+                                    selected_headline,
+                                    top_text[:100],
+                                    top_reflection.strip(),
+                                    timestamp
+                                ])
+                                auto_trim_worksheet(comment_reflections_ws)
+                                st.success("Reflection submitted.")
+
+                            # --- Sentiment Grouping ---
+                            emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
+                            emotion_groups = defaultdict(list)
+
+                            for comment in comments:
+                                text = comment.body.strip()
+                                if not text or len(text) < 10:
+                                    continue
+                                polarity = TextBlob(text).sentiment.polarity
+                                label = "Positive" if polarity > 0.1 else "Negative" if polarity < -0.1 else "Neutral"
+                                emotion_counts[label] += 1
+                                emotion_groups[label].append({
+                                    "text": text,
+                                    "score": round(polarity, 3),
+                                    "author": str(comment.author),
+                                    "created": datetime.utcfromtimestamp(comment.created_utc).strftime("%Y-%m-%d %H:%M")
+                                })
+
+            # Reddit Comments Pull
+            #submission = reddit.submission(id=post.id)
+            #submission.comments.replace_more(limit=0)
+            #comments = submission.comments[:30]
+
+            #if not comments:
+                #st.warning("No comments found for this topic.")
+            #else:
+            
+
+                            # Full Agora Mode
+                            if not just_comments:
+                                with st.spinner("Gathering the emotional field..."):
+                                    summary = generate_ai_summary(selected_headline, emotion_groups)
+                                    st.success(summary)
+
+            # Prepare data if not in just_comments mode
+                            if not just_comments:
+                                all_reactions = pd.DataFrame(reaction_ws.get_all_records())
+
+                            reaction_emojis = {
+                                "Angry": "😡", "Sad": "😢", "Hopeful": "🌈",
+                                "Confused": "😕", "Neutral": "😐"
+                            }
+
+                            for label in ["Positive", "Neutral", "Negative"]:
+                                group = emotion_groups[label]
+                                if group:
+                                    dot_class = (
+                                        "positive-dot" if label == "Positive"
+                                        else "neutral-dot" if label == "Neutral"
+                                        else "negative-dot"
+                                    )
+
+                                    st.markdown(f"""
+                                    <div class='emotion-header'>
+                                        <span class='emotion-dot {dot_class}'></span> {label.upper()} ({len(group)})
+                                    </div>
+                                    """, unsafe_allow_html=True)
+
+                                    for i, comment in enumerate(group[:10]):
+                                        comment_text = comment.get("text", "")
+                                        comment_id = str(hash(comment_text))[:8]
+
+                                        st.markdown(f"""
+                                        <div class='comment-block'>
+                                            <strong>Comment {i+1}:</strong> {comment_text}
+                                            <br><small>{comment.get('author', '')} • {comment.get('created', '')} • Sentiment: {comment.get('score', '')}</small>
+                                        </div>
+                                        """, unsafe_allow_html=True)
+
+                                        # Show emoji counters (live)
+                                        if not just_comments:
+                                            snippet = comment_text[:100]
+                                            comment_reacts = all_reactions[all_reactions["comment_snippet"] == snippet]
+                                            counts = comment_reacts["reaction"].value_counts().to_dict()
+
+                                            emoji_counts = "  ".join(
+                                                f"{reaction_emojis[r]} {count}" for r, count in counts.items() if r in reaction_emojis
+                                            )
+                                            if emoji_counts:
+                                                st.markdown(
+                                                    f"<div style='color:#ccc; font-size: 14px; margin-bottom: 6px;'>Reactions: {emoji_counts}</div>",
+                                                    unsafe_allow_html=True
+                                                )
+
+                                        # Show interaction form only in Live Feed
+                                        if not just_comments:
+                                            with st.form(key=f"form_{comment_id}"):
+                                                selected_reaction = st.radio(
+                                                    "React to this comment:",
+                                                    ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"],
+                                                    key=f"react_radio_{comment_id}",
+                                                    horizontal=True
+                                                )
+
+                                                reflection = st.text_area("Leave a reflection (optional):", key=f"reflect_text_{comment_id}")
+
+                                                if st.form_submit_button("Submit"):
+                                                    timestamp = datetime.utcnow().isoformat()
+
+                                                    if selected_reaction.strip():
+                                                        reaction_ws.append_row([
+                                                            selected_headline,
+                                                            snippet,
+                                                            selected_reaction,
+                                                            timestamp
+                                                        ])
+                                                        auto_trim_worksheet(reaction_ws)
+                                                        st.success(f"Reaction recorded: {reaction_emojis[selected_reaction]} {selected_reaction}")
+
+                                                    if reflection.strip():
+                                                        comment_reflections_ws.append_row([
+                                                            selected_headline,
+                                                            snippet,
+                                                            reflection.strip(),
+                                                            timestamp
+                                                        ])
+                                                        auto_trim_worksheet(comment_reflections_ws)
+                                                        st.success("Reflection submitted.")
+
+                                        st.markdown("---")
 
 elif view_mode == "Morning Digest":
-    st.title("Agora Daily — Morning Digest")
-    today = datetime.utcnow().date()
-    yesterday = today - timedelta(days=1)
-    reflections_df = load_reflections()
-    reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
-    reflections_df["date"] = reflections_df["timestamp"].dt.date
-    yesterday_data = reflections_df[reflections_df["date"] == yesterday]
-    if yesterday_data.empty:
-        st.info("No reflections found for yesterday.")
+    # --- Morning Digest logic ---
+
+    st.title("Morning Echoes — Agora Digest")
+
+    # Load reflections from Google Sheets
+    reflections_df = load_comment_reflections()
+
+    if reflections_df.empty:
+        st.info("No reflections from yesterday yet — the Field is silent.")
     else:
-        top_headlines = yesterday_data["headline"].value_counts().head(3).index.tolist()
-        for headline in top_headlines:
-            st.markdown(f"### 📰 {headline}")
-            subset = yesterday_data[yesterday_data["headline"] == headline]
-            grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
-            with st.spinner("Summarizing reflections..."):
-                summary = generate_ai_summary(headline, grouped)
-            st.success(summary)
-            st.markdown("---")
+        reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
+        reflections_df["date"] = reflections_df["timestamp"].dt.date
+
+        yesterday = datetime.utcnow().date() - timedelta(days=1)
+        yesterday_reflections = reflections_df[reflections_df["date"] == yesterday]
+
+        if yesterday_reflections.empty:
+            st.info("No reflections from yesterday — the Field rests.")
+        else:
+            # Show top headlines reflected on yesterday
+            top_headlines = yesterday_reflections["headline"].value_counts().head(3).index.tolist()
+
+            for headline in top_headlines:
+                centered_header(f"📰 {headline}", level="h3")
+                subset = yesterday_reflections[yesterday_reflections["headline"] == headline]
+
+                for idx, row in subset.iterrows():
+                    st.markdown(f"""
+                    <div style='border-left: 3px solid #888; background-color: #222; padding:10px; margin-bottom:10px;'>
+                    <i>"{row['comment_snippet']}..."</i><br><br>
+                    <b>{row['field_name']} reflected:</b> {row['reflection']}
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                golden_divider()
+
+            # Closing blessing
+            centered_quote("The Field remembers every voice.")
+          
+
