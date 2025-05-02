@@ -458,20 +458,7 @@ just human voices and emotional clarity.
                 # --- Sentiment Grouping ---
                 emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
                 emotion_groups = defaultdict(list)
-
-                for comment in comments:
-                    text = comment.body.strip()
-                    if not text or len(text) < 10:
-                        continue
-                    polarity = TextBlob(text).sentiment.polarity
-                    label = "Positive" if polarity > 0.1 else "Negative" if polarity < -0.1 else "Neutral"
-                    emotion_counts[label] += 1
-                    emotion_groups[label].append({
-                        "text": text,
-                        "score": round(polarity, 3),
-                        "author": str(comment.author),
-                        "created": datetime.utcfromtimestamp(comment.created_utc).strftime("%Y-%m-%d %H:%M")
-                    }
+                
 
                 if not just_comments:
                     top_comment_id = str(hash(top_text))[:8]
