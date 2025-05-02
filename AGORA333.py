@@ -441,56 +441,54 @@ just human voices and emotional clarity.
             comments = submission.comments[:30]  # or however many you pull
 
             # Get the top upvoted comment
+            # Show top upvoted comment from Reddit
             if comments:
                 top_comment = max(comments, key=lambda c: c.score if hasattr(c, 'score') else 0)
+                top_text = top_comment.body.strip()
+                top_author = str(top_comment.author)
+                top_time = datetime.utcfromtimestamp(top_comment.created_utc).strftime("%Y-%m-%d %H:%M")
 
                 st.markdown(f"""
-                <div style='text-align: center; margin-top: 10px; margin-bottom: 30px;'>
-                    <i>"{top_comment.body.strip()}"</i><br>
-                    <small>— u/{top_comment.author} | {datetime.utcfromtimestamp(top_comment.created_utc).strftime("%Y-%m-%d %H:%M")}</small>
+                <div style='text-align: center; margin-top: 20px; margin-bottom: 40px;'>
+                    <i>"{top_text}"</i><br>
+                    <small>— u/{top_author} | {top_time}</small>
                 </div>
                 """, unsafe_allow_html=True)
 
-                # Inside your comment loop (e.g. for each comment in group[:10])
-                comment_id = str(hash(comment["text"]))[:8]
+                if not just_comments:
+                    top_comment_id = str(hash(top_text))[:8]
+                    with st.form(key=f"top_comment_form_{top_comment_id}"):
+                        top_reaction = st.radio(
+                            "React to this top comment:",
+                            ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"],
+                            key=f"top_react_radio_{top_comment_id}",
+                            horizontal=True
+                        )
 
-                # Display the comment
-                st.markdown(f"""
-                <div class='comment-block'>
-                    <strong>Comment {i+1}:</strong> {comment['text']}
-                    <br><small>{comment['author']} • {comment['created']} • Sentiment: {comment['score']}</small>
-                </div>
-                """, unsafe_allow_html=True)
+                        top_reflection = st.text_area("Reflect on the top comment (optional):", key=f"top_reflect_{top_comment_id}")
 
-                # Reaction emojis
-                selected_reaction = st.radio(
-                    "React to this comment:",
-                    ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"],
-                    key=f"react_{comment_id}",
-                    horizontal=True
-                )
+                        if st.form_submit_button("Submit"):
+                            timestamp = datetime.utcnow().isoformat()
 
-                if selected_reaction.strip():
-                    reaction_ws.append_row([
-                        selected_headline,
-                        comment["text"][:100],
-                        selected_reaction,
-                        datetime.utcnow().isoformat()
-                    ])
-                    st.success(f"Reaction recorded: {reaction_emojis[selected_reaction]} {selected_reaction}")
+                            if top_reaction.strip():
+                                reaction_ws.append_row([
+                                    selected_headline,
+                                    top_text[:100],
+                                    top_reaction,
+                                    timestamp
+                                ])
+                                auto_trim_worksheet(reaction_ws)
+                                st.success(f"Reaction recorded: {reaction_emojis[top_reaction]} {top_reaction}")
 
-                # Optional reflection input
-                with st.form(key=f"form_reflect_{comment_id}"):
-                    reflection = st.text_area("Leave a reflection on this comment (optional):")
-                    if st.form_submit_button("Submit Reflection") and reflection.strip():
-                        comment_reflections_ws.append_row([
-                            selected_headline,
-                            comment["text"][:100],
-                            reflection.strip(),
-                            datetime.utcnow().isoformat()
-                        ])
-                        auto_trim_worksheet(comment_reflections_ws)
-                        st.success("Reflection submitted.")
+                            if top_reflection.strip():
+                                comment_reflections_ws.append_row([
+                                    selected_headline,
+                                    top_text[:100],
+                                    top_reflection.strip(),
+                                    timestamp
+                                ])
+                                auto_trim_worksheet(comment_reflections_ws)
+                                st.success("Reflection submitted.")
 
             # Reddit Comments Pull
             submission = reddit.submission(id=post.id)
