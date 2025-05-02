@@ -506,10 +506,7 @@ just human voices and emotional clarity.
                 ["", "Hope", "Anger", "Confusion", "Inspiration", "Sadness", "Skepticism", "Indifference"]
             )
 
-                
-                   
-                 
-                    # Full Agora Mode
+            # Full Agora Mode
             with st.spinner("Gathering the emotional field..."):
                 summary = generate_ai_summary(selected_headline, emotion_groups)
                 st.success(summary)
