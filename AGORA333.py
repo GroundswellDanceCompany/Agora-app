@@ -511,7 +511,7 @@ just human voices and emotional clarity.
                                     "score": round(polarity, 3),
                                     "author": str(comment.author),
                                     "created": datetime.utcfromtimestamp(comment.created_utc).strftime("%Y-%m-%d %H:%M")
-                                }
+                                })
 
             # Reddit Comments Pull
             #submission = reddit.submission(id=post.id)
