@@ -529,7 +529,8 @@ just human voices and emotional clarity.
             group = emotion_groups[label]
             if group:
                 for i, comment in enumerate(group[:10]):
-                    comment_id = str(hash(comment["text"]))[:8]
+                    comment_text = comment.get("text", "")
+                    comment_id = str(hash(comment_text))[:8]
 
                     st.markdown(f"""
                     <div class='comment-block'>
