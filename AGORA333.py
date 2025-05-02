@@ -482,7 +482,7 @@ just human voices and emotional clarity.
                         "created": datetime.utcfromtimestamp(comment.created_utc).strftime("%Y-%m-%d %H:%M")
                     })
 
-                if just_comments:
+                if not just_comments:
                     st.write(f"Showing {len(comments)} comments...")
                     for label in ["Positive", "Neutral", "Negative"]:
                         group = emotion_groups[label]
