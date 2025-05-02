@@ -451,6 +451,47 @@ just human voices and emotional clarity.
                 </div>
                 """, unsafe_allow_html=True)
 
+                # Inside your comment loop (e.g. for each comment in group[:10])
+                comment_id = str(hash(comment["text"]))[:8]
+
+                # Display the comment
+                st.markdown(f"""
+                <div class='comment-block'>
+                    <strong>Comment {i+1}:</strong> {comment['text']}
+                    <br><small>{comment['author']} • {comment['created']} • Sentiment: {comment['score']}</small>
+                </div>
+                """, unsafe_allow_html=True)
+
+                # Reaction emojis
+                selected_reaction = st.radio(
+                    "React to this comment:",
+                    ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"],
+                    key=f"react_{comment_id}",
+                    horizontal=True
+                )
+
+                if selected_reaction.strip():
+                    reaction_ws.append_row([
+                        selected_headline,
+                        comment["text"][:100],
+                        selected_reaction,
+                        datetime.utcnow().isoformat()
+                    ])
+                    st.success(f"Reaction recorded: {reaction_emojis[selected_reaction]} {selected_reaction}")
+
+                # Optional reflection input
+                with st.form(key=f"form_reflect_{comment_id}"):
+                    reflection = st.text_area("Leave a reflection on this comment (optional):")
+                    if st.form_submit_button("Submit Reflection") and reflection.strip():
+                        comment_reflections_ws.append_row([
+                            selected_headline,
+                            comment["text"][:100],
+                            reflection.strip(),
+                            datetime.utcnow().isoformat()
+                        ])
+                        auto_trim_worksheet(comment_reflections_ws)
+                        st.success("Reflection submitted.")
+
             # Reddit Comments Pull
             submission = reddit.submission(id=post.id)
             submission.comments.replace_more(limit=0)
@@ -469,7 +510,7 @@ just human voices and emotional clarity.
 
                 
                    
-                if not just_comments: 
+                 
                     # Full Agora Mode
                     with st.spinner("Gathering the emotional field..."):
                         summary = generate_ai_summary(selected_headline, emotion_groups)
