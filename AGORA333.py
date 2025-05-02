@@ -524,9 +524,10 @@ just human voices and emotional clarity.
             
 
             # Full Agora Mode
-            with st.spinner("Gathering the emotional field..."):
-                summary = generate_ai_summary(selected_headline, emotion_groups)
-                st.success(summary)
+            if not just_comments:
+                with st.spinner("Gathering the emotional field..."):
+                    summary = generate_ai_summary(selected_headline, emotion_groups)
+                    st.success(summary)
 
             # Prepare data if not in just_comments mode
             if not just_comments:
