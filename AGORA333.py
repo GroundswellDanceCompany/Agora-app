@@ -512,9 +512,9 @@ just human voices and emotional clarity.
                    
                  
                     # Full Agora Mode
-                    with st.spinner("Gathering the emotional field..."):
-                        summary = generate_ai_summary(selected_headline, emotion_groups)
-                        st.success(summary)
+            with st.spinner("Gathering the emotional field..."):
+                summary = generate_ai_summary(selected_headline, emotion_groups)
+                st.success(summary)
 
                     reaction_emojis = {
                     "Angry": "😡", "Sad": "😢", "Hopeful": "🌈", 
