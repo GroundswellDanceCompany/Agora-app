@@ -513,17 +513,17 @@ just human voices and emotional clarity.
                                     "created": datetime.utcfromtimestamp(comment.created_utc).strftime("%Y-%m-%d %H:%M")
                                 })
 
-                            # Reddit Comments Pull
-                            submission = reddit.submission(id=post.id)
-                            submission.comments.replace_more(limit=0)
-                            comments = submission.comments[:30]
+            # Reddit Comments Pull
+            submission = reddit.submission(id=post.id)
+            submission.comments.replace_more(limit=0)
+            comments = submission.comments[:30]
             
 
-                            # Full Agora Mode
-                            if not just_comments:
-                                with st.spinner("Gathering the emotional field..."):
-                                    summary = generate_ai_summary(selected_headline, emotion_groups)
-                                    st.success(summary)
+            # Full Agora Mode
+            if not just_comments:
+                with st.spinner("Gathering the emotional field..."):
+                    summary = generate_ai_summary(selected_headline, emotion_groups)
+                    st.success(summary)
 
                             # Prepare data if not in just_comments mode
                             if not just_comments:
