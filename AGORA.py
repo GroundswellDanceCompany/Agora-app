@@ -270,6 +270,13 @@ def save_headline_snapshot(post):
     
 
     # Save to worksheet
+
+    post_id = str(uuid.uuid4())
+    timestamp = datetime.utcnow().isoformat()
+    permalink = f"https://reddit.com{post.permalink}"
+    comments = submission.comments[:30]
+    top_comments = [c.body for c in comments[:10]]
+    
     saved_posts_ws.append_row([
         post_id,
         post.title,
