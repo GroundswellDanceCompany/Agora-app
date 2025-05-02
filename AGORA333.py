@@ -482,7 +482,7 @@ just human voices and emotional clarity.
                         "created": datetime.utcfromtimestamp(comment.created_utc).strftime("%Y-%m-%d %H:%M")
                     })
 
-                if not just_comments:
+             #if just_comments:
                     st.write(f"Showing {len(comments)} comments...")
                     for label in ["Positive", "Neutral", "Negative"]:
                         group = emotion_groups[label]
@@ -536,7 +536,7 @@ just human voices and emotional clarity.
                                             datetime.utcnow().isoformat()
                                         ])
                                         auto_trim_worksheet(comment_reflections_ws)
-                                        st.success("Reflection submitted.")
+                                        st.success("Reflection submitted.")#
                    
                 else:
                     # Full Agora Mode
