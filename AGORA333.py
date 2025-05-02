@@ -614,7 +614,7 @@ just human voices and emotional clarity.
                                                         auto_trim_worksheet(comment_reflections_ws)
                                                         st.success("Reflection submitted.")
 
-                        st.markdown("---")
+                                        st.markdown("---")
 
 elif view_mode == "Morning Digest":
     # --- Morning Digest logic ---
