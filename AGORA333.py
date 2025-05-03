@@ -597,6 +597,8 @@ elif view_mode == "Morning Digest":
 
         yesterday = datetime.utcnow().date() - timedelta(days=1)
         yesterday_reflections = reflections_df[reflections_df["date"] == yesterday]
+        yesterday_data = reflections_df[reflections_df["date"] == yesterday]
+        top_headlines = yesterday_data["headline"].value_counts().head(3).index.tolist()
 
         if yesterday_reflections.empty:
             st.info("No reflections from yesterday — the Field rests.")
@@ -605,6 +607,14 @@ elif view_mode == "Morning Digest":
             top_headlines = yesterday_reflections["headline"].value_counts().head(3).index.tolist()
 
             for headline in top_headlines:
+                subset = yesterday_data[yesterday_data["headline"] == headline]
+                grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
+
+                with st.spinner("Summarizing reflections..."):
+                    summary = generate_ai_summary(headline, grouped)
+
+                centered_quote(summary)  # or st.markdown(...) depending on your styling
+                
                 centered_header(f"📰 {headline}", level="h3")
                 subset = yesterday_reflections[yesterday_reflections["headline"] == headline]
 
