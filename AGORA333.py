@@ -440,6 +440,24 @@ just human voices and emotional clarity.
             submission.comments.replace_more(limit=0)
             comments = submission.comments[:30]  # or however many you pull
 
+            # --- Sentiment Grouping ---
+            emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
+            emotion_groups = defaultdict(list)
+
+            for comment in comments:
+                text = comment.body.strip()
+                if not text or len(text) < 10:
+                    continue
+                polarity = TextBlob(text).sentiment.polarity
+                label = "Positive" if polarity > 0.1 else "Negative" if polarity < -0.1 else "Neutral"
+                emotion_counts[label] += 1
+                emotion_groups[label].append({
+                    "text": text,
+                    "score": round(polarity, 3),
+                    "author": str(comment.author),
+                    "created": datetime.utcfromtimestamp(comment.created_utc).strftime("%Y-%m-%d %H:%M")
+                })
+
             # Get the top upvoted comment
             # Show top upvoted comment from Reddit
             if comments:
@@ -498,24 +516,6 @@ just human voices and emotional clarity.
                                 ])
                                 auto_trim_worksheet(comment_reflections_ws)
                                 st.success("Reflection submitted.")
-
-                            # --- Sentiment Grouping ---
-                            emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
-                            emotion_groups = defaultdict(list)
-
-                            for comment in comments:
-                                text = comment.body.strip()
-                                if not text or len(text) < 10:
-                                    continue
-                                polarity = TextBlob(text).sentiment.polarity
-                                label = "Positive" if polarity > 0.1 else "Negative" if polarity < -0.1 else "Neutral"
-                                emotion_counts[label] += 1
-                                emotion_groups[label].append({
-                                    "text": text,
-                                    "score": round(polarity, 3),
-                                    "author": str(comment.author),
-                                    "created": datetime.utcfromtimestamp(comment.created_utc).strftime("%Y-%m-%d %H:%M")
-                                })
             
 
             # Full Agora Mode
@@ -525,9 +525,9 @@ just human voices and emotional clarity.
                     summary = generate_ai_summary(selected_headline, emotion_groups)
                     st.success(summary)
 
-                submission = reddit.submission(id=post.id)
-                submission.comments.replace_more(limit=0)
-                comments = submission.comments[:30] 
+            submission = reddit.submission(id=post.id)
+            submission.comments.replace_more(limit=0)
+            comments = submission.comments[:30] 
 
             # Load all reactions once
             all_reactions = pd.DataFrame(reaction_ws.get_all_records())
