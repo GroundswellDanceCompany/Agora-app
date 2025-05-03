@@ -441,6 +441,12 @@ just human voices and emotional clarity.
             comments = submission.comments[:30]  # or however many you pull
 
             # --- Sentiment Grouping ---
+            # Define emoji mapping
+            reaction_emojis = {
+                "Angry": "😡", "Sad": "😢", "Hopeful": "🌈",
+                "Confused": "😕", "Neutral": "😐"
+            }
+            
             emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
             emotion_groups = defaultdict(list)
 
@@ -531,12 +537,7 @@ just human voices and emotional clarity.
 
             # Load all reactions once
             all_reactions = pd.DataFrame(reaction_ws.get_all_records())
-
-            # Define emoji mapping
-            reaction_emojis = {
-                "Angry": "😡", "Sad": "😢", "Hopeful": "🌈",
-                "Confused": "😕", "Neutral": "😐"
-            }
+            
 
             # Display grouped comments
             for label in ["Positive", "Neutral", "Negative"]:
