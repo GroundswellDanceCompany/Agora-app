@@ -660,7 +660,7 @@ elif view_mode == "Ask Agora":
             The user asks: "{user_question}"
 
             Answer as a thoughtful assistant helping the user reflect on online sentiment and its meaning.
-            \"\"\"
+            """
 
             openai_client = OpenAI(api_key=st.secrets["openai"]["api_key"])
             response = openai_client.chat.completions.create(
