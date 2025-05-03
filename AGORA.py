@@ -1,7 +1,5 @@
 
 # --- Imports ---
-
-# --- Imports ---
 import streamlit as st
 import pandas as pd
 import praw
@@ -83,20 +81,6 @@ def auto_trim_worksheet(ws, max_rows=1000):
         keep = data[0:1] + data[-max_rows:]
         ws.clear()
         ws.update(keep)
-
-
-# --- Google Sheets ---
-SCOPE = ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/spreadsheets"]
-creds = Credentials.from_service_account_info(st.secrets["google_service_account"], scopes=SCOPE)
-client = gspread.authorize(creds)
-sheet = client.open("AgoraData")
-
-reflections_ws = get_or_create_worksheet(sheet, "Reflections", ["reflection_id", "headline", "emotions", "trust_level", "reflection", "timestamp"])
-replies_ws = get_or_create_worksheet(sheet, "Replies", ["reflection_id", "reply", "timestamp"])
-reaction_ws = get_or_create_worksheet(sheet, "CommentReactions", ["headline", "comment_snippet", "reaction", "timestamp"])
-comment_reflections_ws = get_or_create_worksheet(sheet, "CommentReflections", ["field_name", "headline", "comment_snippet", "reflection", "emotion", "timestamp"])
-saved_posts_ws = get_or_create_worksheet(sheet, "SavedPosts", ["id", "title", "top_comments", "date_saved", "permalink"])
-field_names_ws = get_or_create_worksheet(sheet, "FieldNames", ["field_name", "timestamp"])
 
 def headline_echo(text):
     st.markdown(f"""
@@ -253,131 +237,16 @@ def insert_field_memory():
 
 def save_headline_snapshot(post):
     # Prepare comments
-    
     submission = reddit.submission(id=post.id)
     submission.comments.replace_more(limit=0)
-    comments = submission.comments[:30]
+    top_comments = [c.body for c in submission.comments[:10]]
 
-    # --- Sentiment Grouping ---
-    emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
-    emotion_groups = defaultdict(list)
-
-    for comment in comments:
-        text = comment.body.strip()
-        if not text or len(text) < 10:
-            continue
-        polarity = TextBlob(text).sentiment.polarity
-        label = "Positive" if polarity > 0.1 else "Negative" if polarity < -0.1 else "Neutral"
-        emotion_counts[label] += 1
-        emotion_groups[label].append({
-            "text": text,
-            "score": round(polarity, 3),
-            "author": str(comment.author),
-            "created": datetime.utcfromtimestamp(comment.created_utc).strftime("%Y-%m-%d %H:%M")
-        })
-
-    # --- AI Summary ---
-    if not just_comments:
-        with st.spinner("Gathering the emotional field..."):
-            summary = generate_ai_summary(selected_headline, emotion_groups)
-            st.success(summary)
-
-    # Load reactions
-all_reactions = pd.DataFrame(reaction_ws.get_all_records())
-
-# Define emoji mapping
-reaction_emojis = {
-    "Angry": "😡", "Sad": "😢", "Hopeful": "🌈",
-    "Confused": "😕", "Neutral": "😐"
-}
-
-# Display comments grouped by sentiment
-for label in ["Positive", "Neutral", "Negative"]:
-    group = emotion_groups[label]
-    if group:
-        dot_class = (
-            "positive-dot" if label == "Positive"
-            else "neutral-dot" if label == "Neutral"
-            else "negative-dot"
-        )
-
-        st.markdown(f"""
-        <div class='emotion-header'>
-            <span class='emotion-dot {dot_class}'></span> {label.upper()} ({len(group)})
-        </div>
-        """, unsafe_allow_html=True)
-
-        for i, comment in enumerate(group[:10]):
-            comment_text = comment.get("text", "")
-            comment_id = str(hash(comment_text))[:8]
-            snippet = comment_text[:100]
-
-            st.markdown(f"""
-            <div class='comment-block'>
-                <strong>Comment {i+1}:</strong> {comment_text}
-                <br><small>{comment.get('author', '')} • {comment.get('created', '')} • Sentiment: {comment.get('score', '')}</small>
-            </div>
-            """, unsafe_allow_html=True)
-
-            # Emoji reaction counts (live display)
-            comment_reacts = all_reactions[all_reactions["comment_snippet"] == snippet]
-            counts = comment_reacts["reaction"].value_counts().to_dict()
-            emoji_counts = "  ".join(
-                f"{reaction_emojis[r]} {count}" for r, count in counts.items() if r in reaction_emojis
-            )
-            if emoji_counts:
-                st.markdown(
-                    f"<div style='color:#ccc; font-size: 14px; margin-bottom: 6px;'>Reactions: {emoji_counts}</div>",
-                    unsafe_allow_html=True
-                )
-
-            # Interaction Form
-            with st.form(key=f"form_{comment_id}"):
-                selected_reaction = st.radio(
-                    "React to this comment:",
-                    ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"],
-                    key=f"react_radio_{comment_id}",
-                    horizontal=True
-                )
-
-                reflection = st.text_area("Leave a reflection (optional):", key=f"reflect_text_{comment_id}")
-
-                if st.form_submit_button("Submit"):
-                    timestamp = datetime.utcnow().isoformat()
-
-                    if selected_reaction.strip():
-                        reaction_ws.append_row([
-                            selected_headline,
-                            snippet,
-                            selected_reaction,
-                            timestamp
-                        ])
-                        auto_trim_worksheet(reaction_ws)
-                        st.success(f"Reaction recorded: {reaction_emojis[selected_reaction]} {selected_reaction}")
-
-                    if reflection.strip():
-                        comment_reflections_ws.append_row([
-                            selected_field_name,
-                            selected_headline,
-                            snippet,
-                            reflection.strip(),
-                            selected_reaction.strip() if selected_reaction else "",
-                            timestamp
-                        ])
-                        auto_trim_worksheet(comment_reflections_ws)
-                        st.success("Reflection submitted.")
-
-            st.markdown("---")
-    
-
-    # Save to worksheet
-
+    # Prepare data
     post_id = str(uuid.uuid4())
     timestamp = datetime.utcnow().isoformat()
     permalink = f"https://reddit.com{post.permalink}"
-    comments = submission.comments[:30]
-    top_comments = [c.body for c in comments[:10]]
-    
+
+    # Save to worksheet
     saved_posts_ws.append_row([
         post_id,
         post.title,
@@ -407,6 +276,19 @@ def generate_ai_summary(headline, grouped_comments):
         return response.choices[0].message.content.strip()
     except Exception as e:
         return f"Could not generate summary: {str(e)}"
+
+# --- Google Sheets ---
+SCOPE = ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/spreadsheets"]
+creds = Credentials.from_service_account_info(st.secrets["google_service_account"], scopes=SCOPE)
+client = gspread.authorize(creds)
+sheet = client.open("AgoraData")
+
+reflections_ws = get_or_create_worksheet(sheet, "Reflections", ["reflection_id", "headline", "emotions", "trust_level", "reflection", "timestamp"])
+replies_ws = get_or_create_worksheet(sheet, "Replies", ["reflection_id", "reply", "timestamp"])
+reaction_ws = get_or_create_worksheet(sheet, "CommentReactions", ["headline", "comment_snippet", "reaction", "timestamp"])
+comment_reflections_ws = get_or_create_worksheet(sheet, "CommentReflections", ["field_name", "headline", "comment_snippet", "reflection", "emotion", "timestamp"])
+saved_posts_ws = get_or_create_worksheet(sheet, "SavedPosts", ["id", "title", "top_comments", "date_saved", "permalink"])
+field_names_ws = get_or_create_worksheet(sheet, "FieldNames", ["field_name", "timestamp"])
 
 # --- Reddit Setup ---
 reddit = praw.Reddit(
@@ -529,210 +411,65 @@ just human voices and emotional clarity.
 
     
     # (digest display code here)
-    else:
-        subreddit = st.selectbox("Or pick a subreddit:", curated_subreddits)
-        posts = reddit.subreddit(subreddit).hot(limit=15)
-        for post in posts:
-                if not post.stickied:
-                    headline_options.append(post.title)
-                    post_dict[post.title] = post
 
-        if headline_options:
-            selected_headline = st.radio("Select a headline:", headline_options)
-        else:
-            selected_headline = None
+else:
+    subreddit = st.selectbox("Or pick a subreddit:", curated_subreddits)
+    posts = reddit.subreddit(subreddit).hot(limit=15)
 
-        if selected_headline:
-            post = post_dict[selected_headline]
-            save_headline_snapshot(post)
+    headline_data = []
+    for post in posts:
+        if post.stickied:
+            continue
+        submission = reddit.submission(id=post.id)
+        submission.comments.replace_more(limit=0)
+        comments = submission.comments.list()
 
-            with st.container():
-                st.markdown(f"""
-                <div style='text-align: center; margin-top: 20px; margin-bottom: 10px; font-size: 24px; color: #ccc;'>
-                    📰 {selected_headline}
-                </div>
-                """, unsafe_allow_html=True)
+        if not comments:
+            continue
 
-            # --- Pull Top Voted Comment as Subheading ---
-            submission = reddit.submission(id=post.id)
-            submission.comments.replace_more(limit=0)
-            comments = submission.comments[:30]  # or however many you pull
+        top_comment = max(comments, key=lambda c: getattr(c, 'score', 0))
+        top_text = top_comment.body.strip()
+        polarity = TextBlob(top_text).sentiment.polarity
+        sentiment_label = "Positive" if polarity > 0.1 else "Negative" if polarity < -0.1 else "Neutral"
 
-            # Get the top upvoted comment
-            # Show top upvoted comment from Reddit
-            if comments:
-                top_comment = max(comments, key=lambda c: c.score if hasattr(c, 'score') else 0)
-                top_text = top_comment.body.strip()
-                top_author = str(top_comment.author)
-                top_time = datetime.utcfromtimestamp(top_comment.created_utc).strftime("%Y-%m-%d %H:%M")
+        headline_data.append({
+            "title": post.title,
+            "submission": submission,
+            "top_comment": top_comment,
+            "polarity": polarity,
+            "label": sentiment_label
+        })
 
-                st.markdown(f"""
-                <div style='text-align: center; margin-top: 20px; margin-bottom: 40px;'>
-                    <i>"{top_text}"</i><br>
-                    <small>— u/{top_author} | {top_time}</small>
-                </div>
-                """, unsafe_allow_html=True)
+    # Sort headlines by sentiment polarity (descending)
+    sorted_headlines = sorted(headline_data, key=lambda x: x["polarity"], reverse=True)
 
-                # --- Sentiment Grouping ---
-                emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
-                emotion_groups = defaultdict(list)
-                
+    just_comments = st.checkbox("Just here for the comments")
 
-                if not just_comments:
-                    top_comment_id = str(hash(top_text))[:8]
-                    with st.form(key=f"top_comment_form_{top_comment_id}"):
-                        top_reaction = st.radio(
-                            "React to this top comment:",
-                            ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"],
-                            key=f"top_react_radio_{top_comment_id}",
-                            horizontal=True
-                        )
+    for entry in sorted_headlines:
+        title = entry["title"]
+        top_comment = entry["top_comment"]
+        sentiment = entry["label"]
+        polarity = round(entry["polarity"], 3)
 
-                        top_reflection = st.text_area("Reflect on the top comment (optional):", key=f"top_reflect_{top_comment_id}")
+        st.markdown(f"### {title}")
+        st.markdown(f"> *{top_comment.body.strip()}* — u/{top_comment.author}")
 
-                        if st.form_submit_button("Submit"):
-                            timestamp = datetime.utcnow().isoformat()
+        if not just_comments:
+            st.markdown(f"**Sentiment:** {sentiment} ({polarity})")
 
-                            if top_reaction.strip():
-                                reaction_ws.append_row([
-                                    selected_headline,
-                                    top_text[:100],
-                                    top_reaction,
-                                    timestamp
-                                ])
-                                auto_trim_worksheet(reaction_ws)
-                                st.success(f"Reaction recorded: {reaction_emojis[top_reaction]} {top_reaction}")
-
-                            if top_reflection.strip():
-                                comment_reflections_ws.append_row([
-                                    selected_headline,
-                                    top_text[:100],
-                                    top_reflection.strip(),
-                                    timestamp
-                                ])
-                                auto_trim_worksheet(comment_reflections_ws)
-                                st.success("Reflection submitted.")
-
-                            # --- Sentiment Grouping ---
-                            emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
-                            emotion_groups = defaultdict(list)
-
-                            for comment in comments:
-                                text = comment.body.strip()
-                                if not text or len(text) < 10:
-                                    continue
-                                polarity = TextBlob(text).sentiment.polarity
-                                label = "Positive" if polarity > 0.1 else "Negative" if polarity < -0.1 else "Neutral"
-                                emotion_counts[label] += 1
-                                emotion_groups[label].append({
-                                    "text": text,
-                                    "score": round(polarity, 3),
-                                    "author": str(comment.author),
-                                    "created": datetime.utcfromtimestamp(comment.created_utc).strftime("%Y-%m-%d %H:%M")
-                                })
-
-            # Reddit Comments Pull
-            #submission = reddit.submission(id=post.id)
-            #submission.comments.replace_more(limit=0)
-            #comments = submission.comments[:30]
-
-            #if not comments:
-                #st.warning("No comments found for this topic.")
-            #else:
+            # Reaction form
+            with st.form(key=f"form_{hash(top_comment.body)}"):
+                reaction = st.radio("React:", ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"], horizontal=True)
+                reflection = st.text_area("Your thoughts (optional):")
+                if st.form_submit_button("Submit"):
+                    timestamp = datetime.utcnow().isoformat()
+                    if reaction:
+                        reaction_ws.append_row([title, top_comment.body[:100], reaction, timestamp])
+                    if reflection.strip():
+                        comment_reflections_ws.append_row([title, top_comment.body[:100], reflection.strip(), timestamp])
+                    st.success("Thank you for your input!")
+        st.markdown("---")
             
-
-                            # Full Agora Mode
-                            if not just_comments:
-                                with st.spinner("Gathering the emotional field..."):
-                                    summary = generate_ai_summary(selected_headline, emotion_groups)
-                                    st.success(summary)
-
-            # Prepare data if not in just_comments mode
-                            if not just_comments:
-                                all_reactions = pd.DataFrame(reaction_ws.get_all_records())
-
-                            reaction_emojis = {
-                                "Angry": "😡", "Sad": "😢", "Hopeful": "🌈",
-                                "Confused": "😕", "Neutral": "😐"
-                            }
-
-                            for label in ["Positive", "Neutral", "Negative"]:
-                                group = emotion_groups[label]
-                                if group:
-                                    dot_class = (
-                                        "positive-dot" if label == "Positive"
-                                        else "neutral-dot" if label == "Neutral"
-                                        else "negative-dot"
-                                    )
-
-                                    st.markdown(f"""
-                                    <div class='emotion-header'>
-                                        <span class='emotion-dot {dot_class}'></span> {label.upper()} ({len(group)})
-                                    </div>
-                                    """, unsafe_allow_html=True)
-
-                                    for i, comment in enumerate(group[:10]):
-                                        comment_text = comment.get("text", "")
-                                        comment_id = str(hash(comment_text))[:8]
-
-                                        st.markdown(f"""
-                                        <div class='comment-block'>
-                                            <strong>Comment {i+1}:</strong> {comment_text}
-                                            <br><small>{comment.get('author', '')} • {comment.get('created', '')} • Sentiment: {comment.get('score', '')}</small>
-                                        </div>
-                                        """, unsafe_allow_html=True)
-
-                                        # Show emoji counters (live)
-                                        if not just_comments:
-                                            snippet = comment_text[:100]
-                                            comment_reacts = all_reactions[all_reactions["comment_snippet"] == snippet]
-                                            counts = comment_reacts["reaction"].value_counts().to_dict()
-
-                                            emoji_counts = "  ".join(
-                                                f"{reaction_emojis[r]} {count}" for r, count in counts.items() if r in reaction_emojis
-                                            )
-                                            if emoji_counts:
-                                                st.markdown(
-                                                    f"<div style='color:#ccc; font-size: 14px; margin-bottom: 6px;'>Reactions: {emoji_counts}</div>",
-                                                    unsafe_allow_html=True
-                                                )
-
-                                        # Show interaction form only in Live Feed
-                                        if not just_comments:
-                                            with st.form(key=f"form_{comment_id}"):
-                                                selected_reaction = st.radio(
-                                                    "React to this comment:",
-                                                    ["", "Angry", "Sad", "Hopeful", "Confused", "Neutral"],
-                                                    key=f"react_radio_{comment_id}",
-                                                    horizontal=True
-                                                )
-
-                                                reflection = st.text_area("Leave a reflection (optional):", key=f"reflect_text_{comment_id}")
-
-                                                if st.form_submit_button("Submit"):
-                                                    timestamp = datetime.utcnow().isoformat()
-
-                                                    if selected_reaction.strip():
-                                                        reaction_ws.append_row([
-                                                            selected_headline,
-                                                            snippet,
-                                                            selected_reaction,
-                                                            timestamp
-                                                        ])
-                                                        auto_trim_worksheet(reaction_ws)
-                                                        st.success(f"Reaction recorded: {reaction_emojis[selected_reaction]} {selected_reaction}")
-
-                                                    if reflection.strip():
-                                                        comment_reflections_ws.append_row([
-                                                            selected_headline,
-                                                            snippet,
-                                                            reflection.strip(),
-                                                            timestamp
-                                                        ])
-                                                        auto_trim_worksheet(comment_reflections_ws)
-                                                        st.success("Reflection submitted.")
-
-                                        st.markdown("---")
 
 elif view_mode == "Morning Digest":
     # --- Morning Digest logic ---
@@ -773,5 +510,6 @@ elif view_mode == "Morning Digest":
 
             # Closing blessing
             centered_quote("The Field remembers every voice.")
+          
           
 
