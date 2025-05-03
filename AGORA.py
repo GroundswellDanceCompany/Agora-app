@@ -471,45 +471,7 @@ else:
         st.markdown("---")
             
 
-elif view_mode == "Morning Digest":
-    # --- Morning Digest logic ---
 
-    st.title("Morning Echoes — Agora Digest")
-
-    # Load reflections from Google Sheets
-    reflections_df = load_comment_reflections()
-
-    if reflections_df.empty:
-        st.info("No reflections from yesterday yet — the Field is silent.")
-    else:
-        reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
-        reflections_df["date"] = reflections_df["timestamp"].dt.date
-
-        yesterday = datetime.utcnow().date() - timedelta(days=1)
-        yesterday_reflections = reflections_df[reflections_df["date"] == yesterday]
-
-        if yesterday_reflections.empty:
-            st.info("No reflections from yesterday — the Field rests.")
-        else:
-            # Show top headlines reflected on yesterday
-            top_headlines = yesterday_reflections["headline"].value_counts().head(3).index.tolist()
-
-            for headline in top_headlines:
-                centered_header(f"📰 {headline}", level="h3")
-                subset = yesterday_reflections[yesterday_reflections["headline"] == headline]
-
-                for idx, row in subset.iterrows():
-                    st.markdown(f"""
-                    <div style='border-left: 3px solid #888; background-color: #222; padding:10px; margin-bottom:10px;'>
-                    <i>"{row['comment_snippet']}..."</i><br><br>
-                    <b>{row['field_name']} reflected:</b> {row['reflection']}
-                    </div>
-                    """, unsafe_allow_html=True)
-
-                golden_divider()
-
-            # Closing blessing
-            centered_quote("The Field remembers every voice.")
           
           
 
