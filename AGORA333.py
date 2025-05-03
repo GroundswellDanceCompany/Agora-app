@@ -635,15 +635,21 @@ elif view_mode == "Morning Digest":
         
 
 elif view_mode == "Ask Agora":
+    if "post_dict" not in st.session_state or not st.session_state.post_dict:
+        st.warning("No headlines loaded. Please visit Agora Mode first.")
+    else:
+        post_dict = st.session_state.post_dict
+        headlines = list(post_dict.keys())
+        selected_title = st.selectbox("Choose a headline to explore:", headlines)
+        # continue with Ask Agora logic...
     st.markdown("## Ask Agora: Conversational Assistant")
     st.markdown("Reflect on any headline and the public sentiment around it.")
 
     # Use real headlines from your app
-    headlines = list(post_dict.keys())
     if not headlines:
         st.warning("No headlines available yet. Try selecting a subreddit first.")
     else:
-        selected_title = st.selectbox("Choose a headline to explore:", headlines)
+        
         sentiment_summary = generate_ai_summary(selected_title, emotion_groups)
 
         user_question = st.chat_input(f"What do you want to ask about \"{selected_title}\"?")
