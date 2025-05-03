@@ -374,6 +374,14 @@ just_comments = st.sidebar.toggle("Just Comments Mode")
 if view_mode == "Live View":
     add_fade_in_styles()
 
+    reaction_emojis = {
+    "Angry": "😡",
+    "Sad": "😢",
+    "Hopeful": "🌈",
+    "Confused": "😕",
+    "Neutral": "😐"
+}
+
     slow_reveal_sequence([
         (centered_header, "Agora — Public Sentiment Field"),
         (centered_paragraph, "There is a space beyond the noise of the world."),
