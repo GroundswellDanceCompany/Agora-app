@@ -639,44 +639,49 @@ elif view_mode == "Morning Digest":
         
 
 elif view_mode == "Ask Agora":
+    st.markdown("## Ask Agora: Conversational Assistant")
+    st.markdown("Reflect on any headline and the public sentiment around it.")
+
+    # Ensure post_dict exists
     if "post_dict" not in st.session_state or not st.session_state.post_dict:
         st.warning("No headlines loaded. Please visit Agora Mode first.")
     else:
         post_dict = st.session_state.post_dict
         headlines = list(post_dict.keys())
-        selected_title = st.selectbox("Choose a headline to explore:", headlines)
-        # continue with Ask Agora logic...
-    st.markdown("## Ask Agora: Conversational Assistant")
-    st.markdown("Reflect on any headline and the public sentiment around it.")
 
-    # Use real headlines from your app
-    if not headlines:
-        st.warning("No headlines available yet. Try selecting a subreddit first.")
-    else:
-        
-        sentiment_summary = generate_ai_summary(selected_title, emotion_groups)
+        if not headlines:
+            st.warning("No headlines found. Try browsing a subreddit first.")
+        else:
+            selected_title = st.selectbox("Choose a headline to explore:", headlines)
+            selected_post = post_dict[selected_title]
 
-        user_question = st.chat_input(f"What do you want to ask about \"{selected_title}\"?")
+            # Use your actual sentiment data from emotion_groups or fallback
+            try:
+                sentiment_summary = generate_ai_summary(selected_title, emotion_groups)
+            except:
+                sentiment_summary = "Sentiment data is not yet available."
 
-        if user_question:
-            st.chat_message("user").write(user_question)
+            user_question = st.chat_input(f"What do you want to ask about \"{selected_title}\"?")
 
-            prompt = f"""
-            A Reddit discussion about the headline: "{selected_title}"
+            if user_question:
+                st.chat_message("user").write(user_question)
 
-            Public sentiment summary:
-            {sentiment_summary}
+                prompt = f"""
+                A Reddit discussion about the headline: "{selected_title}"
 
-            The user asks: "{user_question}"
+                Public sentiment summary:
+                {sentiment_summary}
 
-            Answer as a thoughtful assistant helping the user reflect on online sentiment and its meaning.
-            """
+                The user asks: "{user_question}"
 
-            openai_client = OpenAI(api_key=st.secrets["openai"]["api_key"])
-            response = openai_client.chat.completions.create(
-                model="gpt-4",
-                messages=[{"role": "user", "content": prompt}]
-            )
-            reply = response.choices[0].message.content
-            st.chat_message("assistant").write(reply)
+                Answer as a thoughtful assistant helping the user reflect on online sentiment and its meaning.
+                """
+
+                openai_client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+                response = openai_client.chat.completions.create(
+                    model="gpt-4",
+                    messages=[{"role": "user", "content": prompt}]
+                )
+                reply = response.choices[0].message.content
+                st.chat_message("assistant").write(reply)
           
