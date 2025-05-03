@@ -357,6 +357,8 @@ if not st.session_state.field_name:
     st.stop()
 
 # --- FLOW CONTROLS ---
+
+
 if not st.session_state.has_entered:
     show_welcome_screen()
     st.stop()
@@ -405,6 +407,8 @@ just human voices and emotional clarity.
     topic = st.text_input("Search a topic")
     headline_options = []
     post_dict = {}
+
+    st.session_state.post_dict = post_dict
 
     if topic:
         for sub in curated_subreddits:
