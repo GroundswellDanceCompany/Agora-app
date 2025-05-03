@@ -584,50 +584,52 @@ just human voices and emotional clarity.
 elif view_mode == "Morning Digest":
     # --- Morning Digest logic ---
 
+    from datetime import datetime, timedelta
+
     st.title("Morning Echoes — Agora Digest")
+    add_fade_in_styles()
 
-    # Load reflections from Google Sheets
-    reflections_df = load_comment_reflections()
+    # Load reflection data
+    reflections_df = pd.DataFrame(reflections_ws.get_all_records())
 
-    if reflections_df.empty:
-        st.info("No reflections from yesterday yet — the Field is silent.")
+    # Convert timestamps and filter for yesterday
+    reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
+    reflections_df["date"] = reflections_df["timestamp"].dt.date
+
+    yesterday = datetime.utcnow().date() - timedelta(days=1)
+    yesterday_data = reflections_df[reflections_df["date"] == yesterday]
+
+    if yesterday_data.empty:
+        st.info("No reflections from yesterday — the Field rests.")
     else:
-        reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
-        reflections_df["date"] = reflections_df["timestamp"].dt.date
+        slow_reveal_sequence([
+            (centered_header, "Agora Morning Digest"),
+            (centered_paragraph, "Glimpses into the Field from yesterday's thoughts."),
+        ], delay=1.5)
 
-        yesterday = datetime.utcnow().date() - timedelta(days=1)
-        yesterday_reflections = reflections_df[reflections_df["date"] == yesterday]
-        yesterday_data = reflections_df[reflections_df["date"] == yesterday]
         top_headlines = yesterday_data["headline"].value_counts().head(3).index.tolist()
 
-        if yesterday_reflections.empty:
-            st.info("No reflections from yesterday — the Field rests.")
-        else:
-            # Show top headlines reflected on yesterday
-            top_headlines = yesterday_reflections["headline"].value_counts().head(3).index.tolist()
+        for headline in top_headlines:
+            golden_divider()
+            slow_reveal_sequence([
+                (headline_echo, headline),
+                (centered_paragraph, "Gathering reflections...")
+            ], delay=1.5)
 
-            for headline in top_headlines:
-                subset = yesterday_data[yesterday_data["headline"] == headline]
-                grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
+            subset = yesterday_data[yesterday_data["headline"] == headline]
+            grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
 
-                with st.spinner("Summarizing reflections..."):
+            with st.spinner("Summarizing reflections..."):
+                try:
                     summary = generate_ai_summary(headline, grouped)
+                except Exception as e:
+                    summary = f"Error generating summary: {str(e)}"
 
-                centered_quote(summary)  # or st.markdown(...) depending on your styling
-                
-                centered_header(f"📰 {headline}", level="h3")
-                subset = yesterday_reflections[yesterday_reflections["headline"] == headline]
+            time.sleep(1)
+            centered_quote(summary)
+            time.sleep(1.5)
+            insert_field_memory()
+            st.markdown("<br><br>", unsafe_allow_html=True)
 
-                for idx, row in subset.iterrows():
-                    st.markdown(f"""
-                    <div style='border-left: 3px solid #888; background-color: #222; padding:10px; margin-bottom:10px;'>
-                    <i>"{row['comment_snippet']}..."</i><br><br>
-                    <b>{row['field_name']} reflected:</b> {row['reflection']}
-                    </div>
-                    """, unsafe_allow_html=True)
-
-                golden_divider()
-
-            # Closing blessing
-            centered_quote("The Field remembers every voice.")
+        closing_blessing()
           
