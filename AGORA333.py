@@ -651,7 +651,7 @@ elif view_mode == "Ask Agora":
         if user_question:
             st.chat_message("user").write(user_question)
 
-            prompt = f\"\"\"
+            prompt = f"""
             A Reddit discussion about the headline: "{selected_title}"
 
             Public sentiment summary:
