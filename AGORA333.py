@@ -405,7 +405,14 @@ No algorithms manipulating emotions, no rage optimizations —
 just human voices and emotional clarity.
 """)
 
-    # --- Topic and live feed ---
+    headline_options = []
+    post_dict = {}
+
+# Define your curated subreddits
+    curated_subreddits = [
+    "news", "worldnews", "politics", "uspolitics", "geopolitics",
+    "MiddleEastNews", "GlobalNews", "TrueReddit", "technology", "science"
+    
     # --- Topic Search ---
     st.subheader("Search a topic")
     topic = st.text_input("Enter a topic to explore:", key="topic_input")
