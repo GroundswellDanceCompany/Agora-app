@@ -437,11 +437,11 @@ just human voices and emotional clarity.
         except:
             pass
 
-    if headline_options:
-        selected_headline = st.radio("Select a headline:", headline_options, key="headline_radio")
-    else:
-        st.info("No headlines found. Try a different topic or subreddit.")
-        selected_headline = None
+if headline_options:
+    selected_headline = st.radio("Select a headline:", headline_options, key="headline_radio")
+else:
+    st.info("No headlines found. Try a different topic or subreddit.")
+    selected_headline = None
 
 # --- Display Comments + Reactions ---
 if selected_headline:
