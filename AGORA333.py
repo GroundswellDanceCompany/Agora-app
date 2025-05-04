@@ -410,8 +410,11 @@ just human voices and emotional clarity.
 
 # Define your curated subreddits
     curated_subreddits = [
-    "news", "worldnews", "politics", "uspolitics", "geopolitics",
-    "MiddleEastNews", "GlobalNews", "TrueReddit", "technology", "science"
+        "news", "worldnews", "politics", "uspolitics", "geopolitics",
+        "MiddleEastNews", "GlobalNews", "TrueReddit", "technology", "science", , "environment",
+        "TrueOffMyChest", "ChangeMyView", "AskPolitics",
+        "Philosophy", "CasualConversation", "UpliftingNews"
+    ]
     
     # --- Topic Search ---
     st.subheader("Search a topic")
