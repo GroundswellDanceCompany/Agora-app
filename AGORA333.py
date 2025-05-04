@@ -656,7 +656,7 @@ elif view_mode == "Ask Agora":
             submission = reddit.submission(id=selected_post.id)
             submission.comments.replace_more(limit=0)
             top_comments = sorted(submission.comments.list(), key=lambda c: getattr(c, 'score', 0), reverse=True)
-            top_comments = [c for c in top_comments if len(c.body.strip()) > 10][:5]
+            top_comments = [c for c in top_comments if len(c.body.strip()) > 10][:10]
 
             comment_summary = ""
             for i, comment in enumerate(top_comments, 1):
