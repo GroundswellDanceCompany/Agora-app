@@ -671,19 +671,25 @@ elif view_mode == "Ask Agora":
 
             # --- Suggested or custom question input ---
             st.markdown("### Ask a question about this headline")
-            suggested_questions = [
-                "What emotions are people expressing here?",
-                "Why might this topic be so divisive?",
-                "What do these comments reveal about public opinion?",
-                "What might a constructive next step look like?",
-                "How could someone respond to this sentiment thoughtfully?",
-                "What deeper issue is this headline tapping into?",
-                "What are the risks of ignoring this perspective?"
-            ]
+            # --- Suggested question selection ---
+suggested_questions = [
+    "What emotions are people expressing here?",
+    "Why might this topic be so divisive?",
+    "What do these comments reveal about public opinion?",
+    "What might a constructive next step look like?",
+    "How could someone respond to this sentiment thoughtfully?",
+    "What deeper issue is this headline tapping into?",
+    "What are the risks of ignoring this perspective?"
+]
 
-            selected_prompt = st.radio("Choose a suggested question (or write your own):", [""] + suggested_questions)
-            custom_question = st.text_input("Or type your own question:")
-            user_question = custom_question.strip() if custom_question else selected_prompt
+selected_prompt = st.radio("Choose a suggested question (optional):", [""] + suggested_questions)
+
+# --- Custom input with send icon ---
+user_question = st.chat_input("Or ask your own question here")
+
+# Use either the typed question or selected suggestion
+if not user_question and selected_prompt:
+    user_question = selected_prompt
 
             if user_question:
                 st.chat_message("user").write(user_question)
