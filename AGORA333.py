@@ -691,10 +691,10 @@ user_question = st.chat_input("Or ask your own question here")
 if not user_question and selected_prompt:
     user_question = selected_prompt
 
-            if user_question:
-                st.chat_message("user").write(user_question)
+if user_question:
+    st.chat_message("user").write(user_question)
 
-                prompt = f"""Headline: "{selected_title}"
+    prompt = f"""Headline: "{selected_title}"
 
 Summary of top 5 Reddit comments:
 {comment_summary}
