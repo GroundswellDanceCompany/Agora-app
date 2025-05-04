@@ -427,7 +427,6 @@ just human voices and emotional clarity.
                         headline_options.append(post.title)
                         post_dict[post.title] = post
             except: 
-                
                 continue
     elif manual_subreddit:
         try:
@@ -444,34 +443,34 @@ just human voices and emotional clarity.
         st.info("No headlines found. Try a different topic or subreddit.")
         selected_headline = None
 
-        if selected_headline:
-            post = post_dict[selected_headline]  # Get the corresponding Reddit post object
-            submission = reddit.submission(id=post.id)
-            submission.comments.replace_more(limit=0)
-            comments = submission.comments[:30]
+    if selected_headline:
+        post = post_dict[selected_headline]  # Get the corresponding Reddit post object
+        submission = reddit.submission(id=post.id)
+        submission.comments.replace_more(limit=0)
+        comments = submission.comments[:30]
 
-            st.markdown(f"### 📰 {selected_headline}")
-            st.write(f"Number of comments fetched: {len(comments)}")
+        st.markdown(f"### 📰 {selected_headline}")
+        st.write(f"Number of comments fetched: {len(comments)}")
 
-            if comments:
-                top_comment = max(comments, key=lambda c: c.score if hasattr(c, 'score') else 0)
-                top_text = top_comment.body.strip()
-                top_author = str(top_comment.author)
-                top_time = datetime.utcfromtimestamp(top_comment.created_utc).strftime("%Y-%m-%d %H:%M")
+        if comments:
+            top_comment = max(comments, key=lambda c: c.score if hasattr(c, 'score') else 0)
+            top_text = top_comment.body.strip()
+            top_author = str(top_comment.author)
+            top_time = datetime.utcfromtimestamp(top_comment.created_utc).strftime("%Y-%m-%d %H:%M")
 
-                st.markdown(f"""
-                <div style='text-align: center; margin-top: 20px; margin-bottom: 40px;'>
-                    <i>"{top_text}"</i><br>
-                    <small>— u/{top_author} | {top_time}</small>
-                </div>
-                """, unsafe_allow_html=True)
+            st.markdown(f"""
+            <div style='text-align: center; margin-top: 20px; margin-bottom: 40px;'>
+                <i>"{top_text}"</i><br>
+                <small>— u/{top_author} | {top_time}</small>
+            </div>
+            """, unsafe_allow_html=True)
 
-                # Example: Display rest of the comments
-                for i, comment in enumerate(comments[:10]):
-                    st.markdown(f"**Comment {i+1}**: {comment.body}")
+            # Example: Display rest of the comments
+            for i, comment in enumerate(comments[:10]):
+                st.markdown(f"**Comment {i+1}**: {comment.body}")
 
-            else:
-                st.warning("No comments found for this topic.")
+        else:
+            st.warning("No comments found for this topic.")
     
 
             # --- Pull Top Voted Comment as Subheading ---
