@@ -411,7 +411,7 @@ just human voices and emotional clarity.
     topic = st.text_input("Enter a topic to explore:")
 
     headline_options = []
-    post_dict = []
+    post_dict = {}
 
     curated_subreddits = [
         "news", "worldnews", "politics", "uspolitics", "geopolitics",
