@@ -645,58 +645,57 @@ else:
 
                         st.markdown("---")
             
+elif view_mode == "Morning Digest":
+    # --- Morning Digest logic ---
 
-    elif view_mode == "Morning Digest":
-        # --- Morning Digest logic ---
+    from datetime import datetime, timedelta
 
-        from datetime import datetime, timedelta
+    st.title("Morning Echoes — Agora Digest")
+    add_fade_in_styles()
 
-        st.title("Morning Echoes — Agora Digest")
-        add_fade_in_styles()
+    # Load reflection data
+    reflections_df = pd.DataFrame(reflections_ws.get_all_records())
 
-        # Load reflection data
-        reflections_df = pd.DataFrame(reflections_ws.get_all_records())
+    # Convert timestamps and filter for yesterday
+    reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
+    reflections_df["date"] = reflections_df["timestamp"].dt.date
 
-        # Convert timestamps and filter for yesterday
-        reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
-        reflections_df["date"] = reflections_df["timestamp"].dt.date
+    yesterday = datetime.utcnow().date() - timedelta(days=1)
+    yesterday_data = reflections_df[reflections_df["date"] == yesterday]
 
-        yesterday = datetime.utcnow().date() - timedelta(days=1)
-        yesterday_data = reflections_df[reflections_df["date"] == yesterday]
+    if yesterday_data.empty:
+        st.info("No reflections from yesterday — the Field rests.")
+    else:
+        slow_reveal_sequence([
+            (centered_header, "Agora Morning Digest"),
+            (centered_paragraph, "Glimpses into the Field from yesterday's thoughts."),
+        ], delay=1.5)
 
-        if yesterday_data.empty:
-            st.info("No reflections from yesterday — the Field rests.")
-        else:
+        top_headlines = yesterday_data["headline"].value_counts().head(3).index.tolist()
+
+        for headline in top_headlines:
+            golden_divider()
             slow_reveal_sequence([
-                (centered_header, "Agora Morning Digest"),
-                (centered_paragraph, "Glimpses into the Field from yesterday's thoughts."),
+                (headline_echo, headline),
+                (centered_paragraph, "Gathering reflections...")
             ], delay=1.5)
 
-            top_headlines = yesterday_data["headline"].value_counts().head(3).index.tolist()
+            subset = yesterday_data[yesterday_data["headline"] == headline]
+            grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
 
-            for headline in top_headlines:
-                golden_divider()
-                slow_reveal_sequence([
-                    (headline_echo, headline),
-                    (centered_paragraph, "Gathering reflections...")
-                ], delay=1.5)
+            with st.spinner("Summarizing reflections..."):
+                try:
+                    summary = generate_ai_summary(headline, grouped)
+                except Exception as e:
+                    summary = f"Error generating summary: {str(e)}"
 
-                subset = yesterday_data[yesterday_data["headline"] == headline]
-                grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
+            time.sleep(1)
+            centered_quote(summary)
+            time.sleep(1.5)
+            insert_field_memory()
+            st.markdown("<br><br>", unsafe_allow_html=True)
 
-                with st.spinner("Summarizing reflections..."):
-                    try:
-                        summary = generate_ai_summary(headline, grouped)
-                    except Exception as e:
-                        summary = f"Error generating summary: {str(e)}"
-
-                time.sleep(1)
-                centered_quote(summary)
-                time.sleep(1.5)
-                insert_field_memory()
-                st.markdown("<br><br>", unsafe_allow_html=True)
-
-            closing_blessing()
+        closing_blessing()
 
 elif view_mode == "Ask Agora":
     st.markdown("## Ask Agora: Conversational Assistant")
