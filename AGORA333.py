@@ -471,8 +471,8 @@ just human voices and emotional clarity.
 
             else:
                 st.warning("No comments found for this topic.")
-    else:
-        st.info("No relevant headlines found for this topic. Try a different search term.")
+        else:
+            st.info("No relevant headlines found for this topic. Try a different search term.")
 
     # (digest display code here)
     else:
