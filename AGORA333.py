@@ -522,9 +522,9 @@ just human voices and emotional clarity.
                 summary = generate_ai_summary(selected_headline, emotion_groups)
                 st.success(summary)
 
-        submission = reddit.submission(id=post.id)
-        submission.comments.replace_more(limit=0)
-        comments = submission.comments[:30] 
+        # submission = reddit.submission(id=post.id)
+        # submission.comments.replace_more(limit=0)
+        # comments = submission.comments[:30]
 
         # Load all reactions once
         all_reactions = pd.DataFrame(reaction_ws.get_all_records())
@@ -546,7 +546,6 @@ just human voices and emotional clarity.
                 </div>
                 """, unsafe_allow_html=True)
 
-            if just_comments:
                 for i, comment in enumerate(group[:10]):
                     comment_text = comment.get("text", "")
                     comment_id = str(hash(comment_text))[:8]
