@@ -473,46 +473,46 @@ just human voices and emotional clarity.
             st.warning("No comments found for this topic.")
     
 
-            # --- Pull Top Voted Comment as Subheading ---
+        # --- Pull Top Voted Comment as Subheading ---
+        submission = reddit.submission(id=post.id)
+        submission.comments.replace_more(limit=0)
+        comments = submission.comments[:30]  # or however many you pull
+
+        # Get the top upvoted comment
+        # Show top upvoted comment from Reddit
+        if comments:
+            top_comment = max(comments, key=lambda c: c.score if hasattr(c, 'score') else 0)
+            top_text = top_comment.body.strip()
+            top_author = str(top_comment.author)
+            top_time = datetime.utcfromtimestamp(top_comment.created_utc).strftime("%Y-%m-%d %H:%M")
+
+            st.markdown(f"""
+            <div style='text-align: center; margin-top: 20px; margin-bottom: 40px;'>
+                <i>"{top_text}"</i><br>
+                <small>— u/{top_author} | {top_time}</small>
+            </div>
+            """, unsafe_allow_html=True)
+
             submission = reddit.submission(id=post.id)
             submission.comments.replace_more(limit=0)
-            comments = submission.comments[:30]  # or however many you pull
+            comments = submission.comments[:30] 
 
-            # Get the top upvoted comment
-            # Show top upvoted comment from Reddit
-            if comments:
-                top_comment = max(comments, key=lambda c: c.score if hasattr(c, 'score') else 0)
-                top_text = top_comment.body.strip()
-                top_author = str(top_comment.author)
-                top_time = datetime.utcfromtimestamp(top_comment.created_utc).strftime("%Y-%m-%d %H:%M")
+            emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
+            emotion_groups = defaultdict(list)
 
-                st.markdown(f"""
-                <div style='text-align: center; margin-top: 20px; margin-bottom: 40px;'>
-                    <i>"{top_text}"</i><br>
-                    <small>— u/{top_author} | {top_time}</small>
-                </div>
-                """, unsafe_allow_html=True)
-
-                submission = reddit.submission(id=post.id)
-                submission.comments.replace_more(limit=0)
-                comments = submission.comments[:30] 
-
-                emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
-                emotion_groups = defaultdict(list)
-
-                for comment in comments:
-                    text = comment.body.strip()
-                    if not text or len(text) < 10:
-                        continue
-                    polarity = TextBlob(text).sentiment.polarity
-                    label = "Positive" if polarity > 0.1 else "Negative" if polarity < -0.1 else "Neutral"
-                    emotion_counts[label] += 1
-                    emotion_groups[label].append({
-                        "text": text,
-                        "score": round(polarity, 3),
-                        "author": str(comment.author),
-                        "created": datetime.utcfromtimestamp(comment.created_utc).strftime("%Y-%m-%d %H:%M")
-                    })
+            for comment in comments:
+                text = comment.body.strip()
+                if not text or len(text) < 10:
+                    continue
+                polarity = TextBlob(text).sentiment.polarity
+                label = "Positive" if polarity > 0.1 else "Negative" if polarity < -0.1 else "Neutral"
+                emotion_counts[label] += 1
+                emotion_groups[label].append({
+                    "text": text,
+                    "score": round(polarity, 3),
+                    "author": str(comment.author),
+                    "created": datetime.utcfromtimestamp(comment.created_utc).strftime("%Y-%m-%d %H:%M")
+                })
             
 
             # Full Agora Mode
