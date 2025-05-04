@@ -411,11 +411,7 @@ just human voices and emotional clarity.
     topic = st.text_input("Enter a topic to explore:")
 
     headline_options = []
-    post = post_dict[]
-
-    submission = reddit.submission(id=post.id)
-    submission.comments.replace_more(limit=0)
-    comments = submission.comments[:30]
+    post_dict = []
 
     curated_subreddits = [
         "news", "worldnews", "politics", "uspolitics", "geopolitics",
@@ -438,6 +434,12 @@ just human voices and emotional clarity.
         else:
             st.info("No relevant headlines found for this topic. Try a different search term.")
             selected_headline = None
+
+            post = post_dict[selected_headline]
+
+            submission = reddit.submission(id=post.id)
+            submission.comments.replace_more(limit=0)
+            comments = submission.comments[:30]
 
 
     # (digest display code here)
