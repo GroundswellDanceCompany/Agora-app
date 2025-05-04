@@ -669,6 +669,89 @@ elif view_mode == "Ask Agora":
             except:
                 sentiment_summary = "Sentiment data is not yet available."
 
+            # --- Suggested or custom question input ---
+            st.markdown("### Ask a question about this headline")
+            suggested_questions = [
+                "What emotions are people expressing here?",
+                "Why might this topic be so divisive?",
+                "What do these comments reveal about public opinion?",
+                "What might a constructive next step look like?",
+                "How could someone respond to this sentiment thoughtfully?",
+                "What deeper issue is this headline tapping into?",
+                "What are the risks of ignoring this perspective?"
+            ]
+
+            selected_prompt = st.radio("Choose a suggested question (or write your own):", [""] + suggested_questions)
+            custom_question = st.text_input("Or type your own question:")
+            user_question = custom_question.strip() if custom_question else selected_prompt
+
+            if user_question:
+                st.chat_message("user").write(user_question)
+
+                prompt = f"""Headline: "{selected_title}"
+
+Summary of top 5 Reddit comments:
+{comment_summary}
+
+AI summary of public sentiment:
+{sentiment_summary}
+
+The user asks: "{user_question}"
+
+Answer as a thoughtful assistant helping the user understand online sentiment and its possible meaning.
+"""
+
+                try:
+                    openai_client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+                    response = openai_client.chat.completions.create(
+                        model="gpt-4",
+                        messages=[{"role": "user", "content": prompt}]
+                    )
+                    reply = response.choices[0].message.content
+                except Exception as e:
+                    reply = (
+                        "The AI assistant is currently unavailable. "
+                        "Please check your OpenAI API key or billing status."
+                    )
+                    st.error(str(e))
+
+                st.chat_message("assistant").write(reply)
+
+
+        
+
+elif view_mode == "Ask Agora":
+    st.markdown("## Ask Agora: Conversational Assistant")
+    st.markdown("Reflect on any headline and the public sentiment around it.")
+
+    if "post_dict" not in st.session_state or not st.session_state.post_dict:
+        st.warning("No headlines loaded. Please visit Agora Mode first.")
+    else:
+        post_dict = st.session_state.post_dict
+        headlines = list(post_dict.keys())
+
+        if not headlines:
+            st.warning("No headlines found. Try browsing a subreddit first.")
+        else:
+            selected_title = st.selectbox("Choose a headline to explore:", headlines)
+            selected_post = post_dict[selected_title]
+
+            submission = reddit.submission(id=selected_post.id)
+            submission.comments.replace_more(limit=0)
+            top_comments = sorted(submission.comments.list(), key=lambda c: getattr(c, 'score', 0), reverse=True)
+            top_comments = [c for c in top_comments if len(c.body.strip()) > 10][:5]
+
+            comment_summary = ""
+            for i, comment in enumerate(top_comments, 1):
+                polarity = TextBlob(comment.body).sentiment.polarity
+                label = "Positive" if polarity > 0.1 else "Negative" if polarity < -0.1 else "Neutral"
+                comment_summary += f"{i}. \"{comment.body.strip()[:200]}\" ({label})\n"
+
+            try:
+                sentiment_summary = generate_ai_summary(selected_title, emotion_groups)
+            except:
+                sentiment_summary = "Sentiment data is not yet available."
+
             user_question = st.chat_input(f"What do you want to ask about \"{selected_title}\"?")
 
             if user_question:
@@ -705,61 +788,7 @@ Answer as a thoughtful assistant helping the user understand online sentiment an
 
         
         
-elif view_mode == "Ask Agora":
-    st.markdown("## Ask Agora: Conversational Assistant")
-    st.markdown("Reflect on any headline and the public sentiment around it.")
 
-    # Ensure post_dict exists and has data
-    if "post_dict" not in st.session_state or not st.session_state.post_dict:
-        st.warning("No headlines loaded. Please visit Agora Mode first.")
-    else:
-        post_dict = st.session_state.post_dict
-        headlines = list(post_dict.keys())
-
-        if not headlines:
-            st.warning("No headlines found. Try browsing a subreddit first.")
-        else:
-            selected_title = st.selectbox("Choose a headline to explore:", headlines)
-            selected_post = post_dict[selected_title]
-
-            # Get sentiment summary (or fallback)
-            try:
-                sentiment_summary = generate_ai_summary(selected_title, emotion_groups)
-            except:
-                sentiment_summary = "Sentiment data is not yet available."
-
-            # Chat input for user's question
-            user_question = st.chat_input(f"What do you want to ask about \"{selected_title}\"?")
-
-            if user_question:
-                st.chat_message("user").write(user_question)
-
-                prompt = f"""
-A Reddit discussion about the headline: "{selected_title}"
-
-Public sentiment summary:
-{sentiment_summary}
-
-The user asks: "{user_question}"
-
-Answer as a thoughtful assistant helping the user reflect on online sentiment and its meaning.
-"""
-
-                try:
-                    openai_client = OpenAI(api_key=st.secrets["openai"]["api_key"])
-                    response = openai_client.chat.completions.create(
-                        model="gpt-4",
-                        messages=[{"role": "user", "content": prompt}]
-                    )
-                    reply = response.choices[0].message.content
-                except Exception as e:
-                    reply = (
-                        "The AI assistant is currently unavailable. "
-                        "Please check your OpenAI API key or billing status."
-                    )
-                    st.error(str(e))
-
-                st.chat_message("assistant").write(reply)
 
 
 
