@@ -572,7 +572,7 @@ elif view_mode == "Morning Digest":
     yesterday = today - timedelta(days=1)
 
     # --- Load Data ---
-    reflections_df = pd.DataFrame(CommentReflections_ws.get_all_records())
+    reflections_df = pd.DataFrame(comment_reflections_ws.get_all_records())
     reactions_df = pd.DataFrame(reaction_ws.get_all_records())
 
     # --- Clean and Filter ---
