@@ -445,12 +445,12 @@ just human voices and emotional clarity.
         selected_headline = None
 
 # --- Display Comments + Reactions ---
-if selected_headline:
-    post = post_dict[selected_headline]
-    submission = reddit.submission(id=post.id)
-    submission.comments.replace_more(limit=0)
-    comments = submission.comments[:30]
-    st.markdown(f"### 📰 {selected_headline}")
+    if selected_headline:
+        post = post_dict[selected_headline]
+        submission = reddit.submission(id=post.id)
+        submission.comments.replace_more(limit=0)
+        comments = submission.comments[:30]
+        st.markdown(f"### 📰 {selected_headline}")
 
     if comments:
         # --- Top Comment ---
