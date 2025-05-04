@@ -425,12 +425,23 @@ just human voices and emotional clarity.
                     if not post.stickied and post.title not in post_dict:
                         headline_options.append(post.title)
                         post_dict[post.title] = post
-            except Exception as e:
-                st.warning(f"Error loading from r/{sub}: {e}")
+            except 
+                
                 continue
+    elif manual_subreddit:
+        try:
+            for post in reddit.subreddit(manual_subreddit).hot(limit=15):
+                if not post.stickied and post.title not in post_dict:
+                    headline_options.append(post.title)
+                    post_dict[post.title] = post
+        except:
+            pass
 
-        if headline_options:
-            selected_headline = st.radio("Select a headline:", headline_options)
+    if headline_options:
+        selected_headline = st.radio("Select a headline:", headline_options)
+    else:
+        st.info("No headlines found. Try a different topic or subreddit.")
+        selected_headline = None
 
             if selected_headline:
                 post = post_dict[selected_headline]  # Get the corresponding Reddit post object
@@ -462,8 +473,6 @@ just human voices and emotional clarity.
                     st.warning("No comments found for this topic.")
         else:
             st.info("No relevant headlines found for this topic. Try a different search term.")
-            selected_headline = None
-
 
     # (digest display code here)
     else:
