@@ -450,7 +450,6 @@ if selected_headline:
     submission.comments.replace_more(limit=0)
     comments = submission.comments[:30]
     st.markdown(f"### 📰 {selected_headline}")
-    st.write(f"Number of comments fetched: {len(comments)}")
 
     if comments:
         # --- Top Comment ---
