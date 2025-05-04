@@ -645,6 +645,25 @@ elif view_mode == "Morning Digest":
 
         closing_blessing()
 
+# --- Auto-load headlines for Ask Agora if not already available ---
+if view_mode == "Ask Agora" and "post_dict" not in st.session_state:
+    default_subreddit = "news"
+    try:
+        st.info(f"Auto-loading top posts from r/{default_subreddit} for Ask Agora...")
+        posts = reddit.subreddit(default_subreddit).hot(limit=10)
+        headline_options = []
+        post_dict = {}
+
+        for post in posts:
+            if not post.stickied:
+                headline_options.append(post.title)
+                post_dict[post.title] = post
+
+        if post_dict:
+            st.session_state.post_dict = post_dict
+    except Exception as e:
+        st.error(f"Failed to auto-load posts: {e}")
+
 elif view_mode == "Ask Agora":
     st.markdown("## Ask Agora: Conversational Assistant")
     st.markdown("Reflect on any headline and the public sentiment around it.")
