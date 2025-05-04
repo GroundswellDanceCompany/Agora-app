@@ -546,6 +546,7 @@ just human voices and emotional clarity.
                 </div>
                 """, unsafe_allow_html=True)
 
+            if just_comments:
                 for i, comment in enumerate(group[:10]):
                     comment_text = comment.get("text", "")
                     comment_id = str(hash(comment_text))[:8]
