@@ -411,7 +411,11 @@ just human voices and emotional clarity.
     topic = st.text_input("Enter a topic to explore:")
 
     headline_options = []
-    post_dict = {}
+    post = post_dict[selected_headline]
+
+    submission = reddit.submission(id=post.id)
+    submission.comments.replace_more(limit=0)
+    comments = submission.comments[:30]
 
     curated_subreddits = [
         "news", "worldnews", "politics", "uspolitics", "geopolitics",
