@@ -408,8 +408,8 @@ just human voices and emotional clarity.
     # --- Topic and live feed ---
     # --- Topic Search ---
     st.subheader("Search a topic")
-    topic = st.text_input("Enter a topic to explore:")
-    manual_subreddit = st.selectbox("Or pick a subreddit:", curated_subreddits) 
+    topic = st.text_input("Enter a topic to explore:", key="topic_input")
+    manual_subreddit = st.selectbox("Or pick a subreddit:", curated_subreddits, key="manual_subreddit_select")
 
     headline_options = []
     post_dict = {}
@@ -426,7 +426,7 @@ just human voices and emotional clarity.
                     if not post.stickied and post.title not in post_dict:
                         headline_options.append(post.title)
                         post_dict[post.title] = post
-            except: 
+            except:
                 continue
     elif manual_subreddit:
         try:
@@ -438,44 +438,10 @@ just human voices and emotional clarity.
             pass
 
     if headline_options:
-        selected_headline = st.radio("Select a headline:", headline_options)
+        selected_headline = st.radio("Select a headline:", headline_options, key="headline_radio")
     else:
         st.info("No headlines found. Try a different topic or subreddit.")
         selected_headline = None
-
-    # --- Topic Search + Manual Subreddit ---
-centered_header("Search a topic")
-topic = st.text_input("Enter a topic to explore:")
-manual_subreddit = st.selectbox("Or pick a subreddit:", curated_subreddits)
-
-headline_options = []
-post_dict = {}
-
-# --- Fetch Headlines ---
-if topic:
-    for sub in curated_subreddits:
-        try:
-            for post in reddit.subreddit(sub).search(topic, sort="relevance", time_filter="week", limit=3):
-                if not post.stickied and post.title not in post_dict:
-                    headline_options.append(post.title)
-                    post_dict[post.title] = post
-        except:
-            continue
-elif manual_subreddit:
-    try:
-        for post in reddit.subreddit(manual_subreddit).hot(limit=15):
-            if not post.stickied and post.title not in post_dict:
-                headline_options.append(post.title)
-                post_dict[post.title] = post
-    except:
-        pass
-
-# --- Select Headline ---
-if headline_options:
-    selected_headline = st.radio("Select a headline:", headline_options)
-else:
-    st.info("No headlines found. Try a different topic or subreddit.")
-    selected_headline = None
 
 # --- Display Comments + Reactions ---
 if selected_headline:
