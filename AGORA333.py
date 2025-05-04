@@ -458,7 +458,7 @@ just human voices and emotional clarity.
                     for i, comment in enumerate(comments[:10]):
                         st.markdown(f"**Comment {i+1}**: {comment.body}")
 
-               else:
+                else:
                     st.warning("No comments found for this topic.")
         else:
             st.info("No relevant headlines found for this topic. Try a different search term.")
