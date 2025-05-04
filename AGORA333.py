@@ -563,52 +563,75 @@ if selected_headline:
         st.warning("No comments found for this topic.")
             
 elif view_mode == "Morning Digest":
-    # --- Morning Digest logic ---
-
     from datetime import datetime, timedelta
 
     st.title("Morning Echoes — Agora Digest")
     add_fade_in_styles()
 
-    # Load reflection data
-    reflections_df = pd.DataFrame(reflections_ws.get_all_records())
+    # Load reflections and reactions
+    reflections_df = pd.DataFrame(comment_reflections_ws.get_all_records())
+    reactions_df = pd.DataFrame(reaction_ws.get_all_records())
 
-    # Convert timestamps and filter for yesterday
+    # Prepare date filtering
     reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
-    reflections_df["date"] = reflections_df["timestamp"].dt.date
+    reactions_df["timestamp"] = pd.to_datetime(reactions_df["timestamp"], errors="coerce")
 
     yesterday = datetime.utcnow().date() - timedelta(days=1)
-    yesterday_data = reflections_df[reflections_df["date"] == yesterday]
+    reflections_df["date"] = reflections_df["timestamp"].dt.date
+    reactions_df["date"] = reactions_df["timestamp"].dt.date
 
-    if yesterday_data.empty:
-        st.info("No reflections from yesterday — the Field rests.")
+    yesterday_reflections = reflections_df[reflections_df["date"] == yesterday]
+    yesterday_reactions = reactions_df[reactions_df["date"] == yesterday]
+
+    if yesterday_reflections.empty and yesterday_reactions.empty:
+        st.info("No reflections or reactions recorded yesterday — the Field rests.")
     else:
         slow_reveal_sequence([
             (centered_header, "Agora Morning Digest"),
-            (centered_paragraph, "Glimpses into the Field from yesterday's thoughts."),
+            (centered_paragraph, "Echoes and emotional impressions from yesterday."),
         ], delay=1.5)
 
-        top_headlines = yesterday_data["headline"].value_counts().head(3).index.tolist()
+        top_headlines = pd.concat([
+            yesterday_reflections["headline"],
+            yesterday_reactions["headline"]
+        ]).value_counts().head(3).index.tolist()
 
         for headline in top_headlines:
             golden_divider()
+
             slow_reveal_sequence([
                 (headline_echo, headline),
-                (centered_paragraph, "Gathering reflections...")
-            ], delay=1.5)
+                (centered_paragraph, "Synthesizing public sentiment..."),
+            ], delay=1.2)
 
-            subset = yesterday_data[yesterday_data["headline"] == headline]
-            grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
+            # Pull reflections and reactions tied to this headline
+            headline_reflections = yesterday_reflections[yesterday_reflections["headline"] == headline]
+            headline_reactions = yesterday_reactions[yesterday_reactions["headline"] == headline]
 
-            with st.spinner("Summarizing reflections..."):
+            grouped = {"Reflections": [{"text": r} for r in headline_reflections["reflection"].tolist()]}
+
+            # Count reactions
+            reaction_counts = headline_reactions["reaction"].value_counts().to_dict()
+            reaction_summary = "\n".join([f"{k}: {v}" for k, v in reaction_counts.items()])
+
+            # Combine into prompt
+            prompt = f"Headline: {headline}\n\n"
+            prompt += "Comment Reflections:\n"
+            for r in grouped["Reflections"][:3]:
+                prompt += f"- {r['text']}\n"
+            prompt += "\nReaction Summary:\n"
+            prompt += reaction_summary
+            prompt += "\n\nSummarize public sentiment, tone, and emotional mood in 2–3 sentences."
+
+            # Generate AI summary
+            with st.spinner("Generating summary..."):
                 try:
                     summary = generate_ai_summary(headline, grouped)
                 except Exception as e:
-                    summary = f"Error generating summary: {str(e)}"
+                    summary = f"(Error generating summary: {str(e)})"
 
             time.sleep(1)
             centered_quote(summary)
-            time.sleep(1.5)
             insert_field_memory()
             st.markdown("<br><br>", unsafe_allow_html=True)
 
