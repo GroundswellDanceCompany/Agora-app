@@ -707,21 +707,21 @@ The user asks: "{user_question}"
 Answer as a thoughtful assistant helping the user understand online sentiment and its possible meaning.
 """
 
-                try:
-                    openai_client = OpenAI(api_key=st.secrets["openai"]["api_key"])
-                    response = openai_client.chat.completions.create(
-                        model="gpt-4",
-                        messages=[{"role": "user", "content": prompt}]
-                    )
-                    reply = response.choices[0].message.content
-                except Exception as e:
-                    reply = (
-                        "The AI assistant is currently unavailable. "
-                        "Please check your OpenAI API key or billing status."
-                    )
-                    st.error(str(e))
+    try:
+        openai_client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+        response = openai_client.chat.completions.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}]
+        )
+       reply = response.choices[0].message.content
+    except Exception as e:
+        reply = (
+            "The AI assistant is currently unavailable. "
+            "Please check your OpenAI API key or billing status."
+        )
+        st.error(str(e))
 
-                st.chat_message("assistant").write(reply)
+    st.chat_message("assistant").write(reply)
 
 
         
