@@ -289,6 +289,8 @@ reaction_ws = get_or_create_worksheet(sheet, "CommentReactions", ["headline", "c
 comment_reflections_ws = get_or_create_worksheet(sheet, "CommentReflections", ["field_name", "headline", "comment_snippet", "reflection", "emotion", "timestamp"])
 saved_posts_ws = get_or_create_worksheet(sheet, "SavedPosts", ["id", "title", "top_comments", "date_saved", "permalink"])
 field_names_ws = get_or_create_worksheet(sheet, "FieldNames", ["field_name", "timestamp"])
+feedback_ws = get_or_create_worksheet(sheet, "AI_Feedback", ["Headline", "Question", "AI Response", "Feedback", "Comment", "Timestamp"])
+
 
 # --- Reddit Setup ---
 reddit = praw.Reddit(
