@@ -471,41 +471,6 @@ just human voices and emotional clarity.
 
             else:
                 st.warning("No comments found for this topic.")
-
-    # --- Morning Digest fallback ---
-else:
-    st.markdown("## Morning Echoes — Agora Digest")
-    add_fade_in_styles()
-
-    today = datetime.utcnow().date()
-    yesterday = today - timedelta(days=1)
-
-    reflections_df = pd.DataFrame(reflections_ws.get_all_records())
-    reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
-    reflections_df["date"] = reflections_df["timestamp"].dt.date
-
-    yesterday_data = reflections_df[reflections_df["date"] == yesterday]
-
-    if yesterday_data.empty:
-        st.info("No reflections from yesterday — the Field rests.")
-    else:
-        st.markdown("### Glimpses from the Field:")
-
-        top_headlines = yesterday_data["headline"].value_counts().head(3).index.tolist()
-
-        for headline in top_headlines:
-            st.markdown(f"#### 📰 {headline}")
-
-            subset = yesterday_data[yesterday_data["headline"] == headline]
-            grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
-
-            with st.spinner("Summarizing..."):
-                summary = generate_ai_summary(headline, grouped)
-
-            st.markdown(f"> *{summary}*")
-            st.markdown("---")
-        
-
     
 
             # --- Pull Top Voted Comment as Subheading ---
