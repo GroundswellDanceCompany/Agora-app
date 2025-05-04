@@ -677,11 +677,27 @@ elif view_mode == "Ask Agora":
                 Answer as a thoughtful assistant helping the user reflect on online sentiment and its meaning.
                 """
 
-                openai_client = OpenAI(api_key=st.secrets["openai"]["api_key"])
-                response = openai_client.chat.completions.create(
-                    model="gpt-4",
-                    messages=[{"role": "user", "content": prompt}]
-                )
-                reply = response.choices[0].message.content
-                st.chat_message("assistant").write(reply)
+                                try:
+                                    openai_client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+                                    response = openai_client.chat.completions.create(
+                                        model="gpt-4",
+                                        messages=[{"role": "user", "content": prompt}]
+                                    )
+                                    reply = response.choices[0].message.content
+                                except Exception as e:
+                                    reply = (
+                                        "The AI assistant is currently unavailable. "
+                                        "Please check your OpenAI API key or billing status."
+                                    )
+                                    st.error(str(e))
+
+                                st.chat_message("assistant").write(reply)
+
+                #openai_client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+                #response = openai_client.chat.completions.create(
+                    #model="gpt-4",
+                    #messages=[{"role": "user", "content": prompt}]
+                #)
+                #reply = response.choices[0].message.content
+                #st.chat_message("assistant").write(reply)
           
