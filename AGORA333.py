@@ -445,9 +445,9 @@ just human voices and emotional clarity.
 
     if selected_headline:
         post = post_dict[selected_headline]  # Get the corresponding Reddit post object
-        submission = reddit.submission(id=post.id)
-        submission.comments.replace_more(limit=0)
-        comments = submission.comments[:30]
+        #submission = reddit.submission(id=post.id)
+        #submission.comments.replace_more(limit=0)
+        #comments = submission.comments[:30]
 
         st.markdown(f"### 📰 {selected_headline}")
         st.write(f"Number of comments fetched: {len(comments)}")
