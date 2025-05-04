@@ -411,7 +411,7 @@ just human voices and emotional clarity.
     topic = st.text_input("Enter a topic to explore:")
 
     headline_options = []
-    post = post_dict[selected_headline]
+    post = post_dict[]
 
     submission = reddit.submission(id=post.id)
     submission.comments.replace_more(limit=0)
