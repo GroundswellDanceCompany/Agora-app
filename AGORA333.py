@@ -283,7 +283,6 @@ creds = Credentials.from_service_account_info(st.secrets["google_service_account
 client = gspread.authorize(creds)
 sheet = client.open("AgoraData")
 
-reflections_ws = get_or_create_worksheet(sheet, "Reflections", ["reflection_id", "headline", "emotions", "trust_level", "reflection", "timestamp"])
 replies_ws = get_or_create_worksheet(sheet, "Replies", ["reflection_id", "reply", "timestamp"])
 reaction_ws = get_or_create_worksheet(sheet, "CommentReactions", ["headline", "comment_snippet", "reaction", "timestamp"])
 comment_reflections_ws = get_or_create_worksheet(sheet, "CommentReflections", ["field_name", "headline", "comment_snippet", "reflection", "emotion", "timestamp"])
@@ -439,11 +438,11 @@ just human voices and emotional clarity.
         except:
             pass
 
-if headline_options:
-    selected_headline = st.radio("Select a headline:", headline_options, key="headline_radio")
-else:
-    st.info("No headlines found. Try a different topic or subreddit.")
-    selected_headline = None
+    if headline_options:
+        selected_headline = st.radio("Select a headline:", headline_options, key="headline_radio")
+    else:
+        st.info("No headlines found. Try a different topic or subreddit.")
+        selected_headline = None
 
 # --- Display Comments + Reactions ---
 if selected_headline:
