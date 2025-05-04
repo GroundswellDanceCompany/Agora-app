@@ -669,32 +669,28 @@ elif view_mode == "Ask Agora":
             except:
                 sentiment_summary = "Sentiment data is not yet available."
 
-            # --- Suggested or custom question input ---
+            # Suggested + custom question input
             st.markdown("### Ask a question about this headline")
-            # --- Suggested question selection ---
-suggested_questions = [
-    "What emotions are people expressing here?",
-    "Why might this topic be so divisive?",
-    "What do these comments reveal about public opinion?",
-    "What might a constructive next step look like?",
-    "How could someone respond to this sentiment thoughtfully?",
-    "What deeper issue is this headline tapping into?",
-    "What are the risks of ignoring this perspective?"
-]
+            suggested_questions = [
+                "What emotions are people expressing here?",
+                "Why might this topic be so divisive?",
+                "What do these comments reveal about public opinion?",
+                "What might a constructive next step look like?",
+                "How could someone respond to this sentiment thoughtfully?",
+                "What deeper issue is this headline tapping into?",
+                "What are the risks of ignoring this perspective?"
+            ]
 
-selected_prompt = st.radio("Choose a suggested question (optional):", [""] + suggested_questions)
+            selected_prompt = st.radio("Choose a suggested question (optional):", [""] + suggested_questions)
+            user_question = st.chat_input("Or ask your own question here")
 
-# --- Custom input with send icon ---
-user_question = st.chat_input("Or ask your own question here")
+            if not user_question and selected_prompt:
+                user_question = selected_prompt
 
-# Use either the typed question or selected suggestion
-if not user_question and selected_prompt:
-    user_question = selected_prompt
+            if user_question:
+                st.chat_message("user").write(user_question)
 
-if user_question:
-    st.chat_message("user").write(user_question)
-
-    prompt = f"""Headline: "{selected_title}"
+                prompt = f"""Headline: "{selected_title}"
 
 Summary of top 5 Reddit comments:
 {comment_summary}
@@ -707,21 +703,24 @@ The user asks: "{user_question}"
 Answer as a thoughtful assistant helping the user understand online sentiment and its possible meaning.
 """
 
-    try:
-        openai_client = OpenAI(api_key=st.secrets["openai"]["api_key"])
-        response = openai_client.chat.completions.create(
-            model="gpt-4",
-            messages=[{"role": "user", "content": prompt}]
-        )
-       reply = response.choices[0].message.content
-    except Exception as e:
-        reply = (
-            "The AI assistant is currently unavailable. "
-            "Please check your OpenAI API key or billing status."
-        )
-        st.error(str(e))
+                try:
+                    openai_client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+                    response = openai_client.chat.completions.create(
+                        model="gpt-4",
+                        messages=[{"role": "user", "content": prompt}]
+                    )
+                    reply = response.choices[0].message.content
+                except Exception as e:
+                    reply = (
+                        "The AI assistant is currently unavailable. "
+                        "Please check your OpenAI API key or billing status."
+                    )
+                    st.error(str(e))
 
-    st.chat_message("assistant").write(reply)
+                st.chat_message("assistant").write(reply)
+
+
+
 
 
         
