@@ -425,7 +425,7 @@ just human voices and emotional clarity.
                     if not post.stickied and post.title not in post_dict:
                         headline_options.append(post.title)
                         post_dict[post.title] = post
-            except 
+            except: 
                 
                 continue
     elif manual_subreddit:
