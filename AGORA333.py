@@ -409,6 +409,7 @@ just human voices and emotional clarity.
     # --- Topic Search ---
     st.subheader("Search a topic")
     topic = st.text_input("Enter a topic to explore:")
+    manual_subreddit = st.selectbox("Or pick a subreddit:", curated_subreddits) 
 
     headline_options = []
     post_dict = {}
