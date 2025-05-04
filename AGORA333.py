@@ -421,14 +421,6 @@ just human voices and emotional clarity.
     topic = st.text_input("Enter a topic to explore:", key="topic_input")
     manual_subreddit = st.selectbox("Or pick a subreddit:", curated_subreddits, key="manual_subreddit_select")
 
-    headline_options = []
-    post_dict = {}
-
-    curated_subreddits = [
-        "news", "worldnews", "politics", "uspolitics", "geopolitics",
-        "MiddleEastNews", "GlobalNews", "TrueReddit", "technology", "science"
-    ]
-
     if topic:
         for sub in curated_subreddits:
             try:
