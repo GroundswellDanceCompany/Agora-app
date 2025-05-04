@@ -471,32 +471,42 @@ just human voices and emotional clarity.
 
             else:
                 st.warning("No comments found for this topic.")
+
+    # --- Morning Digest fallback ---
+else:
+    st.markdown("## Morning Echoes — Agora Digest")
+    add_fade_in_styles()
+
+    today = datetime.utcnow().date()
+    yesterday = today - timedelta(days=1)
+
+    reflections_df = pd.DataFrame(reflections_ws.get_all_records())
+    reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
+    reflections_df["date"] = reflections_df["timestamp"].dt.date
+
+    yesterday_data = reflections_df[reflections_df["date"] == yesterday]
+
+    if yesterday_data.empty:
+        st.info("No reflections from yesterday — the Field rests.")
+    else:
+        st.markdown("### Glimpses from the Field:")
+
+        top_headlines = yesterday_data["headline"].value_counts().head(3).index.tolist()
+
+        for headline in top_headlines:
+            st.markdown(f"#### 📰 {headline}")
+
+            subset = yesterday_data[yesterday_data["headline"] == headline]
+            grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
+
+            with st.spinner("Summarizing..."):
+                summary = generate_ai_summary(headline, grouped)
+
+            st.markdown(f"> *{summary}*")
+            st.markdown("---")
         
 
-    #(digest display code here)
-    else:
-        subreddit = st.selectbox("Or pick a subreddit:", curated_subreddits)
-        posts = reddit.subreddit(subreddit).hot(limit=15)
-        for post in posts:
-                if not post.stickied:
-                    headline_options.append(post.title)
-                    post_dict[post.title] = post
-
-        if headline_options:
-            selected_headline = st.radio("Select a headline:", headline_options)
-        else:
-            selected_headline = None
-
-        if selected_headline:
-            post = post_dict[selected_headline]
-            save_headline_snapshot(post)
-
-            with st.container():
-                st.markdown(f"""
-                <div style='text-align: center; margin-top: 20px; margin-bottom: 10px; font-size: 24px; color: #ccc;'>
-                    📰 {selected_headline}
-                </div>
-                """, unsafe_allow_html=True)
+    
 
             # --- Pull Top Voted Comment as Subheading ---
             submission = reddit.submission(id=post.id)
