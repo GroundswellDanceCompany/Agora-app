@@ -407,35 +407,35 @@ just human voices and emotional clarity.
 
     # --- Topic and live feed ---
     # --- Topic Search ---
-st.subheader("Search a topic")
-topic = st.text_input("Enter a topic to explore:")
+    st.subheader("Search a topic")
+    topic = st.text_input("Enter a topic to explore:")
 
-headline_options = []
-post_dict = {}
+    headline_options = []
+    post_dict = {}
 
-curated_subreddits = [
-    "news", "worldnews", "politics", "uspolitics", "geopolitics",
-    "MiddleEastNews", "GlobalNews", "TrueReddit", "technology", "science"
-]
+    curated_subreddits = [
+        "news", "worldnews", "politics", "uspolitics", "geopolitics",
+        "MiddleEastNews", "GlobalNews", "TrueReddit", "technology", "science"
+    ]
 
-if topic:
-    for sub in curated_subreddits:
-        try:
-            for post in reddit.subreddit(sub).search(topic, sort="relevance", time_filter="week", limit=3):
-                if not post.stickied and post.title not in post_dict:
-                    headline_options.append(post.title)
-                    post_dict[post.title] = post
-        except Exception as e:
-            st.warning(f"Error loading from r/{sub}: {e}")
-            continue
+    if topic:
+        for sub in curated_subreddits:
+            try:
+                for post in reddit.subreddit(sub).search(topic, sort="relevance", time_filter="week", limit=3):
+                    if not post.stickied and post.title not in post_dict:
+                        headline_options.append(post.title)
+                        post_dict[post.title] = post
+            except Exception as e:
+                st.warning(f"Error loading from r/{sub}: {e}")
+                continue
 
-    if headline_options:
-        selected_headline = st.radio("Select a headline:", headline_options)
+        if headline_options:
+            selected_headline = st.radio("Select a headline:", headline_options)
+        else:
+            st.info("No relevant headlines found for this topic. Try a different search term.")
+            selected_headline = None
     else:
-        st.info("No relevant headlines found for this topic. Try a different search term.")
         selected_headline = None
-else:
-    selected_headline = None
 
 
     
