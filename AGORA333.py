@@ -564,75 +564,74 @@ if selected_headline:
         st.warning("No comments found for this topic.")
             
 elif view_mode == "Morning Digest":
-    from datetime import datetime, timedelta
-
     st.title("Morning Echoes — Agora Digest")
     add_fade_in_styles()
 
-    # Load reflections and reactions
-    reflections_df = pd.DataFrame(comment_reflections_ws.get_all_records())
+    # Get today's and yesterday's date
+    today = datetime.utcnow().date()
+    yesterday = today - timedelta(days=1)
+
+    # --- Load Data ---
+    reflections_df = pd.DataFrame(reflections_ws.get_all_records())
     reactions_df = pd.DataFrame(reaction_ws.get_all_records())
 
-    # Prepare date filtering
+    # --- Clean and Filter ---
     reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
-    reactions_df["timestamp"] = pd.to_datetime(reactions_df["timestamp"], errors="coerce")
-
-    yesterday = datetime.utcnow().date() - timedelta(days=1)
     reflections_df["date"] = reflections_df["timestamp"].dt.date
-    reactions_df["date"] = reactions_df["timestamp"].dt.date
+    yesterday_data = reflections_df[reflections_df["date"] == yesterday]
 
-    yesterday_reflections = reflections_df[reflections_df["date"] == yesterday]
-    yesterday_reactions = reactions_df[reactions_df["date"] == yesterday]
-
-    if yesterday_reflections.empty and yesterday_reactions.empty:
-        st.info("No reflections or reactions recorded yesterday — the Field rests.")
+    if yesterday_data.empty:
+        slow_reveal_sequence([
+            (centered_header, "Agora Morning Digest"),
+            (centered_paragraph, "No reflections were recorded yesterday. The Field was silent."),
+        ], delay=1.5)
     else:
         slow_reveal_sequence([
             (centered_header, "Agora Morning Digest"),
-            (centered_paragraph, "Echoes and emotional impressions from yesterday."),
+            (centered_paragraph, "Glimpses into the Field from yesterday's thoughts."),
         ], delay=1.5)
 
-        top_headlines = pd.concat([
-            yesterday_reflections["headline"],
-            yesterday_reactions["headline"]
-        ]).value_counts().head(3).index.tolist()
+        # --- Top Headlines from Yesterday ---
+        top_headlines = yesterday_data["headline"].value_counts().head(3).index.tolist()
 
         for headline in top_headlines:
             golden_divider()
 
-            slow_reveal_sequence([
-                (headline_echo, headline),
-                (centered_paragraph, "Synthesizing public sentiment..."),
-            ], delay=1.2)
+            # --- Subset reflections ---
+            subset = yesterday_data[yesterday_data["headline"] == headline]
+            grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
 
-            # Pull reflections and reactions tied to this headline
-            headline_reflections = yesterday_reflections[yesterday_reflections["headline"] == headline]
-            headline_reactions = yesterday_reactions[yesterday_reactions["headline"] == headline]
+            # --- Reactions ---
+            headline_reacts = reactions_df[reactions_df["headline"] == headline]
+            emoji_map = {
+                "Angry": "😡", "Sad": "😢", "Hopeful": "🌈",
+                "Confused": "😕", "Neutral": "😐"
+            }
+            counts = headline_reacts["reaction"].value_counts().to_dict()
+            emoji_counts = "  ".join(
+                f"{emoji_map[r]} {count}" for r, count in counts.items() if r in emoji_map
+            )
 
-            grouped = {"Reflections": [{"text": r} for r in headline_reflections["reflection"].tolist()]}
+            # --- Display ---
+            headline_echo(headline)
+            if emoji_counts:
+                st.markdown(f"<div style='text-align:center; color:#bbb; font-size:14px;'>Reactions: {emoji_counts}</div>", unsafe_allow_html=True)
 
-            # Count reactions
-            reaction_counts = headline_reactions["reaction"].value_counts().to_dict()
-            reaction_summary = "\n".join([f"{k}: {v}" for k, v in reaction_counts.items()])
-
-            # Combine into prompt
-            prompt = f"Headline: {headline}\n\n"
-            prompt += "Comment Reflections:\n"
-            for r in grouped["Reflections"][:3]:
-                prompt += f"- {r['text']}\n"
-            prompt += "\nReaction Summary:\n"
-            prompt += reaction_summary
-            prompt += "\n\nSummarize public sentiment, tone, and emotional mood in 2–3 sentences."
-
-            # Generate AI summary
-            with st.spinner("Generating summary..."):
+            with st.spinner("Summarizing reflections..."):
                 try:
                     summary = generate_ai_summary(headline, grouped)
                 except Exception as e:
-                    summary = f"(Error generating summary: {str(e)})"
+                    summary = f"Summary error: {str(e)}"
 
             time.sleep(1)
             centered_quote(summary)
+            time.sleep(1.5)
+
+            # Show a sample reflection if any
+            if not subset.empty:
+                sample = subset.sample(1).iloc[0]
+                st.markdown(f"<div style='font-size:15px; color:#aaa; margin-top:10px; text-align:center;'>📝 _\"{sample['reflection']}\"_</div>", unsafe_allow_html=True)
+
             insert_field_memory()
             st.markdown("<br><br>", unsafe_allow_html=True)
 
