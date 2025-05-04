@@ -443,44 +443,51 @@ just human voices and emotional clarity.
         st.info("No headlines found. Try a different topic or subreddit.")
         selected_headline = None
 
-    if selected_headline:
-        post = post_dict[selected_headline]  # Get the corresponding Reddit post object
-        #submission = reddit.submission(id=post.id)
-        #submission.comments.replace_more(limit=0)
-        #comments = submission.comments[:30]
+    # --- Topic Search + Manual Subreddit ---
+centered_header("Search a topic")
+topic = st.text_input("Enter a topic to explore:")
+manual_subreddit = st.selectbox("Or pick a subreddit:", curated_subreddits)
 
-        st.markdown(f"### 📰 {selected_headline}")
-        st.write(f"Number of comments fetched: {len(comments)}")
+headline_options = []
+post_dict = {}
 
-        if comments:
-            top_comment = max(comments, key=lambda c: c.score if hasattr(c, 'score') else 0)
-            top_text = top_comment.body.strip()
-            top_author = str(top_comment.author)
-            top_time = datetime.utcfromtimestamp(top_comment.created_utc).strftime("%Y-%m-%d %H:%M")
+# --- Fetch Headlines ---
+if topic:
+    for sub in curated_subreddits:
+        try:
+            for post in reddit.subreddit(sub).search(topic, sort="relevance", time_filter="week", limit=3):
+                if not post.stickied and post.title not in post_dict:
+                    headline_options.append(post.title)
+                    post_dict[post.title] = post
+        except:
+            continue
+elif manual_subreddit:
+    try:
+        for post in reddit.subreddit(manual_subreddit).hot(limit=15):
+            if not post.stickied and post.title not in post_dict:
+                headline_options.append(post.title)
+                post_dict[post.title] = post
+    except:
+        pass
 
-            st.markdown(f"""
-            <div style='text-align: center; margin-top: 20px; margin-bottom: 40px;'>
-                <i>"{top_text}"</i><br>
-                <small>— u/{top_author} | {top_time}</small>
-            </div>
-            """, unsafe_allow_html=True)
+# --- Select Headline ---
+if headline_options:
+    selected_headline = st.radio("Select a headline:", headline_options)
+else:
+    st.info("No headlines found. Try a different topic or subreddit.")
+    selected_headline = None
 
-            # Example: Display rest of the comments
-            for i, comment in enumerate(comments[:10]):
-                st.markdown(f"**Comment {i+1}**: {comment.body}")
-
-        else:
-            st.warning("No comments found for this topic.")
-    
-
-    # --- Pull Top Voted Comment as Subheading ---
+# --- Display Comments + Reactions ---
+if selected_headline:
+    post = post_dict[selected_headline]
     submission = reddit.submission(id=post.id)
     submission.comments.replace_more(limit=0)
-    comments = submission.comments[:30]  # or however many you pull
+    comments = submission.comments[:30]
+    st.markdown(f"### 📰 {selected_headline}")
+    st.write(f"Number of comments fetched: {len(comments)}")
 
-    # Get the top upvoted comment
-    # Show top upvoted comment from Reddit
     if comments:
+        # --- Top Comment ---
         top_comment = max(comments, key=lambda c: c.score if hasattr(c, 'score') else 0)
         top_text = top_comment.body.strip()
         top_author = str(top_comment.author)
@@ -493,10 +500,7 @@ just human voices and emotional clarity.
         </div>
         """, unsafe_allow_html=True)
 
-        submission = reddit.submission(id=post.id)
-        submission.comments.replace_more(limit=0)
-        comments = submission.comments[:30] 
-
+        # --- Sentiment Grouping ---
         emotion_counts = {"Positive": 0, "Neutral": 0, "Negative": 0}
         emotion_groups = defaultdict(list)
 
@@ -513,24 +517,17 @@ just human voices and emotional clarity.
                 "author": str(comment.author),
                 "created": datetime.utcfromtimestamp(comment.created_utc).strftime("%Y-%m-%d %H:%M")
             })
-            
 
-        # Full Agora Mode
-        # --- Full Agora Mode ---
+        # --- AI Summary ---
         if not just_comments:
             with st.spinner("Gathering the emotional field..."):
                 summary = generate_ai_summary(selected_headline, emotion_groups)
                 st.success(summary)
 
-        # submission = reddit.submission(id=post.id)
-        # submission.comments.replace_more(limit=0)
-        # comments = submission.comments[:30]
-
-        # Load all reactions once
+        # --- Load Reactions ---
         all_reactions = pd.DataFrame(reaction_ws.get_all_records())
-            
 
-        # Display grouped comments
+        # --- Display Comments Grouped ---
         for label in ["Positive", "Neutral", "Negative"]:
             group = emotion_groups[label]
             if group:
@@ -539,7 +536,6 @@ just human voices and emotional clarity.
                     else "neutral-dot" if label == "Neutral"
                     else "negative-dot"
                 )
-
                 st.markdown(f"""
                 <div class='emotion-header'>
                     <span class='emotion-dot {dot_class}'></span> {label.upper()} ({len(group)})
@@ -549,8 +545,8 @@ just human voices and emotional clarity.
                 for i, comment in enumerate(group[:10]):
                     comment_text = comment.get("text", "")
                     comment_id = str(hash(comment_text))[:8]
+                    snippet = comment_text[:100]
 
-                    # Display comment block
                     st.markdown(f"""
                     <div class='comment-block'>
                         <strong>Comment {i+1}:</strong> {comment_text}
@@ -558,12 +554,10 @@ just human voices and emotional clarity.
                     </div>
                     """, unsafe_allow_html=True)
 
-                    # --- Live emoji reaction counters ---
+                    # --- Emoji Reaction Counters ---
                     if not just_comments:
-                        snippet = comment_text[:100]
                         comment_reacts = all_reactions[all_reactions["comment_snippet"] == snippet]
                         counts = comment_reacts["reaction"].value_counts().to_dict()
-
                         emoji_counts = "  ".join(
                             f"{reaction_emojis[r]} {count}" for r, count in counts.items() if r in reaction_emojis
                         )
@@ -573,8 +567,7 @@ just human voices and emotional clarity.
                                 unsafe_allow_html=True
                             )
 
-                    # --- Optional reflection + reaction form ---
-                    if not just_comments:
+                        # --- Interaction Form ---
                         with st.form(key=f"form_{comment_id}"):
                             selected_reaction = st.radio(
                                 "React to this comment:",
@@ -582,33 +575,27 @@ just human voices and emotional clarity.
                                 key=f"react_radio_{comment_id}",
                                 horizontal=True
                             )
-
                             reflection = st.text_area("Leave a reflection (optional):", key=f"reflect_text_{comment_id}")
 
                             if st.form_submit_button("Submit"):
                                 timestamp = datetime.utcnow().isoformat()
-
                                 if selected_reaction.strip():
                                     reaction_ws.append_row([
-                                        selected_headline,
-                                        snippet,
-                                        selected_reaction,
-                                        timestamp
+                                        selected_headline, snippet, selected_reaction, timestamp
                                     ])
                                     auto_trim_worksheet(reaction_ws)
                                     st.success(f"Reaction recorded: {reaction_emojis[selected_reaction]} {selected_reaction}")
 
                                 if reflection.strip():
                                     comment_reflections_ws.append_row([
-                                        selected_headline,
-                                        snippet,
-                                        reflection.strip(),
-                                        timestamp
+                                        selected_headline, snippet, reflection.strip(), timestamp
                                     ])
                                     auto_trim_worksheet(comment_reflections_ws)
                                     st.success("Reflection submitted.")
+                    st.markdown("---")
 
-                        st.markdown("---")
+    else:
+        st.warning("No comments found for this topic.")
             
 elif view_mode == "Morning Digest":
     # --- Morning Digest logic ---
