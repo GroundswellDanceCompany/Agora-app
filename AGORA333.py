@@ -724,6 +724,19 @@ Answer as a thoughtful assistant helping the user understand the range of emotio
 
                 st.chat_message("assistant").write(reply)
 
+                with st.form(key="ai_feedback_form"):
+                    st.markdown("**Do you agree with the assistant's summary?**")
+                    feedback = st.radio("Your response:", ["", "Agree", "Disagree", "Partially Agree"])
+                    comments = st.text_area("Optional: Tell us why or add your own insights")
+
+                    if st.form_submit_button("Submit Feedback"):
+                        timestamp = datetime.utcnow().isoformat()
+                        feedback_ws.append_row([
+                            selected_title, user_question, reply, feedback, comments, timestamp
+                        ])
+                        auto_trim_worksheet(feedback_ws)
+                        st.success("Thanks for your feedback!")
+
         
 
 elif view_mode == "Ask Agora":
