@@ -434,11 +434,8 @@ just human voices and emotional clarity.
         else:
             st.info("No relevant headlines found for this topic. Try a different search term.")
             selected_headline = None
-    else:
-        selected_headline = None
 
 
-    
     # (digest display code here)
     else:
         subreddit = st.selectbox("Or pick a subreddit:", curated_subreddits)
