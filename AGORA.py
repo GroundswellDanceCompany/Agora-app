@@ -446,6 +446,7 @@ just human voices and emotional clarity.
 # --- Display Comments + Reactions ---
     if selected_headline:
         post = post_dict[selected_headline]
+        save_headline_snapshot(post) 
         submission = reddit.submission(id=post.id)
         submission.comments.replace_more(limit=0)
         comments = submission.comments[:30]
