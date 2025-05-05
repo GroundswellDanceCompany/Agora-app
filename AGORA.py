@@ -235,17 +235,24 @@ def insert_field_memory():
     centered_quote(memory)
 
 def save_headline_snapshot(post):
-    try:
-        timestamp = datetime.utcnow().isoformat()
-        saved_posts_ws.append_row([
-            timestamp,
-            post.title,
-            post.subreddit.display_name,
-            post.id
-        ])
-        st.success("Post saved to sheet.")
-    except Exception as e:
-        st.error(f"Failed to save post: {e}")
+    # Prepare comments
+    submission = reddit.submission(id=post.id)
+    submission.comments.replace_more(limit=0)
+    top_comments = [c.body for c in submission.comments[:10]]
+
+    # Prepare data
+    post_id = str(uuid.uuid4())
+    timestamp = datetime.utcnow().isoformat()
+    permalink = f"https://reddit.com{post.permalink}"
+
+    # Save to worksheet
+    saved_posts_ws.append_row([
+        post_id,
+        post.title,
+        str(top_comments),
+        timestamp,
+        permalink
+    ])
 
 def generate_ai_summary(headline, grouped_comments):
     prompt = f"Headline: {headline}\n"
