@@ -406,14 +406,6 @@ just human voices and emotional clarity.
     headline_options = []
     post_dict = {}
 
-    for post in posts:
-        if not post.stickied:
-            headline_options.append(post.title)
-            post_dict[post.title] = post
-
-    if post_dict:
-        st.session_state.post_dict = post_dict
-
 # Define your curated subreddits
     curated_subreddits = [
         "news", "worldnews", "politics", "uspolitics", "geopolitics",
