@@ -277,7 +277,7 @@ def generate_ai_summary(headline, grouped_comments):
         return f"Could not generate summary: {str(e)}"
 
 def display_morning_digest(reflections_ws, reaction_ws):
-    st.title("Morning Echoes — Agora Digest")
+    centered_header("Morning Echoes — Agora Digest")
     add_fade_in_styles()
 
     today = datetime.utcnow().date()
