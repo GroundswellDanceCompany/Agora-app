@@ -627,7 +627,7 @@ just human voices and emotional clarity.
         st.warning("No comments found for this topic.")
             
 elif view_mode == "Morning Digest":
-    display_morning_digest(reflections_ws, reaction_ws)
+    display_morning_digest(comment_reflections_ws, reaction_ws)
 
 # --- Auto-load headlines for Ask Agora if not already available ---
 if view_mode == "Ask Agora" and "post_dict" not in st.session_state:
