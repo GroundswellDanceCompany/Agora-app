@@ -276,6 +276,69 @@ def generate_ai_summary(headline, grouped_comments):
     except Exception as e:
         return f"Could not generate summary: {str(e)}"
 
+def display_morning_digest(reflections_ws, reaction_ws):
+    st.title("Morning Echoes — Agora Digest")
+    add_fade_in_styles()
+
+    today = datetime.utcnow().date()
+    yesterday = today - timedelta(days=1)
+
+    # Load and format reflections
+    reflections_df = pd.DataFrame(reflections_ws.get_all_records())
+    reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
+    reflections_df["date"] = reflections_df["timestamp"].dt.date
+    yesterday_reflections = reflections_df[reflections_df["date"] == yesterday]
+
+    # Load and format reactions
+    reactions_df = pd.DataFrame(reaction_ws.get_all_records())
+    reactions_df["timestamp"] = pd.to_datetime(reactions_df["timestamp"], errors="coerce")
+    reactions_df["date"] = reactions_df["timestamp"].dt.date
+    yesterday_reactions = reactions_df[reactions_df["date"] == yesterday]
+
+    if yesterday_reflections.empty and yesterday_reactions.empty:
+        centered_paragraph("No reflections or reactions from yesterday. The Field was quiet.")
+        return
+
+    slow_reveal_sequence([
+        (centered_header, "Agora Morning Digest"),
+        (centered_paragraph, "A glimpse into what stirred minds yesterday."),
+    ], delay=1.5)
+
+    all_data = pd.concat([
+        yesterday_reflections[["headline"]],
+        yesterday_reactions[["headline"]]
+    ], ignore_index=True)
+
+    top_headlines = all_data["headline"].value_counts().head(3).index.tolist()
+
+    for headline in top_headlines:
+        golden_divider()
+        slow_reveal_sequence([
+            (headline_echo, headline),
+            (centered_paragraph, "Gathering yesterday's signals..."),
+        ], delay=1.5)
+
+        reflections_texts = yesterday_reflections[yesterday_reflections["headline"] == headline]["reflection"].tolist()
+        reactions_texts = yesterday_reactions[yesterday_reactions["headline"] == headline]["reaction"].tolist()
+
+        grouped = {
+            "Reflections": [{"text": r} for r in reflections_texts],
+            "Reactions": [{"text": f"{r}"} for r in reactions_texts]
+        }
+
+        with st.spinner("Summarizing collective sentiment..."):
+            try:
+                summary = generate_ai_summary(headline, grouped)
+                centered_quote(summary)
+            except Exception as e:
+                st.error(f"Summary failed: {str(e)}")
+
+        time.sleep(1)
+        insert_field_memory()
+        st.markdown("<br><br>", unsafe_allow_html=True)
+
+    closing_blessing()
+
 # --- Google Sheets ---
 SCOPE = ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/spreadsheets"]
 creds = Credentials.from_service_account_info(st.secrets["google_service_account"], scopes=SCOPE)
@@ -564,78 +627,7 @@ just human voices and emotional clarity.
         st.warning("No comments found for this topic.")
             
 elif view_mode == "Morning Digest":
-    st.title("Morning Echoes — Agora Digest")
-    add_fade_in_styles()
-
-    # Get today's and yesterday's date
-    today = datetime.utcnow().date()
-    yesterday = today - timedelta(days=1)
-
-    # --- Load Data ---
-    reflections_df = pd.DataFrame(comment_reflections_ws.get_all_records())
-    reactions_df = pd.DataFrame(reaction_ws.get_all_records())
-
-    # --- Clean and Filter ---
-    reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
-    reflections_df["date"] = reflections_df["timestamp"].dt.date
-    yesterday_data = reflections_df[reflections_df["date"] == yesterday]
-
-    if yesterday_data.empty:
-        slow_reveal_sequence([
-            (centered_header, "Agora Morning Digest"),
-            (centered_paragraph, "No reflections were recorded yesterday. The Field was silent."),
-        ], delay=1.5)
-    else:
-        slow_reveal_sequence([
-            (centered_header, "Agora Morning Digest"),
-            (centered_paragraph, "Glimpses into the Field from yesterday's thoughts."),
-        ], delay=1.5)
-
-        # --- Top Headlines from Yesterday ---
-        top_headlines = yesterday_data["headline"].value_counts().head(3).index.tolist()
-
-        for headline in top_headlines:
-            golden_divider()
-
-            # --- Subset reflections ---
-            subset = yesterday_data[yesterday_data["headline"] == headline]
-            grouped = {"Reflections": [{"text": r} for r in subset["reflection"].tolist()]}
-
-            # --- Reactions ---
-            headline_reacts = reactions_df[reactions_df["headline"] == headline]
-            emoji_map = {
-                "Angry": "😡", "Sad": "😢", "Hopeful": "🌈",
-                "Confused": "😕", "Neutral": "😐"
-            }
-            counts = headline_reacts["reaction"].value_counts().to_dict()
-            emoji_counts = "  ".join(
-                f"{emoji_map[r]} {count}" for r, count in counts.items() if r in emoji_map
-            )
-
-            # --- Display ---
-            headline_echo(headline)
-            if emoji_counts:
-                st.markdown(f"<div style='text-align:center; color:#bbb; font-size:14px;'>Reactions: {emoji_counts}</div>", unsafe_allow_html=True)
-
-            with st.spinner("Summarizing reflections..."):
-                try:
-                    summary = generate_ai_summary(headline, grouped)
-                except Exception as e:
-                    summary = f"Summary error: {str(e)}"
-
-            time.sleep(1)
-            centered_quote(summary)
-            time.sleep(1.5)
-
-            # Show a sample reflection if any
-            if not subset.empty:
-                sample = subset.sample(1).iloc[0]
-                st.markdown(f"<div style='font-size:15px; color:#aaa; margin-top:10px; text-align:center;'>📝 _\"{sample['reflection']}\"_</div>", unsafe_allow_html=True)
-
-            insert_field_memory()
-            st.markdown("<br><br>", unsafe_allow_html=True)
-
-        closing_blessing()
+    display_morning_digest(reflections_ws, reaction_ws)
 
 # --- Auto-load headlines for Ask Agora if not already available ---
 if view_mode == "Ask Agora" and "post_dict" not in st.session_state:
