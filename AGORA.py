@@ -284,7 +284,7 @@ def display_morning_digest(reflections_ws, reaction_ws):
     yesterday = today - timedelta(days=1)
 
     # Load and format reflections
-    reflections_df = pd.DataFrame(reflections_ws.get_all_records())
+    reflections_df = pd.DataFrame(comment_reflections_ws.get_all_records())
     reflections_df["timestamp"] = pd.to_datetime(reflections_df["timestamp"], errors="coerce")
     reflections_df["date"] = reflections_df["timestamp"].dt.date
     yesterday_reflections = reflections_df[reflections_df["date"] == yesterday]
