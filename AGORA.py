@@ -562,8 +562,6 @@ just human voices and emotional clarity.
 
                 st.markdown("### Reflections from the Field")
                 
-                headline = row[1]
-                
                 with st.expander("See what others have shared"):
                     all_reflections = reflections_ws.get_all_values()
                     for r in all_reflections[-10:]:  # show last 10
@@ -575,6 +573,7 @@ just human voices and emotional clarity.
                 with st.expander("See what others have shared"):
                     rows = comment_reflections_ws.get_all_values()[1:]  # skip header row
                     matching = [r for r in rows if r[0] == headline]
+                    headline = row[1]
                     
 
                     if matching:
