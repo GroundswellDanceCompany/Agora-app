@@ -575,7 +575,7 @@ just human voices and emotional clarity.
                     rows = all_rows[1:]
 
                     # Match by post_id
-                    matching = [r for r in rows if r[4] == post_id]
+                    matching = [r for r in rows if r[0] == headline]
 
                     if matching:
                         for row in matching[-10:]:  # last 10 for this post
@@ -596,7 +596,7 @@ just human voices and emotional clarity.
 
                     if comment_submitted and comment_reflection.strip():
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        comment_reflections_ws.append_row([headline, current_comment_snippet, comment_reflection, timestamp, post_id])
+                        comment_reflections_ws.append_row([headline, comment_snippet, reflection, timestamp])
                         show_light_reflection("Your reflection on the public comments has been added.")
 
         # --- Load Reactions ---
