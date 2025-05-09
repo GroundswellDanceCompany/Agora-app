@@ -192,19 +192,13 @@ def show_light_reflection(message="Reflection added to the Field."):
     <style>
     .glow-reflection {
         text-align: center;
-        font-size: 22px;
-        color: #00FFFF;
-        animation: glowPulse 2s ease-in-out infinite alternate;
+        font-size: 20px;
+        color: #c49f47;  /* warm gold */
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        text-shadow: 0 0 2px rgba(196,159,71,0.4), 0 0 4px rgba(196,159,71,0.3);
         margin-top: 20px;
         margin-bottom: 20px;
-    }
-    @keyframes glowPulse {
-        from {
-            text-shadow: 0 0 5px #00FFFF, 0 0 10px #00FFFF, 0 0 15px #00FFFF;
-        }
-        to {
-            text-shadow: 0 0 20px #00FFFF, 0 0 30px #00FFFF, 0 0 40px #00FFFF;
-        }
     }
     </style>
     """, unsafe_allow_html=True)
