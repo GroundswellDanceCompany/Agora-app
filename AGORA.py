@@ -567,18 +567,14 @@ just human voices and emotional clarity.
                         centered_quote(r[1])
                         golden_divider()
 
-                # Show reflections related to this post
-                st.markdown("### Comment Reflections from the Field")
+                # --- Load and display comment reflections for this headline ---
+                st.markdown("### Reflections on the Public Conversation")
                 with st.expander("See what others have shared"):
-                    all_rows = comment_reflections_ws.get_all_values()
-                    headers = all_rows[0]
-                    rows = all_rows[1:]
-
-                    # Match by post_id
+                    rows = comment_reflections_ws.get_all_values()[1:]  # skip header row
                     matching = [r for r in rows if r[0] == headline]
 
                     if matching:
-                        for row in matching[-10:]:  # last 10 for this post
+                        for row in matching[-10:]:  # last 10 reflections for this headline
                             comment_snippet = row[1]
                             reflection = row[2]
                             centered_quote(
@@ -586,17 +582,17 @@ just human voices and emotional clarity.
                             )
                             golden_divider()
                     else:
-                        st.info("No reflections yet for this thread.")
+                        st.info("No reflections yet for this topic.")
 
-                # Allow new comment reflection
+                # --- Add a new reflection ---
                 st.markdown("### Share a Reflection on the Public Comments")
-                with st.form(key="comment_reflection_form"):
+                with st.form(key=f"comment_reflection_form_{headline[:10]}"):
                     comment_reflection = st.text_area("What did the public conversation bring up for you?", height=150)
                     comment_submitted = st.form_submit_button("Add Comment Reflection")
 
                     if comment_submitted and comment_reflection.strip():
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        comment_reflections_ws.append_row([headline, comment_snippet, reflection, timestamp])
+                        comment_reflections_ws.append_row([headline, comment_snippet, comment_reflection, timestamp])
                         show_light_reflection("Your reflection on the public comments has been added.")
 
         # --- Load Reactions ---
