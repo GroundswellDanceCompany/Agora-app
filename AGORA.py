@@ -566,6 +566,13 @@ just human voices and emotional clarity.
                         reflections_ws.append_row([timestamp, user_reflection])
                         show_light_reflection("Your reflection has been added to the Field.")
 
+                st.markdown("### Reflections from the Field")
+                with st.expander("See what others have shared"):
+                    all_reflections = reflections_ws.get_all_values()
+                    for r in all_reflections[-10:]:  # show last 10
+                        centered_quote(r[1])
+                        golden_divider()
+
         # --- Load Reactions ---
         all_reactions = pd.DataFrame(reaction_ws.get_all_records())
 
