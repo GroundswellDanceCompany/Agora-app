@@ -351,6 +351,7 @@ comment_reflections_ws = get_or_create_worksheet(sheet, "CommentReflections", ["
 saved_posts_ws = get_or_create_worksheet(sheet, "SavedPosts", ["id", "title", "top_comments", "date_saved", "permalink"])
 field_names_ws = get_or_create_worksheet(sheet, "FieldNames", ["field_name", "timestamp"])
 feedback_ws = get_or_create_worksheet(sheet, "AI_Feedback", ["Headline", "Question", "AI Response", "Feedback", "Comment", "Timestamp"])
+reflections_ws = get_or_create_worksheet(sheet, "reflections", ["timestamp", "user_reflection"])
 
 
 # --- Reddit Setup ---
@@ -552,6 +553,18 @@ just human voices and emotional clarity.
             with st.spinner("Gathering the emotional field..."):
                 summary = generate_ai_summary(selected_headline, emotion_groups)
                 st.success(summary)
+
+                # --- Reflection Capture ---
+                st.markdown("### Share a Reflection")
+                with st.form(key="reflection_form"):
+                    st.markdown("What does this bring up for you?")
+                    user_reflection = st.text_area("Write your reflection here...", height=150)
+                    submitted = st.form_submit_button("Add to the Field")
+
+                    if submitted and user_reflection.strip():
+                        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        reflections_ws.append_row([timestamp, user_reflection])
+                        show_light_reflection("Your reflection has been added to the Field.")
 
         # --- Load Reactions ---
         all_reactions = pd.DataFrame(reaction_ws.get_all_records())
