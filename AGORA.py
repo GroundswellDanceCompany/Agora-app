@@ -562,7 +562,7 @@ just human voices and emotional clarity.
 
                 st.markdown("### Reflections from the Field")
                 
-                headline = selected_post["title"] 
+                headline = row[1]
                 
                 with st.expander("See what others have shared"):
                     all_reflections = reflections_ws.get_all_values()
