@@ -573,7 +573,9 @@ just human voices and emotional clarity.
                 with st.expander("See what others have shared"):
                     rows = comment_reflections_ws.get_all_values()[1:]  # skip header row
                     matching = [r for r in rows if r[0] == headline]
-                    headline = row[1]
+                    selected_title = st.selectbox("Choose a post", options=[r[1] for r in rows])
+                    selected_post = next(r for r in rows if r[1] == selected_title)
+                    headline = selected_post[1]
                     
 
                     if matching:
