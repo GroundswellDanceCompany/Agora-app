@@ -567,6 +567,38 @@ just human voices and emotional clarity.
                         centered_quote(r[1])
                         golden_divider()
 
+                # Show reflections related to this post
+                st.markdown("### Comment Reflections from the Field")
+                with st.expander("See what others have shared"):
+                    all_rows = comment_reflections_ws.get_all_values()
+                    headers = all_rows[0]
+                    rows = all_rows[1:]
+
+                    # Match by post_id
+                    matching = [r for r in rows if r[4] == post_id]
+
+                    if matching:
+                        for row in matching[-10:]:  # last 10 for this post
+                            comment_snippet = row[1]
+                            reflection = row[2]
+                            centered_quote(
+                                f"“{reflection}”<br><span style='font-size:14px; color:#888;'>– in response to: {comment_snippet}</span>"
+                            )
+                            golden_divider()
+                    else:
+                        st.info("No reflections yet for this thread.")
+
+                # Allow new comment reflection
+                st.markdown("### Share a Reflection on the Public Comments")
+                with st.form(key="comment_reflection_form"):
+                    comment_reflection = st.text_area("What did the public conversation bring up for you?", height=150)
+                    comment_submitted = st.form_submit_button("Add Comment Reflection")
+
+                    if comment_submitted and comment_reflection.strip():
+                        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        comment_reflections_ws.append_row([headline, current_comment_snippet, comment_reflection, timestamp, post_id])
+                        show_light_reflection("Your reflection on the public comments has been added.")
+
         # --- Load Reactions ---
         all_reactions = pd.DataFrame(reaction_ws.get_all_records())
 
