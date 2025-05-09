@@ -572,6 +572,7 @@ just human voices and emotional clarity.
                 with st.expander("See what others have shared"):
                     rows = comment_reflections_ws.get_all_values()[1:]  # skip header row
                     matching = [r for r in rows if r[0] == headline]
+                    headline = selected_post["title"]  # or however you're pulling it from saved posts
 
                     if matching:
                         for row in matching[-10:]:  # last 10 reflections for this headline
