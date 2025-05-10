@@ -589,16 +589,6 @@ just human voices and emotional clarity.
                     else:
                         st.info("No reflections yet for this topic.")
 
-                # --- Add a new reflection ---
-                st.markdown("### Share a Reflection on the Public Comments")
-                with st.form(key=f"comment_reflection_form_{headline[:10]}"):
-                    comment_reflection = st.text_area("What did the public conversation bring up for you?", height=150)
-                    comment_submitted = st.form_submit_button("Add Comment Reflection")
-
-                    if comment_submitted and comment_reflection.strip():
-                        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        comment_reflections_ws.append_row([headline, comment_snippet, comment_reflection, timestamp])
-                        show_light_reflection("Your reflection on the public comments has been added.")
 
         # --- Load Reactions ---
         # --- Load Reactions ---
