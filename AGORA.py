@@ -549,7 +549,7 @@ just human voices and emotional clarity.
                 st.success(summary)
 
                 # --- Reflection Capture ---
-                st.markdown("### Share a Reflection")
+                st.markdown("### Share a Reflection to this Summary")
                 with st.form(key="reflection_form"):
                     st.markdown("What does this bring up for you?")
                     user_reflection = st.text_area("Write your reflection here...", height=150)
@@ -569,7 +569,7 @@ just human voices and emotional clarity.
                         golden_divider()
 
                 # --- Load and display comment reflections for this headline ---
-                st.markdown("### Reflections on the Public Conversation")
+                st.markdown("### View Reflections on the Public Conversation")
                 with st.expander("See what others have shared"):
                     rows = comment_reflections_ws.get_all_values()[1:]  # skip header row
                     selected_title = st.selectbox("Choose a post", options=[r[1] for r in rows])
