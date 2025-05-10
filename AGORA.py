@@ -601,7 +601,9 @@ just human voices and emotional clarity.
                         show_light_reflection("Your reflection on the public comments has been added.")
 
         # --- Load Reactions ---
+        # --- Load Reactions ---
         all_reactions = pd.DataFrame(reaction_ws.get_all_records())
+        reflections_data = comment_reflections_ws.get_all_values()[1:]  # skip header
 
         # --- Display Comments Grouped ---
         for label in ["Positive", "Neutral", "Negative"]:
@@ -643,7 +645,30 @@ just human voices and emotional clarity.
                                 unsafe_allow_html=True
                             )
 
-                        # --- Interaction Form ---
+                        # --- Show existing reflections and replies ---
+                        related = [r for r in reflections_data if r[1] == snippet]
+
+                        top_level = [r for r in related if len(r) < 5 or not r[4].strip()]
+                        for j, row in enumerate(top_level):
+                            reflection_id = f"row_{comment_id}_{j}"
+                            st.markdown(f"> *{row[2]}*\n<sub>{row[3]}</sub>")
+
+                            replies = [r for r in related if len(r) > 4 and r[4] == reflection_id]
+                            for reply in replies:
+                                st.markdown(f">> {reply[2]} — *{reply[3]}*")
+
+                            # --- Reply form for each reflection ---
+                            with st.form(key=f"reply_form_{reflection_id}"):
+                                reply_text = st.text_input("Reply to this reflection", key=f"reply_input_{reflection_id}")
+                                reply_submit = st.form_submit_button("Reply")
+                                if reply_submit and reply_text.strip():
+                                    timestamp = datetime.utcnow().isoformat()
+                                    comment_reflections_ws.append_row([
+                                        selected_headline, snippet, reply_text, timestamp, reflection_id
+                                    ])
+                                    st.success("Reply added.")
+
+                        # --- Submit top-level reflection and reaction ---
                         with st.form(key=f"form_{comment_id}"):
                             selected_reaction = st.radio(
                                 "React to this comment:",
@@ -651,10 +676,12 @@ just human voices and emotional clarity.
                                 key=f"react_radio_{comment_id}",
                                 horizontal=True
                             )
-                            reflection = st.text_area("Leave a reflection (optional):", key=f"reflect_text_{comment_id}")
+                            new_reflection = st.text_area("Leave a reflection (optional):", key=f"reflect_text_{comment_id}")
+                            submitted = st.form_submit_button("Submit")
 
-                            if st.form_submit_button("Submit"):
+                            if submitted:
                                 timestamp = datetime.utcnow().isoformat()
+
                                 if selected_reaction.strip():
                                     reaction_ws.append_row([
                                         selected_headline, snippet, selected_reaction, timestamp
@@ -662,16 +689,14 @@ just human voices and emotional clarity.
                                     auto_trim_worksheet(reaction_ws)
                                     st.success(f"Reaction recorded: {reaction_emojis[selected_reaction]} {selected_reaction}")
 
-                                if reflection.strip():
+                                if new_reflection.strip():
                                     comment_reflections_ws.append_row([
-                                        selected_headline, snippet, reflection.strip(), timestamp
+                                        selected_headline, snippet, new_reflection.strip(), timestamp, ""  # No parent
                                     ])
                                     auto_trim_worksheet(comment_reflections_ws)
                                     st.success("Reflection submitted.")
-                    st.markdown("---")
 
-    else:
-        st.warning("No comments found for this topic.")
+                    st.markdown("---")
             
 elif view_mode == "Morning Digest":
     display_morning_digest(comment_reflections_ws, reaction_ws)
