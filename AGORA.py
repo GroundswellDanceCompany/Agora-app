@@ -571,10 +571,10 @@ just human voices and emotional clarity.
                 # --- Load and display comment reflections for this headline ---
                 st.markdown("### Reflections on the Public Conversation")
                 with st.expander("See what others have shared"):
+                    rows = comment_reflections_ws.get_all_values()[1:]  # skip header row
                     selected_title = st.selectbox("Choose a post", options=[r[1] for r in rows])
                     selected_post = next(r for r in rows if r[1] == selected_title)
                     headline = selected_post[1]
-                    rows = comment_reflections_ws.get_all_values()[1:]  # skip header row
                     matching = [r for r in rows if r[0] == headline]
                     
 
